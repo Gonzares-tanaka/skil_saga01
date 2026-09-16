@@ -1,0 +1,42 @@
+{
+  "growth_rates": {
+    "POWER": {
+      "HP": 0.65,
+      "STR": 0.55,
+      "AGI": 0.3,
+      "INT": 0.12
+    },
+    "SPEED": {
+      "HP": 0.65,
+      "STR": 0.3,
+      "AGI": 0.55,
+      "INT": 0.12
+    },
+    "MIND": {
+      "HP": 0.65,
+      "STR": 0.12,
+      "AGI": 0.3,
+      "INT": 0.55
+    }
+  },
+  "hp_gain": [
+    2,
+    4
+  ],
+  "spark_chance": 0.15,
+  "debug_spark_chance": 0.95,
+  "rarity_weights": {
+    "BASIC": 12,
+    "COMMON": 48,
+    "UNCOMMON": 28,
+    "RARE": 10,
+    "LEGEND": 2
+  },
+  "skill_slots": 6,
+  "max_rounds": 60,
+  "enemy_hp_per_win": 2.0,
+  "enemy_power_per_win": 0.25,
+  "enemy_scaling_cap": 50,
+  "growth_per_point": 0.04,
+  "growth_bonus_cap": 0.35
+}

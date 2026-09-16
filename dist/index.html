@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Pyxel Dungeon RPG Prototype</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0f380f; color: #e5edc4; }
+    body { margin: 0; min-height: 100svh; display: grid; place-items: center; }
+    main { width: min(100%, 900px); padding: 18px; box-sizing: border-box; text-align: center; }
+    h1 { margin: 0 0 8px; font-size: clamp(1.35rem, 5vw, 2.1rem); }
+    p { line-height: 1.55; }
+    .notice { color: #bbce86; font-size: .9rem; }
+    button { border: 0; border-radius: 8px; padding: 12px 28px; background: #9bbc0f; color: #0f380f; font-weight: 800; font-size: 1rem; cursor: pointer; }
+    #game { display: none; width: 100%; height: min(78svh, 680px); margin-top: 16px; border: 0; background: #000; }
+    #game:focus { outline: 2px solid #9bbc0f; }
+    .controls { margin: 14px auto 0; max-width: 620px; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pyxel Dungeon RPG Prototype</h1>
+    <p class="notice">DEVELOPMENT PROTOTYPE / 開発中のプレイテスト版です</p>
+    <p>有限回数のスキルを使い、閃き、宝を持ち帰って再び潜る4人パーティRPGです。</p>
+    <button id="play" type="button">PLAY / ゲームを開始</button>
+    <iframe id="game" title="Pyxel Dungeon RPG Prototype" allow="fullscreen"></iframe>
+    <p class="controls">PC：矢印キーで移動・選択、Z/Enter/Spaceで決定、X/Escで戻る。<br>スマートフォン：開始後のPyxel公式タッチゲームパッドを使用してください。横向き推奨です。</p>
+    <p class="notice">感想・不具合はGitHub Issuesへお願いします。ブラウザを閉じると進行状況は失われます。</p>
+  </main>
+  <script>
+    const play = document.querySelector('#play');
+    const game = document.querySelector('#game');
+    play.addEventListener('click', () => {
+      game.src = 'game.html';
+      game.style.display = 'block';
+      play.hidden = true;
+      game.focus();
+    }, { once: true });
+  </script>
+</body>
+</html>

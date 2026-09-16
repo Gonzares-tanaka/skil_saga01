@@ -1,0 +1,13 @@
+Misaki Gothic 2nd / 美咲ゴシック第2 (2021-05-05)
+Copyright (C) 2002-2021 Num Kadoma
+
+Source: https://littlelimit.net/misaki.htm
+Archive: https://littlelimit.net/arc/misaki/misaki_bdf_2021-05-05.zip
+License: https://littlelimit.net/font.htm
+
+These fonts are free software.
+Unlimited permission is granted to use, copy, and distribute them, with or without modification, either commercially or noncommercially.
+THESE FONTS ARE PROVIDED "AS IS" WITHOUT WARRANTY.
+
+The original font is included without modification.
+The original author's documentation is included as misaki.txt and readme.txt.

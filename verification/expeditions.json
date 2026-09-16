@@ -1,0 +1,1122 @@
+[
+  {
+    "seed": 0,
+    "clear": true,
+    "trips": 3,
+    "battles": 104,
+    "wins": 102,
+    "defeats": 2,
+    "retreats": 0,
+    "steps": 1680,
+    "potions_used": 37,
+    "treasure": 22,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 259,
+        "STR": 73,
+        "AGI": 44,
+        "INT": 17,
+        "skills": [
+          "counter",
+          "weaken",
+          "guard_up",
+          "slow",
+          "punch"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "weaken": 8,
+          "guard_up": 8,
+          "slow": 8,
+          "punch": 27
+        },
+        "exhaustions": 9,
+        "rescues": 2
+      },
+      {
+        "name": "カイ",
+        "HP": 260,
+        "STR": 48,
+        "AGI": 74,
+        "INT": 17,
+        "skills": [
+          "weaken",
+          "slow",
+          "counter",
+          "guard_up",
+          "punch",
+          "quick_stab"
+        ],
+        "remaining_uses": {
+          "weaken": 8,
+          "slow": 8,
+          "counter": 12,
+          "guard_up": 8,
+          "punch": 9,
+          "quick_stab": 15
+        },
+        "exhaustions": 10,
+        "rescues": 4
+      },
+      {
+        "name": "ミオ",
+        "HP": 245,
+        "STR": 28,
+        "AGI": 42,
+        "INT": 60,
+        "skills": [
+          "counter",
+          "weaken",
+          "guard_up",
+          "slow",
+          "punch",
+          "ice"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "weaken": 8,
+          "guard_up": 8,
+          "slow": 8,
+          "punch": 17,
+          "ice": 5
+        },
+        "exhaustions": 10,
+        "rescues": 2
+      },
+      {
+        "name": "セン",
+        "HP": 239,
+        "STR": 72,
+        "AGI": 42,
+        "INT": 18,
+        "skills": [
+          "armor_break",
+          "counter",
+          "power_up",
+          "guard_up",
+          "punch"
+        ],
+        "remaining_uses": {
+          "armor_break": 6,
+          "counter": 12,
+          "power_up": 8,
+          "guard_up": 8,
+          "punch": 30
+        },
+        "exhaustions": 10,
+        "rescues": 4
+      }
+    ]
+  },
+  {
+    "seed": 1,
+    "clear": true,
+    "trips": 3,
+    "battles": 104,
+    "wins": 103,
+    "defeats": 1,
+    "retreats": 2,
+    "steps": 1752,
+    "potions_used": 30,
+    "treasure": 21,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 260,
+        "STR": 76,
+        "AGI": 44,
+        "INT": 13,
+        "skills": [
+          "spark",
+          "weaken",
+          "first_aid",
+          "focus",
+          "quick_stab",
+          "ice"
+        ],
+        "remaining_uses": {
+          "spark": 14,
+          "weaken": 8,
+          "first_aid": 8,
+          "focus": 6,
+          "quick_stab": 2,
+          "ice": 19
+        },
+        "exhaustions": 6,
+        "rescues": 0
+      },
+      {
+        "name": "カイ",
+        "HP": 242,
+        "STR": 43,
+        "AGI": 71,
+        "INT": 33,
+        "skills": [
+          "punch",
+          "counter",
+          "guard_up",
+          "berserk",
+          "ice",
+          "double_slash"
+        ],
+        "remaining_uses": {
+          "punch": 7,
+          "counter": 12,
+          "guard_up": 8,
+          "berserk": 10,
+          "ice": 15,
+          "double_slash": 12
+        },
+        "exhaustions": 8,
+        "rescues": 0
+      },
+      {
+        "name": "ミオ",
+        "HP": 242,
+        "STR": 20,
+        "AGI": 32,
+        "INT": 70,
+        "skills": [
+          "counter",
+          "power_up",
+          "weaken",
+          "punch",
+          "power_strike",
+          "ice"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "power_up": 8,
+          "weaken": 8,
+          "punch": 19,
+          "power_strike": 17,
+          "ice": 3
+        },
+        "exhaustions": 6,
+        "rescues": 2
+      },
+      {
+        "name": "セン",
+        "HP": 246,
+        "STR": 80,
+        "AGI": 37,
+        "INT": 13,
+        "skills": [
+          "guard_up",
+          "counter",
+          "slow",
+          "berserk",
+          "renew",
+          "punch"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "counter": 12,
+          "slow": 8,
+          "berserk": 10,
+          "renew": 1,
+          "punch": 26
+        },
+        "exhaustions": 5,
+        "rescues": 3
+      }
+    ]
+  },
+  {
+    "seed": 2,
+    "clear": true,
+    "trips": 4,
+    "battles": 101,
+    "wins": 98,
+    "defeats": 3,
+    "retreats": 1,
+    "steps": 1757,
+    "potions_used": 40,
+    "treasure": 12,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 244,
+        "STR": 68,
+        "AGI": 36,
+        "INT": 20,
+        "skills": [
+          "counter",
+          "slow",
+          "ice",
+          "berserk",
+          "guard_up",
+          "quick_stab"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "slow": 8,
+          "ice": 7,
+          "berserk": 10,
+          "guard_up": 8,
+          "quick_stab": 16
+        },
+        "exhaustions": 7,
+        "rescues": 0
+      },
+      {
+        "name": "カイ",
+        "HP": 214,
+        "STR": 50,
+        "AGI": 74,
+        "INT": 18,
+        "skills": [
+          "berserk",
+          "weaken",
+          "ice",
+          "spark",
+          "punch"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "weaken": 8,
+          "ice": 17,
+          "spark": 28,
+          "punch": 30
+        },
+        "exhaustions": 14,
+        "rescues": 1
+      },
+      {
+        "name": "ミオ",
+        "HP": 229,
+        "STR": 20,
+        "AGI": 43,
+        "INT": 71,
+        "skills": [
+          "punch",
+          "weaken",
+          "armor_break",
+          "slow",
+          "counter"
+        ],
+        "remaining_uses": {
+          "punch": 17,
+          "weaken": 8,
+          "armor_break": 6,
+          "slow": 8,
+          "counter": 12
+        },
+        "exhaustions": 8,
+        "rescues": 0
+      },
+      {
+        "name": "セン",
+        "HP": 243,
+        "STR": 70,
+        "AGI": 45,
+        "INT": 8,
+        "skills": [
+          "counter",
+          "spark",
+          "berserk",
+          "ice",
+          "wind_blade",
+          "first_aid"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "spark": 28,
+          "berserk": 10,
+          "ice": 12,
+          "wind_blade": 2,
+          "first_aid": 7
+        },
+        "exhaustions": 8,
+        "rescues": 1
+      }
+    ]
+  },
+  {
+    "seed": 3,
+    "clear": true,
+    "trips": 4,
+    "battles": 146,
+    "wins": 144,
+    "defeats": 2,
+    "retreats": 1,
+    "steps": 2594,
+    "potions_used": 36,
+    "treasure": 28,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 365,
+        "STR": 91,
+        "AGI": 46,
+        "INT": 17,
+        "skills": [
+          "guard_up",
+          "weaken",
+          "spark",
+          "fire",
+          "quick_hit"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "weaken": 8,
+          "spark": 14,
+          "fire": 11,
+          "quick_hit": 23
+        },
+        "exhaustions": 7,
+        "rescues": 0
+      },
+      {
+        "name": "カイ",
+        "HP": 315,
+        "STR": 60,
+        "AGI": 103,
+        "INT": 25,
+        "skills": [
+          "counter",
+          "weaken",
+          "power_up",
+          "spark",
+          "quick_hit"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "weaken": 8,
+          "power_up": 8,
+          "spark": 27,
+          "quick_hit": 16
+        },
+        "exhaustions": 14,
+        "rescues": 2
+      },
+      {
+        "name": "ミオ",
+        "HP": 347,
+        "STR": 24,
+        "AGI": 57,
+        "INT": 98,
+        "skills": [
+          "berserk",
+          "counter",
+          "slow",
+          "guard_up",
+          "weaken",
+          "punch"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "counter": 12,
+          "slow": 8,
+          "guard_up": 8,
+          "weaken": 8,
+          "punch": 30
+        },
+        "exhaustions": 10,
+        "rescues": 2
+      },
+      {
+        "name": "セン",
+        "HP": 328,
+        "STR": 92,
+        "AGI": 61,
+        "INT": 35,
+        "skills": [
+          "counter",
+          "berserk",
+          "guard_up",
+          "weaken",
+          "first_aid",
+          "punch"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "berserk": 10,
+          "guard_up": 8,
+          "weaken": 8,
+          "first_aid": 5,
+          "punch": 24
+        },
+        "exhaustions": 10,
+        "rescues": 2
+      }
+    ]
+  },
+  {
+    "seed": 4,
+    "clear": true,
+    "trips": 4,
+    "battles": 149,
+    "wins": 146,
+    "defeats": 3,
+    "retreats": 2,
+    "steps": 2390,
+    "potions_used": 44,
+    "treasure": 26,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 304,
+        "STR": 93,
+        "AGI": 57,
+        "INT": 20,
+        "skills": [
+          "weaken",
+          "berserk",
+          "slow",
+          "guard_up",
+          "power_up",
+          "punch"
+        ],
+        "remaining_uses": {
+          "weaken": 8,
+          "berserk": 10,
+          "slow": 8,
+          "guard_up": 8,
+          "power_up": 8,
+          "punch": 8
+        },
+        "exhaustions": 9,
+        "rescues": 3
+      },
+      {
+        "name": "カイ",
+        "HP": 321,
+        "STR": 50,
+        "AGI": 107,
+        "INT": 19,
+        "skills": [
+          "guard_up",
+          "berserk",
+          "slow",
+          "weaken",
+          "fire",
+          "renew"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "berserk": 10,
+          "slow": 8,
+          "weaken": 8,
+          "fire": 5,
+          "renew": 3
+        },
+        "exhaustions": 11,
+        "rescues": 3
+      },
+      {
+        "name": "ミオ",
+        "HP": 326,
+        "STR": 32,
+        "AGI": 39,
+        "INT": 98,
+        "skills": [
+          "counter",
+          "power_up",
+          "punch",
+          "quick_hit",
+          "first_aid",
+          "wind_blade"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "power_up": 8,
+          "punch": 17,
+          "quick_hit": 24,
+          "first_aid": 10,
+          "wind_blade": 5
+        },
+        "exhaustions": 7,
+        "rescues": 1
+      },
+      {
+        "name": "セン",
+        "HP": 300,
+        "STR": 104,
+        "AGI": 40,
+        "INT": 23,
+        "skills": [
+          "armor_break",
+          "berserk",
+          "counter",
+          "power_up",
+          "guard_up",
+          "punch"
+        ],
+        "remaining_uses": {
+          "armor_break": 6,
+          "berserk": 10,
+          "counter": 12,
+          "power_up": 8,
+          "guard_up": 8,
+          "punch": 18
+        },
+        "exhaustions": 9,
+        "rescues": 5
+      }
+    ]
+  },
+  {
+    "seed": 5,
+    "clear": true,
+    "trips": 3,
+    "battles": 117,
+    "wins": 116,
+    "defeats": 1,
+    "retreats": 2,
+    "steps": 1743,
+    "potions_used": 36,
+    "treasure": 17,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 267,
+        "STR": 80,
+        "AGI": 43,
+        "INT": 20,
+        "skills": [
+          "guard_up",
+          "slow",
+          "counter",
+          "berserk",
+          "power_up",
+          "punch"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "slow": 8,
+          "counter": 12,
+          "berserk": 10,
+          "power_up": 8,
+          "punch": 10
+        },
+        "exhaustions": 7,
+        "rescues": 1
+      },
+      {
+        "name": "カイ",
+        "HP": 245,
+        "STR": 43,
+        "AGI": 75,
+        "INT": 18,
+        "skills": [
+          "berserk",
+          "weaken",
+          "power_up",
+          "guard_up",
+          "punch",
+          "wind_blade"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "weaken": 8,
+          "power_up": 8,
+          "guard_up": 8,
+          "punch": 22,
+          "wind_blade": 2
+        },
+        "exhaustions": 10,
+        "rescues": 3
+      },
+      {
+        "name": "ミオ",
+        "HP": 266,
+        "STR": 17,
+        "AGI": 49,
+        "INT": 70,
+        "skills": [
+          "power_up",
+          "quick_hit",
+          "double_slash",
+          "counter",
+          "quick_stab"
+        ],
+        "remaining_uses": {
+          "power_up": 8,
+          "quick_hit": 1,
+          "double_slash": 15,
+          "counter": 12,
+          "quick_stab": 19
+        },
+        "exhaustions": 6,
+        "rescues": 0
+      },
+      {
+        "name": "セン",
+        "HP": 252,
+        "STR": 82,
+        "AGI": 38,
+        "INT": 22,
+        "skills": [
+          "armor_break",
+          "power_up",
+          "guard_up",
+          "berserk",
+          "counter",
+          "punch"
+        ],
+        "remaining_uses": {
+          "armor_break": 6,
+          "power_up": 8,
+          "guard_up": 8,
+          "berserk": 10,
+          "counter": 12,
+          "punch": 30
+        },
+        "exhaustions": 5,
+        "rescues": 3
+      }
+    ]
+  },
+  {
+    "seed": 6,
+    "clear": true,
+    "trips": 4,
+    "battles": 126,
+    "wins": 125,
+    "defeats": 1,
+    "retreats": 2,
+    "steps": 2311,
+    "potions_used": 37,
+    "treasure": 24,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 320,
+        "STR": 88,
+        "AGI": 46,
+        "INT": 31,
+        "skills": [
+          "guard_up",
+          "berserk",
+          "counter",
+          "punch",
+          "thunder"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "berserk": 10,
+          "counter": 12,
+          "punch": 11,
+          "thunder": 2
+        },
+        "exhaustions": 12,
+        "rescues": 1
+      },
+      {
+        "name": "カイ",
+        "HP": 263,
+        "STR": 55,
+        "AGI": 86,
+        "INT": 22,
+        "skills": [
+          "armor_break",
+          "berserk",
+          "guard_up",
+          "slow",
+          "power_up",
+          "punch"
+        ],
+        "remaining_uses": {
+          "armor_break": 6,
+          "berserk": 10,
+          "guard_up": 8,
+          "slow": 8,
+          "power_up": 8,
+          "punch": 7
+        },
+        "exhaustions": 11,
+        "rescues": 3
+      },
+      {
+        "name": "ミオ",
+        "HP": 280,
+        "STR": 25,
+        "AGI": 54,
+        "INT": 77,
+        "skills": [
+          "counter",
+          "guard_up",
+          "berserk",
+          "weaken",
+          "power_up",
+          "punch"
+        ],
+        "remaining_uses": {
+          "counter": 12,
+          "guard_up": 8,
+          "berserk": 10,
+          "weaken": 8,
+          "power_up": 8,
+          "punch": 7
+        },
+        "exhaustions": 7,
+        "rescues": 6
+      },
+      {
+        "name": "セン",
+        "HP": 315,
+        "STR": 82,
+        "AGI": 50,
+        "INT": 22,
+        "skills": [
+          "weaken",
+          "counter",
+          "slow",
+          "berserk",
+          "punch",
+          "quick_stab"
+        ],
+        "remaining_uses": {
+          "weaken": 8,
+          "counter": 12,
+          "slow": 8,
+          "berserk": 10,
+          "punch": 19,
+          "quick_stab": 19
+        },
+        "exhaustions": 10,
+        "rescues": 3
+      }
+    ]
+  },
+  {
+    "seed": 7,
+    "clear": true,
+    "trips": 3,
+    "battles": 120,
+    "wins": 118,
+    "defeats": 2,
+    "retreats": 2,
+    "steps": 1925,
+    "potions_used": 37,
+    "treasure": 22,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 284,
+        "STR": 87,
+        "AGI": 54,
+        "INT": 17,
+        "skills": [
+          "berserk",
+          "spark",
+          "thunder",
+          "slow",
+          "counter",
+          "full_heal"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "spark": 20,
+          "thunder": 3,
+          "slow": 8,
+          "counter": 12,
+          "full_heal": 2
+        },
+        "exhaustions": 6,
+        "rescues": 0
+      },
+      {
+        "name": "カイ",
+        "HP": 273,
+        "STR": 58,
+        "AGI": 78,
+        "INT": 29,
+        "skills": [
+          "berserk",
+          "spark",
+          "guard_up",
+          "armor_break",
+          "thunder"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "spark": 19,
+          "guard_up": 8,
+          "armor_break": 6,
+          "thunder": 8
+        },
+        "exhaustions": 10,
+        "rescues": 0
+      },
+      {
+        "name": "ミオ",
+        "HP": 252,
+        "STR": 24,
+        "AGI": 44,
+        "INT": 78,
+        "skills": [
+          "guard_up",
+          "berserk",
+          "weaken",
+          "punch",
+          "power_strike",
+          "thunder"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "berserk": 10,
+          "weaken": 8,
+          "punch": 29,
+          "power_strike": 18,
+          "thunder": 1
+        },
+        "exhaustions": 3,
+        "rescues": 0
+      },
+      {
+        "name": "セン",
+        "HP": 281,
+        "STR": 84,
+        "AGI": 48,
+        "INT": 30,
+        "skills": [
+          "berserk",
+          "spark",
+          "counter",
+          "power_up",
+          "slow",
+          "heal"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "spark": 9,
+          "counter": 12,
+          "power_up": 8,
+          "slow": 8,
+          "heal": 4
+        },
+        "exhaustions": 7,
+        "rescues": 0
+      }
+    ]
+  },
+  {
+    "seed": 8,
+    "clear": true,
+    "trips": 4,
+    "battles": 143,
+    "wins": 140,
+    "defeats": 3,
+    "retreats": 2,
+    "steps": 2220,
+    "potions_used": 46,
+    "treasure": 30,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 281,
+        "STR": 88,
+        "AGI": 56,
+        "INT": 13,
+        "skills": [
+          "berserk",
+          "counter",
+          "guard_up",
+          "punch",
+          "spark",
+          "quick_stab"
+        ],
+        "remaining_uses": {
+          "berserk": 10,
+          "counter": 12,
+          "guard_up": 8,
+          "punch": 18,
+          "spark": 28,
+          "quick_stab": 10
+        },
+        "exhaustions": 8,
+        "rescues": 3
+      },
+      {
+        "name": "カイ",
+        "HP": 307,
+        "STR": 54,
+        "AGI": 97,
+        "INT": 25,
+        "skills": [
+          "spark",
+          "berserk",
+          "power_up",
+          "counter",
+          "punch",
+          "quick_hit"
+        ],
+        "remaining_uses": {
+          "spark": 27,
+          "berserk": 10,
+          "power_up": 8,
+          "counter": 12,
+          "punch": 6,
+          "quick_hit": 17
+        },
+        "exhaustions": 11,
+        "rescues": 1
+      },
+      {
+        "name": "ミオ",
+        "HP": 291,
+        "STR": 28,
+        "AGI": 54,
+        "INT": 89,
+        "skills": [
+          "guard_up",
+          "berserk",
+          "power_up",
+          "weaken",
+          "counter",
+          "punch"
+        ],
+        "remaining_uses": {
+          "guard_up": 8,
+          "berserk": 10,
+          "power_up": 8,
+          "weaken": 8,
+          "counter": 12,
+          "punch": 13
+        },
+        "exhaustions": 8,
+        "rescues": 5
+      },
+      {
+        "name": "セン",
+        "HP": 320,
+        "STR": 109,
+        "AGI": 55,
+        "INT": 27,
+        "skills": [
+          "power_up",
+          "ice",
+          "berserk",
+          "focus",
+          "spark",
+          "counter"
+        ],
+        "remaining_uses": {
+          "power_up": 8,
+          "ice": 11,
+          "berserk": 10,
+          "focus": 6,
+          "spark": 28,
+          "counter": 12
+        },
+        "exhaustions": 10,
+        "rescues": 1
+      }
+    ]
+  },
+  {
+    "seed": 9,
+    "clear": true,
+    "trips": 2,
+    "battles": 98,
+    "wins": 97,
+    "defeats": 1,
+    "retreats": 1,
+    "steps": 1531,
+    "potions_used": 27,
+    "treasure": 18,
+    "party": [
+      {
+        "name": "ロウ",
+        "HP": 231,
+        "STR": 67,
+        "AGI": 41,
+        "INT": 20,
+        "skills": [
+          "weaken",
+          "quick_hit",
+          "fire",
+          "slow",
+          "spark",
+          "guard_up"
+        ],
+        "remaining_uses": {
+          "weaken": 8,
+          "quick_hit": 20,
+          "fire": 15,
+          "slow": 8,
+          "spark": 28,
+          "guard_up": 8
+        },
+        "exhaustions": 7,
+        "rescues": 0
+      },
+      {
+        "name": "カイ",
+        "HP": 192,
+        "STR": 45,
+        "AGI": 73,
+        "INT": 30,
+        "skills": [
+          "power_up",
+          "guard_up",
+          "berserk",
+          "counter",
+          "punch",
+          "wind_blade"
+        ],
+        "remaining_uses": {
+          "power_up": 8,
+          "guard_up": 8,
+          "berserk": 10,
+          "counter": 12,
+          "punch": 17,
+          "wind_blade": 9
+        },
+        "exhaustions": 9,
+        "rescues": 0
+      },
+      {
+        "name": "ミオ",
+        "HP": 213,
+        "STR": 16,
+        "AGI": 29,
+        "INT": 61,
+        "skills": [
+          "double_slash",
+          "guard_up",
+          "berserk",
+          "punch",
+          "slow",
+          "power_strike"
+        ],
+        "remaining_uses": {
+          "double_slash": 10,
+          "guard_up": 8,
+          "berserk": 10,
+          "punch": 30,
+          "slow": 8,
+          "power_strike": 16
+        },
+        "exhaustions": 5,
+        "rescues": 0
+      },
+      {
+        "name": "セン",
+        "HP": 239,
+        "STR": 66,
+        "AGI": 29,
+        "INT": 14,
+        "skills": [
+          "power_up",
+          "quick_hit",
+          "slow",
+          "counter",
+          "fire"
+        ],
+        "remaining_uses": {
+          "power_up": 8,
+          "quick_hit": 1,
+          "slow": 8,
+          "counter": 12,
+          "fire": 15
+        },
+        "exhaustions": 4,
+        "rescues": 0
+      }
+    ]
+  }
+]

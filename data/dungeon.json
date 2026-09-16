@@ -1,0 +1,26 @@
+{
+  "width": 24,
+  "height": 24,
+  "spark_multipliers": [1.0, 1.05, 1.10, 1.15, 1.20, 1.30, 1.35, 1.40, 1.45, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00],
+  "encounter_chance": 0.09,
+  "debug_encounter_chance": 0.45,
+  "safe_steps": 2,
+  "items": {"initial_potions": 2, "max_potions": 9, "potion_heal": 30, "chest_potion_chance": 0.65},
+  "floors": [
+    {"enemy_ids": ["slime", "bat", "goblin"], "weights": [6, 3, 1], "count": [1, 2], "hp_scale": 0.9, "power_scale": 0.8},
+    {"enemy_ids": ["slime", "bat", "goblin", "wisp"], "weights": [2, 2, 5, 2], "count": [2, 3], "hp_scale": 1.0, "power_scale": 1.0},
+    {"enemy_ids": ["goblin", "wisp", "skeleton", "mage"], "weights": [2, 2, 4, 2], "count": [2, 3], "hp_scale": 1.15, "power_scale": 1.15},
+    {"enemy_ids": ["golem", "skeleton", "mage", "wisp"], "weights": [5, 3, 4, 1], "count": [2, 3], "hp_scale": 1.3, "power_scale": 1.3},
+    {"boss_id": "guardian"},
+    {"enemy_ids": ["iron_golem", "skeleton", "mage"], "weights": [4, 3, 2], "count": [1, 2], "hp_scale": 1.0, "power_scale": 1.0},
+    {"enemy_ids": ["berserker", "iron_golem", "wisp"], "weights": [4, 3, 2], "count": [1, 2], "hp_scale": 1.0, "power_scale": 1.0},
+    {"enemy_ids": ["assassin", "stone_beast", "mage"], "weights": [4, 3, 2], "count": [1, 2], "hp_scale": 1.0, "power_scale": 1.0},
+    {"enemy_ids": ["iron_golem", "berserker", "assassin", "stone_beast"], "weights": [3, 3, 3, 3], "count": [2, 3], "hp_scale": 1.0, "power_scale": 1.0},
+    {"boss_id": "skill_keeper"},
+    {"enemy_ids": ["iron_golem", "berserker", "mage"], "weights": [4, 3, 2], "count": [2, 3], "hp_scale": 1.3, "power_scale": 1.2},
+    {"enemy_ids": ["assassin", "stone_beast", "mage"], "weights": [4, 3, 2], "count": [2, 3], "hp_scale": 1.35, "power_scale": 1.25},
+    {"enemy_ids": ["stone_beast", "berserker", "iron_golem"], "weights": [4, 3, 2], "count": [2, 3], "hp_scale": 1.4, "power_scale": 1.3},
+    {"enemy_ids": ["assassin", "berserker", "stone_beast"], "weights": [3, 3, 3], "count": [2, 3], "hp_scale": 1.45, "power_scale": 1.35},
+    {"boss_id": "depth_lord"}
+  ]
+}

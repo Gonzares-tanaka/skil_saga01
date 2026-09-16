@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.idea/
+.vscode/
+.DS_Store
+*.pyxapp
+verification/screenshots/
+verification/audio/
+verification/*.log

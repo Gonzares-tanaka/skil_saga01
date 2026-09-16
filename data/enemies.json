@@ -1,0 +1,16 @@
+[
+  {"name":"スライム","max_hp":24,"str":5,"agi":3,"int":2,"magic_chance":0,"sprite":[0,16],"id":"slime"},
+  {"name":"コウモリ","max_hp":20,"str":6,"agi":10,"int":2,"magic_chance":0,"sprite":[16,16],"id":"bat"},
+  {"name":"ゴブリン","max_hp":32,"str":7,"agi":5,"int":3,"magic_chance":0,"sprite":[32,16],"id":"goblin"},
+  {"name":"鬼火","max_hp":25,"str":3,"agi":7,"int":8,"magic_chance":0.7,"sprite":[48,16],"id":"wisp"},
+  {"name":"ゴーレム","max_hp":44,"str":9,"agi":2,"int":2,"magic_chance":0,"sprite":[64,16],"id":"golem"},
+  {"id":"skeleton","name":"骸骨兵","max_hp":38,"str":9,"agi":7,"int":3,"magic_chance":0,"sprite":[80,16]},
+  {"id":"mage","name":"魔術師","max_hp":30,"str":4,"agi":6,"int":11,"magic_chance":0.8,"sprite":[96,16]},
+  {"id":"guardian","name":"迷宮の守護者","max_hp":360,"str":22,"agi":8,"int":24,"magic_chance":0.4,"sprite":[112,16],"boss":true,"floor":5,"defense":4,"magic_defense":0,"message":["ここまで来たか。","技を使いこなす力を見せよ。"],"after_message":["守護者を倒した。","B6Fへの道が開いた！"]},
+  {"id":"iron_golem","name":"鉄のゴーレム","max_hp":72,"str":10,"agi":4,"int":2,"magic_chance":0,"sprite":[64,16],"defense":16,"magic_defense":0,"feature":"高DEF。装甲砕き・魔法・高威力物理が有効"},
+  {"id":"berserker","name":"狂戦士","max_hp":70,"str":29,"agi":10,"int":3,"magic_chance":0,"sprite":[32,16],"defense":1,"feature":"高攻撃力。弱体・守りの力で被害を抑える"},
+  {"id":"assassin","name":"暗殺者","max_hp":65,"str":18,"agi":28,"int":8,"magic_chance":0,"sprite":[80,16],"defense":2,"feature":"高速。スロウで次ターンから先手を取る"},
+  {"id":"stone_beast","name":"石の獣","max_hp":88,"str":16,"agi":8,"int":4,"magic_chance":0,"sprite":[64,16],"defense":18,"magic_defense":0,"feature":"物理に強い。集中した魔法でも攻略可能"},
+  {"id":"skill_keeper","name":"技の番人","max_hp":600,"str":32,"agi":24,"int":30,"magic_chance":0.35,"sprite":[112,16],"defense":14,"magic_defense":3,"boss":true,"floor":10,"message":["多くの技を集めたようだな。","その使い道を示してみよ。"],"after_message":["技の番人を倒した。","B11Fへの道が開いた！"]},
+  {"id":"depth_lord","name":"深淵の王","max_hp":900,"str":42,"agi":34,"int":44,"magic_chance":0.5,"sprite":[112,16],"defense":20,"magic_defense":5,"boss":true,"floor":15,"message":["ついに最深部へ来たか。","学んだすべてを解き放て。"],"after_message":["深淵の王を倒した。","DUNGEON CLEAR"]}
+]

@@ -1,0 +1,479 @@
+{
+  "simulation_battles": 2000,
+  "sessions": [
+    {
+      "debug": false,
+      "wins": 37,
+      "losses": 13,
+      "draws": 0,
+      "seed": 0
+    },
+    {
+      "debug": false,
+      "wins": 46,
+      "losses": 4,
+      "draws": 0,
+      "seed": 1
+    },
+    {
+      "debug": false,
+      "wins": 40,
+      "losses": 10,
+      "draws": 0,
+      "seed": 2
+    },
+    {
+      "debug": false,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 3
+    },
+    {
+      "debug": false,
+      "wins": 45,
+      "losses": 5,
+      "draws": 0,
+      "seed": 4
+    },
+    {
+      "debug": false,
+      "wins": 36,
+      "losses": 14,
+      "draws": 0,
+      "seed": 5
+    },
+    {
+      "debug": false,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 6
+    },
+    {
+      "debug": false,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 7
+    },
+    {
+      "debug": false,
+      "wins": 40,
+      "losses": 10,
+      "draws": 0,
+      "seed": 8
+    },
+    {
+      "debug": false,
+      "wins": 42,
+      "losses": 8,
+      "draws": 0,
+      "seed": 9
+    },
+    {
+      "debug": false,
+      "wins": 41,
+      "losses": 9,
+      "draws": 0,
+      "seed": 10
+    },
+    {
+      "debug": false,
+      "wins": 32,
+      "losses": 18,
+      "draws": 0,
+      "seed": 11
+    },
+    {
+      "debug": false,
+      "wins": 48,
+      "losses": 2,
+      "draws": 0,
+      "seed": 12
+    },
+    {
+      "debug": false,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 13
+    },
+    {
+      "debug": false,
+      "wins": 43,
+      "losses": 7,
+      "draws": 0,
+      "seed": 14
+    },
+    {
+      "debug": false,
+      "wins": 39,
+      "losses": 11,
+      "draws": 0,
+      "seed": 15
+    },
+    {
+      "debug": false,
+      "wins": 37,
+      "losses": 13,
+      "draws": 0,
+      "seed": 16
+    },
+    {
+      "debug": false,
+      "wins": 45,
+      "losses": 5,
+      "draws": 0,
+      "seed": 17
+    },
+    {
+      "debug": false,
+      "wins": 36,
+      "losses": 14,
+      "draws": 0,
+      "seed": 18
+    },
+    {
+      "debug": false,
+      "wins": 38,
+      "losses": 12,
+      "draws": 0,
+      "seed": 19
+    },
+    {
+      "debug": true,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 0
+    },
+    {
+      "debug": true,
+      "wins": 50,
+      "losses": 0,
+      "draws": 0,
+      "seed": 1
+    },
+    {
+      "debug": true,
+      "wins": 48,
+      "losses": 2,
+      "draws": 0,
+      "seed": 2
+    },
+    {
+      "debug": true,
+      "wins": 45,
+      "losses": 5,
+      "draws": 0,
+      "seed": 3
+    },
+    {
+      "debug": true,
+      "wins": 45,
+      "losses": 5,
+      "draws": 0,
+      "seed": 4
+    },
+    {
+      "debug": true,
+      "wins": 43,
+      "losses": 7,
+      "draws": 0,
+      "seed": 5
+    },
+    {
+      "debug": true,
+      "wins": 50,
+      "losses": 0,
+      "draws": 0,
+      "seed": 6
+    },
+    {
+      "debug": true,
+      "wins": 41,
+      "losses": 9,
+      "draws": 0,
+      "seed": 7
+    },
+    {
+      "debug": true,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 8
+    },
+    {
+      "debug": true,
+      "wins": 50,
+      "losses": 0,
+      "draws": 0,
+      "seed": 9
+    },
+    {
+      "debug": true,
+      "wins": 49,
+      "losses": 1,
+      "draws": 0,
+      "seed": 10
+    },
+    {
+      "debug": true,
+      "wins": 46,
+      "losses": 4,
+      "draws": 0,
+      "seed": 11
+    },
+    {
+      "debug": true,
+      "wins": 49,
+      "losses": 1,
+      "draws": 0,
+      "seed": 12
+    },
+    {
+      "debug": true,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 13
+    },
+    {
+      "debug": true,
+      "wins": 49,
+      "losses": 1,
+      "draws": 0,
+      "seed": 14
+    },
+    {
+      "debug": true,
+      "wins": 48,
+      "losses": 2,
+      "draws": 0,
+      "seed": 15
+    },
+    {
+      "debug": true,
+      "wins": 47,
+      "losses": 3,
+      "draws": 0,
+      "seed": 16
+    },
+    {
+      "debug": true,
+      "wins": 48,
+      "losses": 2,
+      "draws": 0,
+      "seed": 17
+    },
+    {
+      "debug": true,
+      "wins": 48,
+      "losses": 2,
+      "draws": 0,
+      "seed": 18
+    },
+    {
+      "debug": true,
+      "wins": 50,
+      "losses": 0,
+      "draws": 0,
+      "seed": 19
+    }
+  ],
+  "fresh_first_win_trials": 100000,
+  "spark_rarities": {
+    "BASIC": 1830,
+    "UNCOMMON": 4158,
+    "COMMON": 7154,
+    "RARE": 1529,
+    "LEGEND": 305
+  },
+  "depth_trials": [
+    {
+      "floor": 1,
+      "multiplier": 1,
+      "trials": 100000,
+      "sparks": 14976,
+      "rarities": {
+        "BASIC": 1830,
+        "UNCOMMON": 4158,
+        "COMMON": 7154,
+        "RARE": 1529,
+        "LEGEND": 305
+      },
+      "support_skills": {
+        "slow": 810,
+        "power_up": 794,
+        "guard_up": 831,
+        "weaken": 787,
+        "focus": 188,
+        "armor_break": 170
+      }
+    },
+    {
+      "floor": 15,
+      "multiplier": 2,
+      "trials": 100000,
+      "sparks": 30224,
+      "rarities": {
+        "BASIC": 3613,
+        "UNCOMMON": 8408,
+        "COMMON": 14512,
+        "RARE": 3042,
+        "LEGEND": 649
+      },
+      "support_skills": {
+        "slow": 1601,
+        "power_up": 1624,
+        "guard_up": 1598,
+        "weaken": 1586,
+        "armor_break": 337,
+        "focus": 349
+      }
+    }
+  ],
+  "seed_42_example": {
+    "battles": 50,
+    "wins": 37,
+    "losses": 13,
+    "draws": 0,
+    "debug": false,
+    "party": [
+      {
+        "name": "\u30ed\u30a6",
+        "type": "POWER",
+        "HP": 119,
+        "STR": 41,
+        "AGI": 11,
+        "INT": 7,
+        "skills": [
+          "\u30d1\u30f3\u30c1",
+          "\u30b5\u30f3\u30c0\u30fc",
+          "\u901f\u7a81\u304d",
+          "\u30d5\u30a1\u30a4\u30a2",
+          "\u706b\u82b1"
+        ],
+        "skill_uses": {
+          "punch": {
+            "current": 15,
+            "max": 30
+          },
+          "thunder": {
+            "current": 12,
+            "max": 12
+          },
+          "quick_stab": {
+            "current": 14,
+            "max": 25
+          },
+          "fire": {
+            "current": 15,
+            "max": 15
+          },
+          "spark": {
+            "current": 28,
+            "max": 28
+          }
+        }
+      },
+      {
+        "name": "\u30ab\u30a4",
+        "type": "SPEED",
+        "HP": 116,
+        "STR": 24,
+        "AGI": 31,
+        "INT": 7,
+        "skills": [
+          "\u30ab\u30a6\u30f3\u30bf\u30fc",
+          "\u30d1\u30f3\u30c1",
+          "\u30d5\u30ec\u30a2",
+          "\u525b\u529b\u7815\u304d",
+          "\u901f\u7a81\u304d"
+        ],
+        "skill_uses": {
+          "counter": {
+            "current": 12,
+            "max": 12
+          },
+          "punch": {
+            "current": 14,
+            "max": 30
+          },
+          "flare": {
+            "current": 2,
+            "max": 5
+          },
+          "heavy_break": {
+            "current": 5,
+            "max": 6
+          },
+          "quick_stab": {
+            "current": 25,
+            "max": 25
+          }
+        }
+      },
+      {
+        "name": "\u30df\u30aa",
+        "type": "MIND",
+        "HP": 111,
+        "STR": 13,
+        "AGI": 21,
+        "INT": 37,
+        "skills": [
+          "\u5f31\u4f53",
+          "\u30d1\u30f3\u30c1",
+          "\u706b\u82b1",
+          "\u5f37\u6483",
+          "\u30ab\u30a6\u30f3\u30bf\u30fc"
+        ],
+        "skill_uses": {
+          "weaken": {
+            "current": 8,
+            "max": 8
+          },
+          "punch": {
+            "current": 26,
+            "max": 30
+          },
+          "spark": {
+            "current": 9,
+            "max": 28
+          },
+          "power_strike": {
+            "current": 20,
+            "max": 20
+          },
+          "counter": {
+            "current": 12,
+            "max": 12
+          }
+        }
+      },
+      {
+        "name": "\u30bb\u30f3",
+        "type": "POWER",
+        "HP": 114,
+        "STR": 37,
+        "AGI": 20,
+        "INT": 9,
+        "skills": [
+          "\u30ab\u30a6\u30f3\u30bf\u30fc",
+          "\u30b5\u30f3\u30c0\u30fc"
+        ],
+        "skill_uses": {
+          "counter": {
+            "current": 12,
+            "max": 12
+          },
+          "thunder": {
+            "current": 12,
+            "max": 12
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "japanese_characters_checked": 425,
+  "missing_glyphs": [],
+  "sounds": [
+    {
+      "sound": "attack",
+      "duration": 0.07500000298023224,
+      "peak": 2313
+    },
+    {
+      "sound": "skill",
+      "duration": 0.1666666716337204,
+      "peak": 1322
+    }
+  ]
+}

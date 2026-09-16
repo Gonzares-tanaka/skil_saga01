@@ -1,0 +1,62 @@
+[
+  {
+    "name": "ロウ",
+    "growth_type": "POWER",
+    "max_hp": 48,
+    "str": 8,
+    "agi": 5,
+    "int": 2,
+    "sprite": [
+      0,
+      0
+    ],
+    "initial_skills": [
+      "punch"
+    ]
+  },
+  {
+    "name": "カイ",
+    "growth_type": "SPEED",
+    "max_hp": 40,
+    "str": 6,
+    "agi": 9,
+    "int": 3,
+    "sprite": [
+      16,
+      0
+    ],
+    "initial_skills": [
+      "quick_hit"
+    ]
+  },
+  {
+    "name": "ミオ",
+    "growth_type": "MIND",
+    "max_hp": 36,
+    "str": 3,
+    "agi": 6,
+    "int": 9,
+    "sprite": [
+      32,
+      0
+    ],
+    "initial_skills": [
+      "spark"
+    ]
+  },
+  {
+    "name": "セン",
+    "growth_type": "POWER",
+    "max_hp": 44,
+    "str": 7,
+    "agi": 6,
+    "int": 4,
+    "sprite": [
+      48,
+      0
+    ],
+    "initial_skills": [
+      "punch"
+    ]
+  }
+]
