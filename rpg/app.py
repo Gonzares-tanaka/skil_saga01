@@ -12,6 +12,20 @@ from .growth import growth_bonus
 from .keyboard import GameKeyboard
 
 
+# The official Web touch pad emits gamepad buttons, not keyboard keys.
+GAMEPAD_KEYS = {
+    pyxel.KEY_UP: pyxel.GAMEPAD1_BUTTON_DPAD_UP,
+    pyxel.KEY_DOWN: pyxel.GAMEPAD1_BUTTON_DPAD_DOWN,
+    pyxel.KEY_LEFT: pyxel.GAMEPAD1_BUTTON_DPAD_LEFT,
+    pyxel.KEY_RIGHT: pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT,
+    pyxel.KEY_Z: pyxel.GAMEPAD1_BUTTON_A,
+    pyxel.KEY_X: pyxel.GAMEPAD1_BUTTON_B,
+    pyxel.KEY_C: pyxel.GAMEPAD1_BUTTON_X,
+    pyxel.KEY_D: pyxel.GAMEPAD1_BUTTON_Y,
+    pyxel.KEY_H: pyxel.GAMEPAD1_BUTTON_START,
+}
+
+
 class App:
     def __init__(self, session, run=True, headless=False, battle_on_start=True):
         self.session = session
@@ -68,11 +82,15 @@ class App:
         return self.session.party[self.actor_index]
 
     def pressed(self, *keys):
-        return any(pyxel.btnp(key) for key in keys)
+        return any(self.button_pressed(key) for key in keys)
+
+    def button_pressed(self, key, hold=0, repeat=0):
+        return pyxel.btnp(key, hold, repeat) or (
+            key in GAMEPAD_KEYS and pyxel.btnp(GAMEPAD_KEYS[key], hold, repeat))
 
     def direction(self, horizontal=False):
         low, high = (pyxel.KEY_LEFT, pyxel.KEY_RIGHT) if horizontal else (pyxel.KEY_UP, pyxel.KEY_DOWN)
-        return int(pyxel.btnp(high, 10, 3)) - int(pyxel.btnp(low, 10, 3))
+        return int(self.button_pressed(high, 10, 3)) - int(self.button_pressed(low, 10, 3))
 
     def tell(self, message):
         self.notice, self.notice_timer = message, 60

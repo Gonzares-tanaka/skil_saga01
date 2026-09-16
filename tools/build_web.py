@@ -8,7 +8,8 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
-INCLUDE_FILES = ("main.py", "game.pyxres", "area2.pyxres", "area3.pyxres")
+INCLUDE_FILES = ("main.py", "game.pyxres", "area2.pyxres", "area3.pyxres",
+                 "game.pyxpal", "area2.pyxpal", "area3.pyxpal")
 INCLUDE_DIRS = ("rpg", "data", "assets")
 
 
