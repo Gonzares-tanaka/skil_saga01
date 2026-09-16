@@ -39,7 +39,7 @@ python -m venv .venv
 ### GitHub Pagesで公開する
 
 1. このフォルダの内容をGitHubリポジトリのルートへpushします。
-2. GitHubの **Settings → Pages** を開き、Sourceを **GitHub Actions** にして保存します。
+2. GitHubの **Settings → Pages** を開き、Sourceを **GitHub Actions** にして保存します。ワークフローにもPagesを有効化する設定を含めているため、初回実行が先に失敗した場合は次のpushまたはActions画面の「Re-run jobs」で再実行します。
 3. `main`へのpushで`.github/workflows/deploy-pages.yml`が`dist/`を公開します。Actionsタブで完了を確認します。
 4. 表示されたPages URLをテスターへ共有します。
 
