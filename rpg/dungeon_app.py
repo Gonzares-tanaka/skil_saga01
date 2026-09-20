@@ -10,7 +10,7 @@ from .map_resources import load_maps
 from .growth import spark_probability
 from .labels import EFFECTS, CATEGORIES
 from .models import effect_factor, battle_agility
-from .sound import play_cue
+from .sound import play_cue, start_battle_music, stop_battle_music
 from .tiles import (DUNGEON_RESOURCE, MAP_IMAGE_BANK, BOSS_FLOORS,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR, TILE_SIZE)
 
@@ -44,6 +44,7 @@ class DungeonApp(App):
             pyxel.run(self.update, self.draw)
 
     def enter_camp(self, defeated=False, returned=False):
+        stop_battle_music()
         if returned:
             self.return_secured = self.session.treasure.secure()
         for actor in self.session.party:
@@ -73,10 +74,15 @@ class DungeonApp(App):
         self.log = [self.dungeon.boss_data["name"] + "との決戦!" if boss else "敵と遭遇した!"]
         self.pending = deque()
         self.begin_input()
+        if boss:
+            stop_battle_music()
+        else:
+            start_battle_music()
 
     def finish_results(self):
-        if self.session.pending_replacements:
+        if self.session.pending_replacements or self.waiting_for_fanfare():
             return
+        stop_battle_music()
         if self.battle.outcome == "DEFEAT":
             self.enter_camp(defeated=True)
         elif self.battle_is_boss and self.battle.outcome == "VICTORY":

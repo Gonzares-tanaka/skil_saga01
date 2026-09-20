@@ -7,7 +7,7 @@ from .art import load_art
 from .models import Action
 from .labels import TYPES, RARITIES, TARGETS, OUTCOMES, EFFECTS
 from .text import text, wrap_lines, font
-from .sound import init_sound, play_cue
+from .sound import init_sound, play_cue, start_battle_music, stop_battle_music, play_victory_music, music_is_playing
 from .growth import growth_bonus
 from .keyboard import GameKeyboard
 
@@ -58,9 +58,16 @@ class App:
         self.log = ["新たな敵が現れた", "4人の行動を選ぼう"]
         self.pending = deque()
         self.begin_input()
+        start_battle_music()
 
     def finish_results(self):
+        if self.waiting_for_fanfare():
+            return
+        stop_battle_music()
         self.start_battle()
+
+    def waiting_for_fanfare(self):
+        return self.battle.outcome == "VICTORY" and music_is_playing()
 
     def next_result_label(self):
         return "次の戦闘"
@@ -164,6 +171,8 @@ class App:
                 if self.result_page + 1 < page_count:
                     self.result_page += 1
                 else:
+                    if self.waiting_for_fanfare():
+                        return
                     if self.session.pending_replacements:
                         self.notice_timer = 0
                         self.state = "replace"
@@ -181,10 +190,13 @@ class App:
                 self.log = self.log[-3:]
                 self.delay = 14
             elif self.battle.outcome:
+                stop_battle_music()
                 self.notice_timer = 0
                 self.result_lines = wrap_lines(self.session.settle())
                 self.result_page = 0
                 self.state = "result"
+                if self.battle.outcome == "VICTORY":
+                    play_victory_music()
             elif self.battle.queue:
                 self.pending.extend(wrap_lines(self.battle.step()))
                 play_cue(self.battle.sound_cue)
@@ -356,6 +368,9 @@ class App:
         pages = max(1, (len(self.result_lines) + 8) // 9)
         text(5, 102, f"{self.result_page + 1}/{pages}ページ D:能力", 3, 37)
         next_label = "入替へ" if self.session.pending_replacements else self.next_result_label()
+        if self.result_page == pages - 1 and self.waiting_for_fanfare():
+            self.footer("ファンファーレ再生中…")
+            return
         self.footer(f"Z:{next_label} 矢印:ページ" if self.result_page == pages - 1 else "Z:続きを読む 矢印:ページ")
 
     def info_scroll_limit(self):
