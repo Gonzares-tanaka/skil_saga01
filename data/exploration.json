@@ -1,0 +1,23 @@
+{
+  "CHEST_REWARD_TABLE": {
+    "NORMAL": [
+      {"kind": "TREASURE", "amount": 1, "weight": 27},
+      {"kind": "TREASURE", "amount": 2, "weight": 16},
+      {"kind": "TREASURE", "amount": 3, "weight": 7},
+      {"kind": "POTION", "amount": 1, "weight": 12},
+      {"kind": "HEAL", "amount": 12, "weight": 10},
+      {"kind": "HEAL_ALL", "amount": 8, "weight": 10},
+      {"kind": "SKILL_CHANCE", "chance": 0.6, "weight": 10},
+      {"kind": "TRAP", "amount": 4, "weight": 5},
+      {"kind": "EMPTY", "weight": 3}
+    ],
+    "RARE": [
+      {"kind": "TREASURE", "amount": 3, "weight": 40},
+      {"kind": "TREASURE", "amount": 5, "weight": 20},
+      {"kind": "HEAL_ALL", "amount": 15, "weight": 10},
+      {"kind": "SKILL_CHANCE", "chance": 1.0, "weight": 30}
+    ]
+  },
+  "poison_damage": 2,
+  "spring_heal": 12
+}

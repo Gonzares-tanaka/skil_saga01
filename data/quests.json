@@ -1,0 +1,14 @@
+{
+  "hint": "何かの気配を感じる……",
+  "objective": "調査完了! 生きて拠点へ持ち帰ろう。",
+  "death": "全滅で調査記録を失った。再調査しよう。",
+  "complete": "調査報告完了! 確定宝 +{reward}",
+  "quests": [
+    {"id": 1, "name": "探索 Lv1", "floors": [1, 5], "gate": null, "reward": 2,
+     "description": "B1～5Fの調査地点を探して帰還", "dialogue": "古い壁画を発見。記録を持ち帰ろう。"},
+    {"id": 2, "name": "探索 Lv2", "floors": [6, 10], "gate": 5, "reward": 4,
+     "description": "B6～10Fの調査地点を探して帰還", "dialogue": "地下水脈を発見。記録を持ち帰ろう。"},
+    {"id": 3, "name": "探索 Lv3", "floors": [11, 15], "gate": 10, "reward": 6,
+     "description": "B11～15Fの調査地点を探して帰還", "dialogue": "深層の石碑を発見。記録を持ち帰ろう。"}
+  ]
+}

@@ -174,8 +174,9 @@ class SupportTests(unittest.TestCase):
 
     def test_every_special_enemy_can_be_beaten_without_support(self):
         for sid in ('iron_golem', 'berserker', 'assassin', 'stone_beast'):
-            with self.subTest(enemy=sid):
-                self.assertLess(self.tactical_fight(sid), 60)
+            for attack in ('punch', 'fire', 'power_strike'):
+                with self.subTest(enemy=sid, strategy=attack):
+                    self.assertLess(self.tactical_fight(sid, attack=attack), 60)
 
     def test_depth_sampling_includes_rare_legend_and_support_on_b1(self):
         counts = []

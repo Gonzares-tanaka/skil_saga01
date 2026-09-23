@@ -19,5 +19,5 @@ def ensure_attack(actor, skills, slots=MAX_SKILLS, discovered=None):
     actor.learn(skills[FALLBACK_SKILL])
     if discovered is not None:
         discovered.add(FALLBACK_SKILL)
-    messages.append(f"救済: {actor.name} パンチ {skills[FALLBACK_SKILL].max_uses}回")
+    messages.append(f"救済: {actor.name} パンチ {actor.skill_uses[FALLBACK_SKILL]}回")
     return messages

@@ -4,6 +4,8 @@ from .content import ROOT
 
 ATTACK_SOUND = 60
 SKILL_SOUND = 61
+CHEST_SOUND = 62
+MASTERED_SOUND = 63
 
 
 def init_sound():
@@ -11,11 +13,15 @@ def init_sound():
                exclude_images=True, exclude_tilemaps=True)
     pyxel.sounds[ATTACK_SOUND].set("c2g1c1", "n", "642", "f", 3)
     pyxel.sounds[SKILL_SOUND].set("c3e3g3c4", "p", "3453", "v", 5)
+    pyxel.sounds[CHEST_SOUND].set("c3g3c4", "p", "542", "f", 4)
+    pyxel.sounds[MASTERED_SOUND].set("g3c4e4g4", "p", "5542", "v", 5)
 
 
 def play_cue(cue):
-    if cue in ("attack", "skill"):
-        pyxel.play(0, ATTACK_SOUND if cue == "attack" else SKILL_SOUND)
+    sounds = {"attack": ATTACK_SOUND, "skill": SKILL_SOUND,
+              "chest": CHEST_SOUND, "mastered": MASTERED_SOUND}
+    if cue in sounds:
+        pyxel.play(0, sounds[cue])
 
 
 def start_battle_music():

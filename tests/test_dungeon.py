@@ -19,7 +19,9 @@ from rpg.tiles import (DUNGEON_RESOURCE, AREA_RESOURCES, TILE_WALL, TILE_FLOOR, 
 class DungeonTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        pyxel.init(160, 120, headless=True)
+        if not getattr(pyxel, '_tests_initialized', False):
+            pyxel.init(160, 120, headless=True)
+            pyxel._tests_initialized = True
 
     def setUp(self):
         pyxel.load(str(DUNGEON_RESOURCE))
@@ -105,7 +107,7 @@ class DungeonTests(unittest.TestCase):
 
     def test_editor_moved_chest_once_per_excursion(self):
         d = self.dungeon
-        d.settings["items"]["chest_potion_chance"] = 1
+        d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "POTION", "amount": 1, "weight": 1}]
         old = d.positions(0, TILE_CHEST)[0]
         d.maps[0].pset(*old, TILE_FLOOR)
         d.maps[0].pset(2, 1, TILE_CHEST)
@@ -125,12 +127,12 @@ class DungeonTests(unittest.TestCase):
 
     def test_full_potion_inventory_keeps_same_chest_contents(self):
         d = self.dungeon
-        d.settings["items"]["chest_potion_chance"] = 1
+        d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "POTION", "amount": 1, "weight": 1}]
         d.x, d.y = d.positions(0, TILE_CHEST)[0]
         d.potions = 9
         d.interact()
         self.assertFalse(d.opened)
-        d.settings["items"]["chest_potion_chance"] = 0
+        d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "TREASURE", "amount": 1, "weight": 1}]
         d.potions -= 1
         d.interact()
         self.assertEqual((d.potions, d.treasure.unbanked), (9, 0))
@@ -138,7 +140,7 @@ class DungeonTests(unittest.TestCase):
 
     def test_treasure_and_potion_rules(self):
         d = self.dungeon
-        d.settings["items"]["chest_potion_chance"] = 0
+        d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "TREASURE", "amount": 1, "weight": 1}]
         d.x, d.y = d.positions(0, TILE_CHEST)[0]
         d.interact()
         self.assertEqual(d.treasure.unbanked, 1)

@@ -19,6 +19,10 @@ with tempfile.TemporaryDirectory(prefix="verify_pyxel_web_") as temp:
                 assert archive.read("spark_web/" + filename) == (ROOT / filename).read_bytes(), filename
         for source in (ROOT / "rpg").glob("*.py"):
             assert archive.read("spark_web/rpg/" + source.name) == source.read_bytes(), source.name
+        for source in (ROOT / "data").glob("*.json"):
+            assert archive.read("spark_web/data/" + source.name) == source.read_bytes(), source.name
+        music = ROOT / 'assets/battle_music.pyxres'
+        assert archive.read('spark_web/assets/battle_music.pyxres') == music.read_bytes()
         archive.extractall(temp)
     check = '''
 from pathlib import Path

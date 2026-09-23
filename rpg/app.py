@@ -331,7 +331,7 @@ class App:
 
     def skill_details(self, actor, skill, y=76):
         pyxel.line(4, y - 3, 155, y - 3, 1)
-        text(5, y, f"{RARITIES[skill.rarity]} / {TARGETS[skill.target]} 最大{skill.max_uses}回", 2, 37)
+        text(5, y, f"{RARITIES[skill.rarity]} / {TARGETS[skill.target]} 最大{actor.max_uses(skill)}回", 2, 37)
         text(5, y + 8, skill.formula(), 3, 37)
         detail = f"威力 {skill.power(actor)} 待ち {skill.cooldown}T"
         if skill.effect == "berserk":
@@ -354,7 +354,7 @@ class App:
                 pyxel.rect(3, y - 1, 154, 8, 1)
             text(5, y, (">" if selected else " ") + skill.name, 3, 23)
             wait = self.actor.cooldowns.get(skill_id, 0)
-            text(101, y, f"{self.actor.skill_uses.get(skill_id, 0)}/{skill.max_uses}" + ("待" if wait else ""), 2, 14)
+            text(101, y, f"{self.actor.skill_uses.get(skill_id, 0)}/{self.actor.max_uses(skill)}" + ("待" if wait else ""), 2, 14)
         self.skill_details(self.actor, self.session.skills[self.actor.skills[self.skill_cursor]])
         self.footer("上下:選択 Z:使用 X:戻る")
 
@@ -404,7 +404,7 @@ class App:
                     skill = self.session.skills[skill_id]
                     selected = start + i == self.scroll
                     text(5, 24 + i * 8, (">" if selected else " ") + f"{start+i+1}." + skill.name, 3 if selected else 2, 23)
-                    text(101, 24 + i * 8, f"{actor.skill_uses.get(skill_id, 0)}/{skill.max_uses}", 2, 14)
+                    text(101, 24 + i * 8, f"{actor.skill_uses.get(skill_id, 0)}/{actor.max_uses(skill)}", 2, 14)
                 self.skill_details(actor, self.session.skills[actor.skills[self.scroll]])
             else:
                 text(8, 35, "技はまだ覚えていません", 3)
@@ -464,15 +464,15 @@ class App:
         actor = self.session.party[self.session.pending_replacements[0]]
         new = self.session.skills[actor.pending_skill]
         relearn = self.session.pending_relearn is not None
-        uses = new.relearn_uses if relearn else new.max_uses
+        uses = actor.relearn_uses(new) if relearn else actor.next_max_uses(new)
         self.title(f"{actor.name} / 技の入れ替え")
         text(4, 14, f"新: {new.name}", 3, 38)
-        text(4, 23, f"宝{new.relearn_cost}消費 / 再習得{uses}/{new.max_uses}回" if relearn else f"{RARITIES[new.rarity]} 威力{new.power(actor)} {uses}/{new.max_uses}回", 2, 38)
+        text(4, 23, f"宝{new.relearn_cost}消費 / 再習得{uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{new.power(actor)} {uses}/{actor.next_max_uses(new)}回", 2, 38)
         if self.replacement_confirm:
             if self.replacement_cursor < len(actor.skills):
                 old = self.session.skills[actor.skills[self.replacement_cursor]]
                 text(4, 42, f"忘れる: {old.name}", 2, 38)
-                text(4, 66, f"残数 {actor.skill_uses[old.id]}/{old.max_uses} 完全に失う", 2, 38)
+                text(4, 66, f"残数 {actor.skill_uses[old.id]}/{actor.max_uses(old)} 完全に失う", 2, 38)
                 text(4, 56, f"覚える: {new.name}", 3, 38)
                 text(4, 77, "この技に入れ替えますか?", 3, 38)
                 if new.effect not in ("damage", "drain") and not any(self.session.skills[s].effect in ("damage", "drain") for s in actor.skills if s != old.id):
@@ -493,7 +493,7 @@ class App:
             text(4, y, (">" if selected else " ") + f"{start + row + 1}." + label, 3 if selected else 2, 23 if is_old else 38)
             if is_old:
                 sid = actor.skills[start + row]
-                text(100, y, f"{actor.skill_uses.get(sid, 0)}/{self.session.skills[sid].max_uses}", 2, 14)
+                text(100, y, f"{actor.skill_uses.get(sid, 0)}/{actor.max_uses(self.session.skills[sid])}", 2, 14)
         if self.replacement_cursor < len(actor.skills):
             old = self.session.skills[actor.skills[self.replacement_cursor]]
             text(4, 88, f"旧: {RARITIES[old.rarity]} 威力{old.power(actor)} 待ち{old.cooldown}T", 2, 38)

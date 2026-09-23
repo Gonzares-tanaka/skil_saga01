@@ -45,7 +45,7 @@ def load_content(directory=None):
         require(integer(skill.hits, 1, 20) and integer(skill.cooldown, 0, 99), f"Invalid hits/cooldown: {skill.id}")
         require(name_ok(skill.description), f"Invalid description: {skill.id}")
         require(integer(skill.max_uses, 1, 99), f"max_usesは1～99: {skill.id}")
-        if skill.rarity in ("BASIC", "COMMON"):
+        if skill.can_relearn:
             require(integer(skill.relearn_cost, 1, 999) and integer(skill.relearn_uses, 1, skill.max_uses), f"Invalid relearn_cost/relearn_uses: {skill.id}")
         require(skill.skill_type in ("physical", "speed", "magic", "healing", "support"), f"Invalid skill_type: {skill.id}")
         require(set(skill.growth) == {"HP", "STR", "AGI", "INT"} and all(number(v, 0, 10) for v in skill.growth.values()), f"Invalid growth contributions: {skill.id}")

@@ -9,4 +9,5 @@ __pycache__/
 *.pyxapp
 verification/screenshots/
 verification/audio/
+verification/backups/
 verification/*.log

@@ -20,7 +20,8 @@ def spark(character, skills, settings, rng, allowed=None, discovered=None):
     skill = rng.choice(groups[rarity])
     if discovered is not None:
         discovered.add(skill.id)
-    message = f"{character.name} 閃き! {skill.name} [{RARITIES[rarity]}] {skill.max_uses}/{skill.max_uses}回"
+    uses = character.next_max_uses(skill)
+    message = f"{character.name} 閃き! {skill.name} [{RARITIES[rarity]}] {uses}/{uses}回"
     if len(character.skills) < settings["skill_slots"]:
         character.learn(skill)
     else:

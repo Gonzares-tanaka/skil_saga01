@@ -126,7 +126,7 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
         key(pyxel.KEY_Z)
         if app.state == "command":
             break
-    assert app.state == "command" and c.skill_uses["punch"] == 30
+    assert app.state == "command" and c.skill_uses["punch"] == 31
     assert any("消滅" in line for line in app.battle.resource_events)
     app.battle.outcome = "VICTORY"
     app.session.settings["spark_chance"] = 0
@@ -134,6 +134,7 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     app.pending.clear()
     key()
     capture("06_exhausted_result")
+    pyxel.stop()  # Audio completion itself is covered by verify_battle_music.py.
     for _ in range(100):
         key(pyxel.KEY_Z)
         if app.state == "explore":

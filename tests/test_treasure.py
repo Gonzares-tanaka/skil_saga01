@@ -29,9 +29,9 @@ class TreasureTests(unittest.TestCase):
         self.assertEqual(t.lose(), 0)
         self.assertEqual(t.banked, 12)
 
-    def test_only_discovered_basic_common(self):
+    def test_only_discovered_relearnable_skills(self):
         for skill in self.s.skills.values():
-            if skill.rarity not in ("BASIC", "COMMON"):
+            if not skill.can_relearn:
                 self.s.discovered_skills.add(skill.id)
                 with self.assertRaises(ValueError):
                     self.s.relearn(0, skill.id)
@@ -121,7 +121,7 @@ class TreasureTests(unittest.TestCase):
         self.assertNotIn("return", self.c.skills)
         self.assertIn("return", self.s.mastered_skills)
         self.s.relearn(1, "return")
-        self.assertEqual(self.s.party[1].skill_uses["return"], 1)
+        self.assertEqual(self.s.party[1].skill_uses["return"], 2)
 
     def test_return_rejects_dead_or_missing_caster(self):
         with self.assertRaises(ValueError):

@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from .labels import EFFECTS
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,11 @@ class Skill:
     modifier: float = 1.0
     relearn_cost: int = 0
     relearn_uses: int = 0
+
+    @property
+    def can_relearn(self):
+        return self.rarity in ("BASIC", "COMMON") or (
+            self.rarity == "RARE" and self.skill_type == "support" and self.effect in EFFECTS)
 
     def power(self, actor):
         strength = actor.strength * effect_factor(actor, "power_up") * (1.5 if actor.berserk else 1)
@@ -52,6 +58,8 @@ class Character:
     hp: int = field(init=False)
     skills: list[str] = field(default_factory=list)
     skill_uses: dict[str, int] = field(default_factory=dict)
+    skill_limits: dict[str, int] = field(default_factory=dict)
+    mastered_skills: set[str] = field(default_factory=set, repr=False)
     growth_points: dict[str, float] = field(default_factory=dict)
     used_skills: dict[str, int] = field(default_factory=dict)
     history: list[str] = field(default_factory=list)
@@ -77,11 +85,22 @@ class Character:
         if skill.id in self.skills:
             raise ValueError("既に習得している技です。")
         self.skills.append(skill.id)
-        self.skill_uses[skill.id] = skill.max_uses
+        self.skill_limits[skill.id] = self.next_max_uses(skill)
+        self.skill_uses[skill.id] = self.skill_limits[skill.id]
+
+    def next_max_uses(self, skill):
+        return skill.max_uses + int(skill.id in self.mastered_skills)
+
+    def max_uses(self, skill):
+        return self.skill_limits.get(skill.id, self.next_max_uses(skill))
+
+    def relearn_uses(self, skill):
+        return skill.relearn_uses + int(skill.id in self.mastered_skills)
 
     def forget(self, skill_id):
         self.skills.remove(skill_id)
         self.skill_uses.pop(skill_id, None)
+        self.skill_limits.pop(skill_id, None)
         self.cooldowns.pop(skill_id, None)
 
     def reset_battle_state(self):

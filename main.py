@@ -26,7 +26,7 @@ def simulate(session, count):
         "party": [{"name": c.name, "type": c.growth_type, "HP": c.max_hp,
                    "STR": c.strength, "AGI": c.agility, "INT": c.intellect,
                    "skills": [session.skills[s].name for s in c.skills],
-                   "skill_uses": {s: {"current": c.skill_uses[s], "max": session.skills[s].max_uses} for s in c.skills},
+                   "skill_uses": {s: {"current": c.skill_uses[s], "max": c.max_uses(session.skills[s])} for s in c.skills},
                    "history": c.history} for c in session.party],
     }
 

@@ -10,8 +10,9 @@ from rpg.battle import Session
 from rpg.content import ROOT, load_content
 from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.map_resources import load_maps
+from rpg.exploration import Exploration
 from rpg.tiles import (DUNGEON_RESOURCE, PASSABLE, TILE_ENTRANCE, TILE_STAIRS_UP,
-                       TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS)
+                       TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS, TILE_RARE_CHEST, TILE_PIT)
 
 
 def path_to(d, goal):
@@ -28,7 +29,7 @@ def path_to(d, goal):
         for dx, dy in ((0, 1), (1, 0), (0, -1), (-1, 0)):
             nxt = point[0] + dx, point[1] + dy
             tile = d.tile(d.floor, *nxt)
-            if nxt in previous or tile not in PASSABLE:
+            if nxt in previous or tile not in PASSABLE - {TILE_PIT}:
                 continue
             if nxt != goal and tile in (TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_BOSS):
                 continue
@@ -41,11 +42,13 @@ def play(seed):
     pyxel.load(str(DUNGEON_RESOURCE))
     s = Session(*load_content(), seed=seed)
     d = Dungeon(load_maps(), s.enemy_data, load_dungeon_settings(), s.rng, s.treasure)
+    exploration = Exploration(s, d)
     retreats = potions_used = trips = 0
     for trips in range(1, 11):
         for actor in s.party:
             actor.recover()
         d.enter()
+        exploration.springs.clear()
         retreat = False
         for _ in range(5000):
             injured = [c for c in s.party if c.alive and c.hp < c.max_hp * 0.55]
@@ -60,7 +63,7 @@ def play(seed):
             if retreat:
                 goal = d.find(d.floor, TILE_ENTRANCE if d.floor == 0 else TILE_STAIRS_UP)
             else:
-                chests = [p for p in d.positions(d.floor, TILE_CHEST) if (d.floor, *p) not in d.opened]
+                chests = [p for tile in (TILE_CHEST, TILE_RARE_CHEST) for p in d.positions(d.floor, tile) if (d.floor, *p) not in d.opened]
                 if chests and d.potions < d.settings["items"]["max_potions"]:
                     goal = min(chests, key=lambda p: len(path_to(d, p)))
                 else:
@@ -75,6 +78,17 @@ def play(seed):
             if event == "base":
                 s.treasure.secure()
                 break
+            if event == "chest":
+                exploration.chest_effect(d.last_reward)
+                for index in s.pending_replacements:
+                    s.resolve_replacement(index)
+            elif event == "poison":
+                exploration.damage(d.exploration_settings['poison_damage'])
+            elif event == "spring":
+                point = d.floor, d.x, d.y
+                if point not in exploration.springs:
+                    exploration.springs.add(point)
+                    exploration.heal(d.exploration_settings['spring_heal'])
             if event in ("battle", "boss"):
                 before = d.floor, d.x, d.y
                 battle = s.next_battle(d.make_enemies(event == "boss"), recover=False, spark_multiplier=d.spark_multiplier)

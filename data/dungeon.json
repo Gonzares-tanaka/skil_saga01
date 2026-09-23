@@ -5,7 +5,7 @@
   "encounter_chance": 0.09,
   "debug_encounter_chance": 0.45,
   "safe_steps": 2,
-  "items": {"initial_potions": 2, "max_potions": 9, "potion_heal": 30, "chest_potion_chance": 0.65},
+  "items": {"initial_potions": 2, "max_potions": 9, "potion_heal": 30},
   "floors": [
     {"enemy_ids": ["slime", "bat", "goblin"], "weights": [6, 3, 1], "count": [1, 2], "hp_scale": 0.9, "power_scale": 0.8},
     {"enemy_ids": ["slime", "bat", "goblin", "wisp"], "weights": [2, 2, 5, 2], "count": [2, 3], "hp_scale": 1.0, "power_scale": 1.0},

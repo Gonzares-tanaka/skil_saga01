@@ -26,6 +26,8 @@ class Battle:
         self.resource_events = []
         self.discovered_skills = discovered_skills if discovered_skills is not None else set()
         self.mastered_skills = mastered_skills if mastered_skills is not None else set()
+        for actor in self.party:
+            actor.mastered_skills = self.mastered_skills
 
     def begin_round(self, actions):
         if self.outcome or self.queue:
@@ -106,7 +108,8 @@ class Battle:
             if skill.id not in self.mastered_skills:
                 self.discovered_skills.add(skill.id)
                 self.mastered_skills.add(skill.id)
-                message = f"{actor.name} {skill.name} MASTERED!"
+                message = f"{actor.name} {skill.name} MASTERED! 次回USES +1"
+                self.sound_cue = "mastered"
                 lines.append(message)
                 self.resource_events.append(message)
         return lines
@@ -245,10 +248,13 @@ class Session:
         self.settled = False
         self.results = []
         self.debug_pending = False
+        self.field_pending = False
         self.discovered_skills = {
             skill_id for character in self.party for skill_id in character.skills
         }
         self.mastered_skills = set()
+        for actor in self.party:
+            actor.mastered_skills = self.mastered_skills
         self.treasure = Treasure()
         self.pending_relearn = None
 
@@ -329,7 +335,7 @@ class Session:
 
     def resolve_replacement(self, actor_index, slot=None):
         """Choose an old slot, or None to decline; never roll growth again."""
-        if not self.settled and not self.debug_pending and self.pending_relearn is None:
+        if not self.settled and not self.debug_pending and not self.field_pending and self.pending_relearn is None:
             raise ValueError("戦闘結果を確定してください。")
         actor = self.party[actor_index]
         new_id = actor.pending_skill
@@ -337,7 +343,7 @@ class Session:
             raise ValueError("習得待ちの技がありません。")
         new = self.skills[new_id]
         relearn = self.pending_relearn == (actor_index, new_id)
-        uses = new.relearn_uses if relearn else new.max_uses
+        uses = actor.relearn_uses(new) if relearn else actor.next_max_uses(new)
         if slot is None:
             message = f"{actor.name} {new.name} の習得を見送った"
         else:
@@ -371,17 +377,18 @@ class Session:
         actor.history.extend(rescue)
         if not self.pending_replacements:
             self.debug_pending = False
+            self.field_pending = False
         return message
 
     def relearn_candidates(self):
-        return [s for s in self.skills.values() if s.id in self.discovered_skills and s.rarity in ("BASIC", "COMMON")]
+        return [s for s in self.skills.values() if s.id in self.discovered_skills and s.can_relearn]
 
     def relearn(self, actor_index, skill_id):
         if self.pending_replacements or (self.battle and not self.settled):
             raise ValueError("戦闘・入れ替えを完了してください。")
         skill = self.skills[skill_id]
         if skill not in self.relearn_candidates():
-            raise ValueError("再習得できるのは発見済みの基本・通常技です。")
+            raise ValueError("未発見・対象外の技です。基本/通常/RARE補助のみ。")
         actor = self.party[actor_index]
         if skill_id in actor.skills:
             raise ValueError("すでに所持しています。残数の補充はできません。")
@@ -392,9 +399,9 @@ class Session:
             self.pending_relearn = (actor_index, skill_id)
             return "入れ替え確定時に宝を消費します"
         actor.learn(skill)
-        actor.skill_uses[skill_id] = skill.relearn_uses
+        actor.skill_uses[skill_id] = actor.relearn_uses(skill)
         self.treasure.banked -= skill.relearn_cost
-        message = f"{actor.name} {skill.name} 再習得{skill.relearn_uses}回 / 宝-{skill.relearn_cost}"
+        message = f"{actor.name} {skill.name} 再習得{actor.skill_uses[skill_id]}回 / 宝-{skill.relearn_cost}"
         actor.history.append(message)
         return message
 
@@ -413,7 +420,7 @@ class Session:
             if skill.id not in self.mastered_skills:
                 self.discovered_skills.add(skill.id)
                 self.mastered_skills.add(skill.id)
-                lines.append(f"{skill.name} MASTERED!")
+                lines.append(f"{skill.name} MASTERED! 次回USES +1")
         actor.history.extend(lines)
         return lines
 
@@ -428,7 +435,7 @@ class Session:
         if operation in ("one", "restore"):
             for member in self.party:
                 for sid in member.skills:
-                    member.skill_uses[sid] = 1 if operation == "one" else self.skills[sid].max_uses
+                    member.skill_uses[sid] = 1 if operation == "one" else member.max_uses(self.skills[sid])
             lines = ["DEBUG: 全員の技を" + ("残り1回" if operation == "one" else "最大回数")]
         elif operation == "fill":
             candidates = [s for s in self.skills.values() if s.id not in actor.skills]
@@ -523,7 +530,7 @@ class Session:
             if skill_id not in self.mastered_skills:
                 self.discovered_skills.add(skill_id)
                 self.mastered_skills.add(skill_id)
-                messages.append(f"{actor.name} {skill.name} MASTERED!")
+                messages.append(f"{actor.name} {skill.name} MASTERED! 次回USES +1")
         messages.extend(ensure_attack(actor, self.skills,
                                       self.settings["skill_slots"],
                                       self.discovered_skills))

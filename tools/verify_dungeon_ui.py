@@ -48,6 +48,9 @@ def capture(name):
 
 
 def finish_pages():
+    # Audio time does not advance in this tight headless loop. The dedicated
+    # verify_battle_music.py separately tests waiting for the real playback state.
+    pyxel.stop()
     for _ in range(100):
         if app.state != "result":
             return
@@ -152,6 +155,10 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     app.dungeon.x, app.dungeon.y = app.dungeon.positions(0, TILE_CHEST)[0]
     key(pyxel.KEY_Z)
     capture("08_open_chest")
+    for _ in range(20):
+        if app.state != "field_event":
+            break
+        key(pyxel.KEY_Z)
     for floor in range(1, 5):
         app.dungeon.x, app.dungeon.y = app.dungeon.find(floor - 1, TILE_STAIRS_DOWN)
         key(pyxel.KEY_Z)
@@ -263,7 +270,7 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     capture("12_clear")
     key(pyxel.KEY_Z)
     key(pyxel.KEY_F8)
-    assert app.state == "clear"
+    assert app.state == "explore"  # Carry unfinished surveys and treasure home.
     key(pyxel.KEY_D)
     assert app.overlay == "info"
     key(pyxel.KEY_D)

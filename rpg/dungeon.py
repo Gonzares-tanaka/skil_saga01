@@ -6,9 +6,11 @@ import math
 from .content import ROOT
 from .models import Enemy
 from .treasure import Treasure
+from .exploration import load_exploration_settings
 from .tiles import (BOSS_FLOORS, MAP_IMAGE_BANK, PASSABLE, TILE_FLOOR,
                     TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_ENTRANCE,
-                    TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR)
+                    TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,
+                    TILE_RARE_CHEST, TILE_POISON, TILE_PIT, TILE_HEAL_POINT)
 
 
 def load_dungeon_settings():
@@ -19,6 +21,8 @@ class Dungeon:
     def __init__(self, tilemaps, enemy_data, settings, rng, treasure=None):
         self.maps = list(tilemaps)
         self.settings, self.rng = settings, rng
+        self.exploration_settings = load_exploration_settings()
+        self.last_reward = None
         self.enemies = {row["id"]: row for row in enemy_data}
         if len(self.enemies) != len(enemy_data):
             raise ValueError("enemies.json: 敵のidが重複しています。")
@@ -72,7 +76,6 @@ class Dungeon:
         require(type(items["max_potions"]) is int and 1 <= items["max_potions"] <= 99, "max_potionsは1～99")
         require(type(items["initial_potions"]) is int and 0 <= items["initial_potions"] <= items["max_potions"], "初期ポーション数が無効")
         require(type(items["potion_heal"]) is int and 1 <= items["potion_heal"] <= 9999, "potion_healは1～9999")
-        require(number(items["chest_potion_chance"], 0, 1), "宝箱の確率は0～1")
         require(len(self.maps) == len(self.settings["floors"]) == 15, "マップとfloorsは15階分必要")
         multipliers = self.settings["spark_multipliers"]
         require(len(multipliers) == 15 and all(number(v, 0.01, 100) for v in multipliers), "spark_multipliersは15階分の正の倍率")
@@ -127,17 +130,50 @@ class Dungeon:
                 x, y = queue.popleft()
                 for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
                     point = x + dx, y + dy
-                    if point not in seen and self.tile(floor, *point) in PASSABLE:
+                    if point not in seen and self.tile(floor, *point) in PASSABLE - {TILE_PIT}:
                         seen.add(point)
                         queue.append(point)
-            events = {TILE_CHEST, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS}
+            events = {TILE_CHEST, TILE_RARE_CHEST, TILE_HEAL_POINT, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS}
             for y in range(self.height):
                 for x in range(self.width):
                     if self.tile(floor, x, y) in events and (x, y) not in seen:
                         raise ValueError(f"{floor + 1}F ({x},{y}) のイベントへ通路がつながっていません。")
 
-    def enter(self):
-        if self.cleared:
+    def reachable(self, floor):
+        start = self.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
+        seen, queue = {start}, deque([start])
+        while queue:
+            x, y = queue.popleft()
+            for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                point = x + dx, y + dy
+                if point not in seen and self.tile(floor, *point) in PASSABLE - {TILE_PIT, TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN}:
+                    seen.add(point)
+                    queue.append(point)
+        return seen
+
+    def grant_chest(self, reward):
+        """Apply inventory rewards; the field UI applies HP/spark effects once."""
+        kind, amount = reward["kind"], reward.get("amount", 1)
+        if kind == "POTION" and self.potions + amount > self.settings["items"]["max_potions"]:
+            return "", "薬が満杯。宝箱は残した"
+        self.last_reward = reward
+        if kind == "TREASURE":
+            self.treasure.unbanked += amount
+            message = f"未確定の宝 +{amount} / 帰還で確定"
+        elif kind == "POTION":
+            self.potions += amount
+            message = f"ポーションを{amount}個入手"
+        else:
+            message = "宝箱は空だった" if kind == "EMPTY" else "宝箱を開けた!"
+        return "chest", message
+
+    def fall_in_pit(self):
+        self.x, self.y = self.find(self.floor, TILE_ENTRANCE if self.floor == 0 else TILE_STAIRS_UP)
+        self.grace = self.settings["safe_steps"]
+        return "pit", "落とし穴! この階の入口へ戻された"
+
+    def enter(self, allow_cleared=False):
+        if self.cleared and not allow_cleared:
             raise ValueError("このダンジョンはクリア済みです。")
         self.floor = 0
         self.x, self.y = self.find(0, TILE_ENTRANCE)
@@ -176,22 +212,19 @@ class Dungeon:
             if self.floor not in self.defeated_bosses:
                 return "boss", self.boss_data["name"]
             return "", "この階のボスは撃破済み"
-        if tile == TILE_CHEST:
+        if tile == TILE_HEAL_POINT:
+            return "spring", "回復の泉"
+        if tile in (TILE_CHEST, TILE_RARE_CHEST):
             key = self.floor, self.x, self.y
             if key in self.opened:
                 return "", "宝箱は空です"
             if key not in self.chest_loot:
-                self.chest_loot[key] = "potion" if self.rng.random() < self.settings["items"]["chest_potion_chance"] else "treasure"
-            if self.chest_loot[key] == "potion":
-                if self.potions >= self.settings["items"]["max_potions"]:
-                    return "", "薬が満杯。宝箱は残した"
-                self.potions += 1
-                message = "ポーションを1個入手"
-            else:
-                self.treasure.unbanked += 1
-                message = "未確定の宝 +1 / 帰還で確定"
-            self.opened.add(key)
-            return "chest", message
+                rows = self.exploration_settings["CHEST_REWARD_TABLE"]["RARE" if tile == TILE_RARE_CHEST else "NORMAL"]
+                self.chest_loot[key] = self.rng.choices(rows, [r["weight"] for r in rows])[0].copy()
+            result = self.grant_chest(self.chest_loot[key])
+            if result[0]:
+                self.opened.add(key)
+            return result
         return "", "特に何もありません"
 
     def move(self, dx, dy, debug=False):
@@ -203,6 +236,10 @@ class Dungeon:
         self.x, self.y = x, y
         self.steps += 1
         tile = self.tile(self.floor, x, y)
+        if tile == TILE_POISON:
+            return "poison", "毒沼に足を踏み入れた"
+        if tile == TILE_PIT:
+            return self.fall_in_pit()
         if tile not in (TILE_FLOOR, TILE_CHEST_OPEN, TILE_BOSS_CLEAR):
             return self.interact()
         if self.floor in BOSS_FLOORS:
