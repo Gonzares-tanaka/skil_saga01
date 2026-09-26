@@ -16,10 +16,10 @@ TILE_ENTRANCE = (5, 0)
 TILE_CHEST_OPEN = (6, 0)
 TILE_BOSS = (7, 0)
 TILE_BOSS_CLEAR = (8, 0)
-TILE_RARE_CHEST = (9, 0)
+TILE_RARE_CHEST = (9, 0)  # Image Bank 1 (72, 0): potion appearance, rare-chest reward.
 TILE_POISON = (10, 0)
 TILE_PIT = (11, 0)
-TILE_HEAL_POINT = (12, 0)
+TILE_HEAL_POINT = (12, 0)  # Image Bank 1 (96, 0): healing spring.
 TILE_QUEST = (13, 0)  # Image only: quest locations are selected on reachable floor.
 PASSABLE = {TILE_FLOOR, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST,
             TILE_ENTRANCE, TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,

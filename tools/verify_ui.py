@@ -90,6 +90,7 @@ with (patch.object(pyxel, "text", side_effect=bounded_text),
     key(pyxel.KEY_Z)
     capture("06_history")
     key(pyxel.KEY_D)
+    pyxel.stop()  # Result navigation is gated until the real fanfare ends.
     for _ in range(20):
         key(pyxel.KEY_Z)
         if app.state == "command":
@@ -134,6 +135,7 @@ with (patch.object(pyxel, "text", side_effect=bounded_text),
     app.result_lines = wrap_lines(app.session.results)
     app.state = "result"
     app.result_page = (len(app.result_lines) - 1) // 9
+    pyxel.stop()
     key(pyxel.KEY_Z)
     assert app.state == "replace"
     old = list(app.session.party[0].skills)

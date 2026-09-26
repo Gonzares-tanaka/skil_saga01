@@ -146,22 +146,23 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     app.enter_camp()
     app.enter_dungeon()
     assert not e.springs
-    # Debug mastery and reacquisition: newly granted stock includes exactly +1.
+    # Debug mastery and reacquisition: attack power changes, stock does not.
     app.enter_camp()
     key(pyxel.KEY_F9)
     key(pyxel.KEY_F10)
-    app.catalog_cursor = list(s.skills).index('armor_break')
+    app.catalog_cursor = list(s.skills).index('punch')
     c = s.party[0]
     for sid in list(c.skills)[1:]:
         c.forget(sid)
     key(pyxel.KEY_M)
     key(pyxel.KEY_R)
-    assert c.skill_uses['armor_break'] == s.skills['armor_break'].max_uses + 1
+    assert c.skill_uses['punch'] == s.skills['punch'].max_uses
+    assert c.power_multiplier(s.skills['punch']) == 1.2
     key(pyxel.KEY_X)
     app.state, app.archive_page = 'archive', 1
-    app.archive_cursor = list(s.skills).index('armor_break')
+    app.archive_cursor = list(s.skills).index('punch')
     capture('archive')
-    assert any('再取得USES +1' in value for value in draws)
+    assert any('再取得POWER x1.2' in value for value in draws)
     app.enter_camp()
     key(pyxel.KEY_F1)
     for i in range(len(app.feedback_options())):

@@ -165,7 +165,7 @@ class DungeonApp(App):
         if self.overlay in ("catalog", "dungeon_debug", "effects", "treasure_debug"):
             self.notice_timer = max(0, self.notice_timer - 1)
         if (self.overlay == "info" and self.info_tab == 1 and self.state in ("explore", "menu")
-                and self.pressed(pyxel.KEY_C)):
+                and self.confirm()):
             actor = self.session.party[self.info_character]
             if actor.skills and self.session.skills[actor.skills[self.scroll]].effect == "heal":
                 self.field_actor = self.info_character
@@ -173,9 +173,7 @@ class DungeonApp(App):
                 self.field_return = self.state
                 self.state, self.overlay, self.item_cursor = "field_heal", None, 0
                 self.notice_timer = 0
-            else:
-                self.tell("回復技を選んでください")
-            return
+                return
         # Let the existing UI own all combat/inspection key handling.
         if self.pressed(pyxel.KEY_Q, pyxel.KEY_F9, pyxel.KEY_F12, pyxel.KEY_D, pyxel.KEY_TAB, pyxel.KEY_H):
             super().update()
@@ -236,7 +234,7 @@ class DungeonApp(App):
                     elif self.pressed(pyxel.KEY_M):
                         self.session.mastered_skills.add(skill.id)
                         self.session.discovered_skills.add(skill.id)
-                        self.tell(skill.name + " MASTERED! 次回USES +1")
+                        self.tell(skill.name + " MASTERED! " + skill.mastery_label)
                     elif self.pressed(pyxel.KEY_R):
                         if self.state not in ("camp", "explore"):
                             raise ValueError("強制再取得は拠点か探索中だけです")
@@ -290,8 +288,7 @@ class DungeonApp(App):
                     self.dungeon.x, self.dungeon.y = self.dungeon.find(floor, TILE_BOSS)
                 self.tell(f"DEBUG: {self.dungeon.floor + 1}Fへ移動")
                 return
-        confirm = self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN, pyxel.KEY_SPACE)
-        cancel = self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE)
+        confirm, cancel = self.confirm(), self.cancel()
         if self.state in ("boss_message", "boss_after"):
             if cancel and self.state == "boss_message":
                 self.state = "explore"
@@ -304,7 +301,7 @@ class DungeonApp(App):
                     self.state = "clear" if self.dungeon.cleared else "explore"
                     self.explore_message = "先の階層への道が開いた"
         elif self.state == "camp":
-            self.camp_cursor = (self.camp_cursor + self.direction()) % 5
+            self.camp_cursor = (self.camp_cursor + self.direction()) % 6
             if confirm:
                 if self.camp_cursor == 0:
                     self.enter_dungeon()
@@ -315,8 +312,10 @@ class DungeonApp(App):
                         self.state, self.archive_page, self.archive_cursor = "archive", 0, 0
                     elif self.camp_cursor == 3:
                         self.state, self.notice_timer = "relearn_character", 0
-                    else:
+                    elif self.camp_cursor == 4:
                         self.state, self.notice_timer = "quest_board", 0
+                    else:
+                        self.overlay = "help"
         elif self.state == "archive":
             if cancel:
                 self.state = "camp"
@@ -350,14 +349,16 @@ class DungeonApp(App):
                     else:
                         self.handle_event(*event)
         elif self.state == "menu":
-            self.menu_cursor = (self.menu_cursor + self.direction()) % 4
+            self.menu_cursor = (self.menu_cursor + self.direction()) % 5
             if cancel:
                 self.state = "explore"
             elif confirm:
                 if self.menu_cursor < 2:
                     self.overlay, self.info_tab, self.scroll = "info", self.menu_cursor, 0
-                else:
+                elif self.menu_cursor < 4:
                     self.state, self.item_cursor = ("items" if self.menu_cursor == 2 else "field_return"), 0
+                else:
+                    self.overlay = "help"
         elif self.state == "items":
             self.item_cursor = (self.item_cursor + self.direction()) % 4
             if cancel:
@@ -394,7 +395,7 @@ class DungeonApp(App):
         elif self.overlay or self.state not in ("camp", "archive", "explore", "menu", "items", "field_heal", "clear", "boss_message", "boss_after"):
             super().draw()
             if self.overlay == "info" and self.info_tab == 1 and self.state in ("explore", "menu"):
-                self.footer("左右:人 上下:技 C:回復 D:閉じる")
+                self.footer("左右:人 上下:技 A:回復/頁 B:閉じる")
         else:
             pyxel.cls(0)
             if self.state == "camp":
@@ -417,11 +418,10 @@ class DungeonApp(App):
     def draw_camp(self):
         self.title("BASE CAMP / 拠点" + (" DEBUG" if self.session.debug else ""))
         text(4, 18, self.camp_message, 2, 38)
-        for i, label in enumerate(("ダンジョンに入る", "パーティ状態", "SKILL ARCHIVE 技図鑑", "スキル再習得", "QUEST BOARD 調査依頼")):
+        for i, label in enumerate(("ダンジョンに入る", "パーティ状態", "SKILL ARCHIVE 技図鑑", "スキル再習得", "QUEST BOARD 調査依頼", "操作 HELP")):
             text(10, 30 + i * 11, (">" if i == self.camp_cursor else " ") + label, 3, 36)
-        text(8, 86, f"確定宝 {self.session.treasure.banked} / 薬 {self.dungeon.potions}", 2, 36)
-        text(8, 100, f"{self.session.completed}戦 {self.session.wins}勝", 2, 36)
-        self.footer("Z:決定 D:能力 H:操作 F9:試験")
+        text(8, 98, f"宝{self.session.treasure.banked} 薬{self.dungeon.potions} / {self.session.completed}戦 {self.session.wins}勝", 2, 36)
+        self.footer("D-PAD:選択 A:決定 B:戻る")
 
     def draw_archive(self):
         skills = list(self.session.skills.values())
@@ -440,7 +440,7 @@ class DungeonApp(App):
                 text(7, 51 + i * 10,
                      f"{rarity:8} {row['discovered']:2}    {row['mastered']:2}   {row['total']:2}",
                      3 if rarity == "LEGEND" else 2, 37)
-            self.footer("Z:技一覧 X:拠点へ")
+            self.footer("A:技一覧 B:拠点へ")
             return
         self.title(f"SKILL LIST {self.archive_cursor + 1}/{len(skills)}")
         start = max(0, min(self.archive_cursor - 4, len(skills) - 7))
@@ -458,8 +458,8 @@ class DungeonApp(App):
         category = CATEGORIES[selected.skill_type] if selected.id in self.session.discovered_skills else "????"
         text(5, 90, "TYPE " + category + "  D=発見 M=習熟", 2, 37)
         if selected.id in self.session.mastered_skills:
-            text(5, 100, "MASTERED: 再取得USES +1", 2, 37)
-        self.footer("上下:技 Z:集計 X:拠点へ")
+            text(5, 100, "MASTERED: " + selected.mastery_label, 2, 37)
+        self.footer("上下:技 A:集計 B:拠点へ")
 
     def draw_explore(self):
         d = self.dungeon
@@ -508,14 +508,14 @@ class DungeonApp(App):
             text(102, y, actor.name, 3 if actor.alive else 1, 14)
             text(102, y + 9, f"{actor.hp}/{actor.max_hp}" if actor.alive else "戦闘不能", 2, 14)
         text(102, 100, f"{d.x},{d.y}", 1, 14)
-        self.footer("矢印:移動 Z:調べる X:メニュー")
+        self.footer("D-PAD:移動 A:調べる B:メニュー")
 
     def draw_menu(self):
         self.title(f"{self.dungeon.floor + 1}F / 探索メニュー")
-        for i, label in enumerate(("状態 STATUS", "習得技 SKILLS", "道具 ITEM", "RETURNで帰還")):
-            text(12, 22 + i * 17, (">" if i == self.menu_cursor else " ") + label, 3, 34)
-        text(8, 95, "入口かRETURNで宝を確定", 2, 36)
-        self.footer("上下:選択 Z:決定 X:探索へ")
+        for i, label in enumerate(("状態 STATUS", "習得技 SKILLS", "道具 ITEM", "RETURNで帰還", "操作 HELP")):
+            text(12, 20 + i * 15, (">" if i == self.menu_cursor else " ") + label, 3, 34)
+        text(8, 99, "入口かRETURNで宝を確定", 2, 36)
+        self.footer("D-PAD:選択 A:決定 B:探索へ")
 
     def draw_items(self):
         d = self.dungeon
@@ -528,7 +528,7 @@ class DungeonApp(App):
             text(5, y, (">" if i == self.item_cursor else " ") + actor.name, 3, 14)
             text(67, y, f"HP {actor.hp}/{actor.max_hp}", 2, 22)
         text(5, 99, "満タン・戦闘不能は消費なし", 2, 37)
-        self.footer("上下:選択 Z:使う X:戻る")
+        self.footer("上下:選択 A:使う B:戻る")
 
     def draw_clear(self):
         self.title("DUNGEON CLEAR")
@@ -537,7 +537,7 @@ class DungeonApp(App):
         text(12, 60, f"確定宝{self.session.treasure.banked} 未確定{self.session.treasure.unbanked}", 2, 34)
         text(12, 78, "Dで育成結果を確認できます", 2, 34)
         text(12, 93, "調査と宝を持ち帰ろう", 2, 34)
-        self.footer("Z:探索に戻る D:状態 Q:終了")
+        self.footer("A:探索に戻る")
 
     def draw_field_heal(self):
         actor = self.session.party[self.field_actor]
@@ -549,7 +549,7 @@ class DungeonApp(App):
             text(5, y, (">" if i == self.item_cursor else " ") + target.name, 3, 14)
             text(67, y, f"HP {target.hp}/{target.max_hp}", 2, 22)
         text(5, 99, "回数を消費・探索使用は成長なし", 2, 37)
-        self.footer("上下:対象 Z:使用 X:技一覧へ")
+        self.footer("上下:対象 A:使用 B:技一覧へ")
 
     def draw_result(self):
         super().draw_result()
@@ -568,8 +568,7 @@ class DungeonApp(App):
         self.footer("C:取得 V:残1 B:発見 M:習熟 R:再")
 
     def update_camp_resources(self):
-        confirm = self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN, pyxel.KEY_SPACE)
-        cancel = self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE)
+        confirm, cancel = self.confirm(), self.cancel()
         if self.state == "return_result":
             if confirm:
                 self.state, self.notice_timer = "camp", 0
@@ -629,7 +628,7 @@ class DungeonApp(App):
             text(6, 45, "未確定宝: 0 / 全員HP回復", 2, 37)
             for i, line in enumerate(wrap_lines(self.return_lines, 36)[:5]):
                 text(6, 59 + i * 9, line, 2, 37)
-            self.footer("Z:拠点へ")
+            self.footer("A:拠点へ")
         elif self.state in ("relearn_character", "field_return"):
             returning = self.state == "field_return"
             self.title("RETURN / 使用者を選ぶ" if returning else "再習得 / キャラを選ぶ")
@@ -643,7 +642,7 @@ class DungeonApp(App):
                 else:
                     label = f"技{len(actor.skills)}/{s.settings['skill_slots']}"
                 text(94, 32 + i * 16, label, 2, 16)
-            self.footer("上下:人 Z:帰還 X:戻る" if returning else "上下:人 Z:技選択 X:拠点")
+            self.footer("上下:人 A:帰還 B:戻る" if returning else "上下:人 A:技選択 B:拠点")
         elif self.state == "relearn_list":
             actor = s.party[self.info_character]
             candidates = s.relearn_candidates()
@@ -659,7 +658,7 @@ class DungeonApp(App):
                 text(5, 100, f"再習得{actor.relearn_uses(skill)}/{actor.next_max_uses(skill)}回 / 宝{skill.relearn_cost}", 2, 37)
             else:
                 text(5, 35, "再習得できる発見済み技なし", 2, 37)
-            self.footer("上下:技 Z:確認 X:人選択")
+            self.footer("上下:技 A:確認 B:人選択")
         else:
             actor = s.party[self.info_character]
             skill = s.skills[self.relearn_skill]
@@ -669,7 +668,7 @@ class DungeonApp(App):
             text(5, 50, f"使用回数 {actor.relearn_uses(skill)}/{actor.next_max_uses(skill)}", 3, 37)
             text(5, 66, "満杯なら入れ替えを選択", 2, 37)
             text(5, 82, "取り消しでは宝を消費しない", 2, 37)
-            self.footer("Z:再習得 X:取り消し")
+            self.footer("A:再習得 B:取り消し")
 
     def show_field_event(self, lines, return_state="explore"):
         self.field_lines = wrap_lines(lines, 36)
@@ -678,8 +677,7 @@ class DungeonApp(App):
         self.state, self.overlay = "field_event", None
 
     def update_field_ui(self):
-        confirm = self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN, pyxel.KEY_SPACE)
-        cancel = self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE)
+        confirm, cancel = self.confirm(), self.cancel()
         if self.state == "field_event":
             if not confirm:
                 return
@@ -709,7 +707,7 @@ class DungeonApp(App):
             pyxel.rectb(3, 17, 154, 84, 2)
             for i, line in enumerate(self.field_lines[self.field_page * 8:(self.field_page + 1) * 8]):
                 text(7, 24 + i * 9, line, 3, 36)
-            self.footer("Z:次へ")
+            self.footer("A:次へ")
             return
         self.title("QUEST BOARD / 調査依頼")
         e = self.exploration
@@ -728,11 +726,11 @@ class DungeonApp(App):
         for i, line in enumerate(wrap_lines([quest["description"]], 37)[:2]):
             text(5, 78 + i * 9, line, 2, 37)
         text(5, 99, "調査後に生還 / 全滅で再調査", 2, 37)
-        self.footer("上下:依頼 Z:受注 X:拠点へ")
+        self.footer("上下:依頼 A:受注 B:拠点へ")
 
     def feedback_options(self):
         rewards = self.dungeon.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"]
-        labels = {"TREASURE": "宝", "POTION": "薬", "HEAL": "一人回復", "HEAL_ALL": "全員回復",
+        labels = {"TREASURE": "宝", "POTION": "薬",
                   "SKILL_CHANCE": "閃き抽選", "TRAP": "罠", "EMPTY": "空の箱"}
         options = [(f"宝箱: {labels[r['kind']]} {r.get('amount', '')}", r) for r in rewards]
         options += [("RARE宝箱を足元に生成", "rare"), ("毒沼ダメージ", "poison"),
@@ -843,7 +841,7 @@ class DungeonApp(App):
         for i, line in enumerate(self.message_lines[self.message_page * 8:(self.message_page + 1) * 8]):
             text(7, 24 + i * 9, line, 3, 36)
         more = (self.message_page + 1) * 8 < len(self.message_lines)
-        self.footer("Z:続きを読む" if more else "Z:戦闘開始 X:戻る" if self.state == "boss_message" else "Z:先へ進む")
+        self.footer("A:続きを読む" if more else "A:戦闘開始 B:戻る" if self.state == "boss_message" else "A:先へ進む")
 
     def update_dungeon_debug(self):
         self.floor_cursor = (self.floor_cursor + self.direction()) % 15
@@ -893,8 +891,9 @@ class DungeonApp(App):
 
     def draw_help(self):
         pyxel.cls(0)
-        self.title("操作 / 探索と戦闘")
-        lines = ["矢印:移動・選択 Z:決定", "X:戻る D:能力・技・履歴", "H:操作 Q:終了 A:おまかせ", "調査→生還でクエスト報酬", "入口/RETURNで宝確定・HP回復", "F9:DEBUG切替 以下DEBUG専用", "F1:探索試験 F2:宝/再習得", "F4:任意階/ボス/撃破フラグ", "F5/F6:階変更 F7:HP全回復", "F8:各ボスへ F11:即帰還", "F10:技/習熟 F12:技試験", "F3:戦闘中の効果/閃き倍率"]
+        self.title("SPARK / 操作")
+        lines = ["D-PAD  移動・選択", "A  決定・調べる・会話送り", "B  キャンセル・戻る", "探索中のB  メニュー", "PC: A=Zキー B=Xキー",
+                 "技を使い切るとMASTERED", "調査後に生還して報酬", "入口/RETURNで宝を確定"]
         for i, line in enumerate(lines):
-            text(4, 15 + i * 8, line, 2 if i < 5 else 3, 38)
-        self.footer("H/X:閉じる HPは戦闘後も持越")
+            text(5, 18 + i * 10, line, 3 if i < 5 else 2, 37)
+        self.footer("B:閉じる")

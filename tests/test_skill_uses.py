@@ -150,11 +150,11 @@ class FiniteSkillTests(unittest.TestCase):
             b.step()
         for c in self.s.party:
             self.assertEqual(c.skills, ["punch"])
-            self.assertEqual(c.skill_uses, {"punch": 31})
+            self.assertEqual(c.skill_uses, {"punch": 30})
         b.begin_round(b.auto_actions())
         while b.queue:
             b.step()
-        self.assertTrue(all(c.skill_uses['punch'] == 30 for c in self.s.party))
+        self.assertTrue(all(c.skill_uses['punch'] == 29 for c in self.s.party))
 
     def test_full_support_loadout_still_respects_slot_limit(self):
         self.give(self.c, ["heal", "renew", "first_aid", "full_heal", "counter", "berserk"])

@@ -96,7 +96,7 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     key(pyxel.KEY_D)
     key(pyxel.KEY_Z)
     key(pyxel.KEY_DOWN)
-    key(pyxel.KEY_C)
+    key(pyxel.KEY_Z)
     assert app.state == "field_heal"
     key(pyxel.KEY_Z)  # Full HP never spends the last charge.
     assert c.skill_uses["heal"] == 1
@@ -126,7 +126,7 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
         key(pyxel.KEY_Z)
         if app.state == "command":
             break
-    assert app.state == "command" and c.skill_uses["punch"] == 31
+    assert app.state == "command" and c.skill_uses["punch"] == 30
     assert any("消滅" in line for line in app.battle.resource_events)
     app.battle.outcome = "VICTORY"
     app.session.settings["spark_chance"] = 0

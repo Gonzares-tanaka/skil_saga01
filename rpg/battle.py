@@ -67,10 +67,10 @@ class Battle:
             return group[index]
         return next((c for c in group if c.alive), None)
 
-    def _damage(self, target, amount, magic=False):
+    def _damage(self, target, amount, magic=False, power_bonus=1.0):
         factor = (0.5 if target.guarding else 1) * (1.25 if target.berserk else 1) * effect_factor(target, "guard_up")
         defense = getattr(target, "magic_defense", 0) if magic else getattr(target, "defense", 0) * effect_factor(target, "armor_break")
-        damage = max(1, round(max(1, amount - defense) * factor))
+        damage = max(1, round(max(1, round(max(1, amount - defense) * factor)) * power_bonus))
         removed = min(target.hp, damage)
         target.hp -= removed
         return removed
@@ -108,7 +108,7 @@ class Battle:
             if skill.id not in self.mastered_skills:
                 self.discovered_skills.add(skill.id)
                 self.mastered_skills.add(skill.id)
-                message = f"{actor.name} {skill.name} MASTERED! 次回USES +1"
+                message = f"{actor.name} {skill.name} MASTERED! {skill.mastery_label}"
                 self.sound_cue = "mastered"
                 lines.append(message)
                 self.resource_events.append(message)
@@ -139,7 +139,9 @@ class Battle:
         target = self._target(self.enemies, target_index)
         if target is None:
             return lines
-        dealt = self._damage(target, skill.power(actor), magic=skill.skill_type == "magic")
+        dealt = self._damage(target, skill.power(actor, apply_mastery=False),
+                             magic=skill.skill_type == "magic",
+                             power_bonus=actor.power_multiplier(skill))
         suffix = f" ({skill.hits}連撃)" if skill.hits > 1 else ""
         lines.append(f"{target.name} -{dealt}{suffix}")
         if not target.alive:
@@ -420,7 +422,7 @@ class Session:
             if skill.id not in self.mastered_skills:
                 self.discovered_skills.add(skill.id)
                 self.mastered_skills.add(skill.id)
-                lines.append(f"{skill.name} MASTERED! 次回USES +1")
+                lines.append(f"{skill.name} MASTERED! {skill.mastery_label}")
         actor.history.extend(lines)
         return lines
 
@@ -530,7 +532,7 @@ class Session:
             if skill_id not in self.mastered_skills:
                 self.discovered_skills.add(skill_id)
                 self.mastered_skills.add(skill_id)
-                messages.append(f"{actor.name} {skill.name} MASTERED! 次回USES +1")
+                messages.append(f"{actor.name} {skill.name} MASTERED! {skill.mastery_label}")
         messages.extend(ensure_attack(actor, self.skills,
                                       self.settings["skill_slots"],
                                       self.discovered_skills))

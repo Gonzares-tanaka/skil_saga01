@@ -20,9 +20,6 @@ GAMEPAD_KEYS = {
     pyxel.KEY_RIGHT: pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT,
     pyxel.KEY_Z: pyxel.GAMEPAD1_BUTTON_A,
     pyxel.KEY_X: pyxel.GAMEPAD1_BUTTON_B,
-    pyxel.KEY_C: pyxel.GAMEPAD1_BUTTON_X,
-    pyxel.KEY_D: pyxel.GAMEPAD1_BUTTON_Y,
-    pyxel.KEY_H: pyxel.GAMEPAD1_BUTTON_START,
 }
 
 
@@ -91,6 +88,15 @@ class App:
     def pressed(self, *keys):
         return any(self.button_pressed(key) for key in keys)
 
+    def confirm(self):
+        return self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN, pyxel.KEY_SPACE)
+
+    def cancel(self):
+        return self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE)
+
+    def confirm_held(self):
+        return pyxel.btn(pyxel.KEY_Z) or pyxel.btn(pyxel.GAMEPAD1_BUTTON_A)
+
     def button_pressed(self, key, hold=0, repeat=0):
         return pyxel.btnp(key, hold, repeat) or (
             key in GAMEPAD_KEYS and pyxel.btnp(GAMEPAD_KEYS[key], hold, repeat))
@@ -143,8 +149,7 @@ class App:
         if self.pressed(pyxel.KEY_H):
             self.overlay = None if self.overlay == "help" else "help"
             return
-        confirm = self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN, pyxel.KEY_SPACE)
-        cancel = self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE)
+        confirm, cancel = self.confirm(), self.cancel()
         if self.overlay:
             if cancel:
                 self.overlay = None
@@ -183,7 +188,7 @@ class App:
             return
         if self.state == "resolve":
             self.delay -= 1
-            if self.delay > 0 and not confirm and not pyxel.btn(pyxel.KEY_A):
+            if self.delay > 0 and not confirm and not self.confirm_held():
                 return
             if self.pending:
                 self.log.append(self.pending.popleft())
@@ -310,8 +315,8 @@ class App:
                 text(5, 84 + i * 8, (">" if i == self.cursor else " ") + label, 3 if i == self.cursor else 2)
             text(48, 84, f"{self.actor.name}の行動", 3, 26)
             text(48, 92, f"技の残数 合計{sum(self.actor.skill_uses.values())}", 2, 26)
-            text(48, 100, "A:自動 X:戻る", 2, 26)
-            self.footer("Z:決定 D:能力 H:操作 F9:試験")
+            text(48, 100, "A:決定 B:戻る", 2, 26)
+            self.footer("A:決定 B:戻る D-PAD:選択")
         elif self.state == "target":
             target_index, target = self.targets()[self.target_cursor]
             ally = self.selected_skill and self.selected_skill.target == "ally"
@@ -323,17 +328,19 @@ class App:
             target_line = f"> {target.name} HP {target.hp}/{target.max_hp}" if ally else f"> {target.name}"
             text(5, 92, target_line, 3, 37)
             text(5, 100, "対象を選んでください", 2)
-            self.footer("矢印:対象 Z:決定 X:戻る")
+            self.footer("D-PAD:対象 A:決定 B:戻る")
         else:
             for i, line in enumerate(self.log[-3:]):
                 text(5, 84 + i * 8, line, 3 if i == len(self.log[-3:]) - 1 else 2, 37)
-            self.footer("Z:送り A長押し:高速 D:能力")
+            self.footer("A:メッセージ送り / 長押しで高速")
 
     def skill_details(self, actor, skill, y=76):
         pyxel.line(4, y - 3, 155, y - 3, 1)
         text(5, y, f"{RARITIES[skill.rarity]} / {TARGETS[skill.target]} 最大{actor.max_uses(skill)}回", 2, 37)
         text(5, y + 8, skill.formula(), 3, 37)
         detail = f"威力 {skill.power(actor)} 待ち {skill.cooldown}T"
+        if actor.power_multiplier(skill) > 1:
+            detail += " / MASTER x1.2"
         if skill.effect == "berserk":
             detail = "STR x1.5 / 被害 x1.25 / 3T"
         elif skill.effect in EFFECTS:
@@ -356,7 +363,7 @@ class App:
             wait = self.actor.cooldowns.get(skill_id, 0)
             text(101, y, f"{self.actor.skill_uses.get(skill_id, 0)}/{self.actor.max_uses(skill)}" + ("待" if wait else ""), 2, 14)
         self.skill_details(self.actor, self.session.skills[self.actor.skills[self.skill_cursor]])
-        self.footer("上下:選択 Z:使用 X:戻る")
+        self.footer("D-PAD:選択 A:使用 B:戻る")
 
     def draw_result(self):
         outcome = self.battle.outcome
@@ -366,12 +373,12 @@ class App:
         for i, line in enumerate(self.result_lines[self.result_page * 9:self.result_page * 9 + 9]):
             text(7, 27 + i * 8, line, 3 if "閃き" in line or "伝説" in line else 2, 36)
         pages = max(1, (len(self.result_lines) + 8) // 9)
-        text(5, 102, f"{self.result_page + 1}/{pages}ページ D:能力", 3, 37)
+        text(5, 102, f"{self.result_page + 1}/{pages}ページ", 3, 37)
         next_label = "入替へ" if self.session.pending_replacements else self.next_result_label()
         if self.result_page == pages - 1 and self.waiting_for_fanfare():
             self.footer("ファンファーレ再生中…")
             return
-        self.footer(f"Z:{next_label} 矢印:ページ" if self.result_page == pages - 1 else "Z:続きを読む 矢印:ページ")
+        self.footer(f"A:{next_label} D-PAD:ページ" if self.result_page == pages - 1 else "A:続きを読む D-PAD:ページ")
 
     def info_scroll_limit(self):
         actor = self.session.party[self.info_character]
@@ -415,18 +422,15 @@ class App:
             for i, line in enumerate(lines[self.scroll:self.scroll + 8]):
                 text(7, 27 + i * 9, line, 3 if "閃き" in line else 2, 36)
             text(5, 102, "上下:スクロール 新しい順", 2)
-        self.footer("左右:人 Z:頁 上下 D:閉じる")
+        self.footer("左右:人 上下:選択 A:頁 B:閉じる")
 
     def draw_help(self):
-        self.title("SPARK / 育成実験室")
-        settings = self.session.settings
-        spark_hint = f"F9 閃き {settings['spark_chance']:.0%} → {settings['debug_spark_chance']:.0%}"
-        lines = ["たたかう:技選択 まもる:防御", "Z/Enter: 決定・次へ", "X/Esc: 戻る・取り消し", "D/Tab: 能力・技・履歴",
-                 "A: 1ターンを自動で戦う", "A長押し: 戦闘ログ高速送り", spark_hint,
-                 "Q:終了 F12:技のDEBUG操作", "使い切った技は消滅する", "帰還しても技回数は戻らない", "次戦はHPだけ全回復"]
+        self.title("SPARK / 操作")
+        lines = ["D-PAD  移動・選択", "A  決定・調べる・会話送り", "B  キャンセル・戻る", "探索中のB  メニュー", "PC: A=Zキー B=Xキー",
+                 "たたかう→技→対象を選ぶ", "技は使い切ると消滅", "勝利後に成長・閃き"]
         for i, line in enumerate(lines):
-            text(5, 16 + i * 8, line, 3 if i < 8 else 2, 37)
-        self.footer("H/X:閉じる レベル・経験値なし")
+            text(5, 18 + i * 10, line, 3 if i < 5 else 2, 37)
+        self.footer("B:閉じる")
 
     def update_replacement(self, confirm, cancel):
         index = self.session.pending_replacements[0]
@@ -465,7 +469,8 @@ class App:
         new = self.session.skills[actor.pending_skill]
         relearn = self.session.pending_relearn is not None
         uses = actor.relearn_uses(new) if relearn else actor.next_max_uses(new)
-        self.title(f"{actor.name} / 技の入れ替え")
+        bonus = " / POWER x1.2" if actor.next_power_multiplier(new) > 1 else ""
+        self.title(f"{actor.name} / 技の入れ替え{bonus}")
         text(4, 14, f"新: {new.name}", 3, 38)
         text(4, 23, f"宝{new.relearn_cost}消費 / 再習得{uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{new.power(actor)} {uses}/{actor.next_max_uses(new)}回", 2, 38)
         if self.replacement_confirm:
@@ -480,7 +485,7 @@ class App:
             else:
                 text(4, 48, "新しい技を覚えずに", 2, 38)
                 text(4, 62, "見送りますか?", 3, 38)
-            self.footer("Z:確定 X:選び直す")
+            self.footer("A:確定 B:選び直す")
             return
         start = max(0, self.replacement_cursor - 4)
         choices = [self.session.skills[s].name for s in actor.skills] + ["新しい技を見送る"]
@@ -500,7 +505,7 @@ class App:
             text(4, 99, old.formula(), 2, 38)
         else:
             text(4, 92, "覚えている技をそのまま残す", 2, 38)
-        self.footer("上下:忘れる技 Z:選択 X:見送る")
+        self.footer("上下:忘れる技 A:選択 B:見送る")
 
     def update_debug_skills(self, confirm):
         self.info_character = (self.info_character + self.direction(horizontal=True)) % 4

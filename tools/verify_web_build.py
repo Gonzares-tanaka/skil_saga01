@@ -10,6 +10,10 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT / "dist/game.html").read_text(encoding="utf-8")
+assert 'gamepad: "disabled"' in html
+assert html.count('data-gb="') == 6
+assert all(f'data-gb="{name}"' in html for name in ('up', 'down', 'left', 'right', 'a', 'b'))
+assert '_virtualGamepadStates[index] = true' in html
 payload = base64.b64decode(re.search(r'base64: "([^"]+)"', html)[1])
 with tempfile.TemporaryDirectory(prefix="verify_pyxel_web_") as temp:
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
@@ -25,8 +29,10 @@ with tempfile.TemporaryDirectory(prefix="verify_pyxel_web_") as temp:
         assert archive.read('spark_web/assets/battle_music.pyxres') == music.read_bytes()
         archive.extractall(temp)
     check = '''
+import sys
 from pathlib import Path
 from unittest.mock import patch
+sys.path.insert(0, str(Path.cwd()))
 import pyxel
 from rpg.battle import Session
 from rpg.content import ROOT, load_content
@@ -52,13 +58,22 @@ press(pyxel.GAMEPAD1_BUTTON_B)
 assert app.state == "menu"
 press(pyxel.GAMEPAD1_BUTTON_B)
 assert app.state == "explore"
-press(pyxel.GAMEPAD1_BUTTON_Y)
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == "menu"
+press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.overlay == "info"
 press(pyxel.GAMEPAD1_BUTTON_B)
 assert app.overlay is None
-press(pyxel.GAMEPAD1_BUTTON_START)
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == "explore"
+press(pyxel.GAMEPAD1_BUTTON_B)
+for _ in range(4):
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.overlay == "help"
 press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.overlay is None
 app.begin_encounter()
 assert app.state == "command"
 press(pyxel.GAMEPAD1_BUTTON_A)

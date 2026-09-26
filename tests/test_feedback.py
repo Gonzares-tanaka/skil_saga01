@@ -11,7 +11,7 @@ from rpg.growth import spark
 from rpg.map_resources import load_maps
 from rpg.models import Action
 from rpg.tiles import (TILE_CHEST, TILE_RARE_CHEST, TILE_POISON, TILE_PIT,
-                       TILE_HEAL_POINT, TILE_FLOOR, TILE_ENTRANCE, TILE_STAIRS_UP)
+                       TILE_HEAL_POINT, TILE_FLOOR, TILE_ENTRANCE, TILE_STAIRS_UP, PASSABLE)
 
 
 class FeedbackTests(unittest.TestCase):
@@ -31,11 +31,20 @@ class FeedbackTests(unittest.TestCase):
         for floor in range(15):
             normal += len(self.d.positions(floor, TILE_CHEST))
             rare += len(self.d.positions(floor, TILE_RARE_CHEST))
-            for tile in (TILE_POISON, TILE_PIT, TILE_HEAL_POINT):
-                self.assertTrue(self.d.positions(floor, tile))
-        self.assertEqual(rare, 3)
+        for tile in (TILE_POISON, TILE_PIT, TILE_HEAL_POINT):
+            self.assertTrue(any(self.d.positions(floor, tile) for floor in range(15)))
+        self.assertGreater(rare, 0)
         self.assertGreater(normal, rare)
         self.d.validate_maps()
+
+    def test_tilemap2_spring_and_rare_chest_are_events(self):
+        for tile, event in ((TILE_HEAL_POINT, 'spring'), (TILE_RARE_CHEST, 'chest')):
+            positions = self.d.positions(2, tile)
+            self.assertTrue(positions)
+            self.assertIn(tile, PASSABLE)
+            self.d.floor = 2
+            self.d.x, self.d.y = positions[0]
+            self.assertEqual(self.d.interact()[0], event)
 
     def test_chest_weighted_sampling_and_no_second_reward(self):
         d = self.d
@@ -53,8 +62,9 @@ class FeedbackTests(unittest.TestCase):
             self.assertEqual(d.interact()[0], '')
         self.assertEqual(kinds, {r['kind'] for r in rows})
         # Rarity selects its own table, not a fixed chest reward.
-        d.debug_floor(2)
-        d.x, d.y = d.positions(2, TILE_RARE_CHEST)[0]
+        rare_floor = next(floor for floor in range(15) if d.positions(floor, TILE_RARE_CHEST))
+        d.debug_floor(rare_floor)
+        d.x, d.y = d.positions(rare_floor, TILE_RARE_CHEST)[0]
         rare = [{'kind': 'TREASURE', 'amount': 17, 'weight': 1}]
         d.exploration_settings['CHEST_REWARD_TABLE']['RARE'] = rare
         before = d.treasure.unbanked
@@ -72,13 +82,17 @@ class FeedbackTests(unittest.TestCase):
         self.assertEqual([c.hp for c in self.s.party], [0, 1, 1, 4])
         self.assertNotEqual(self.d.interact()[0], 'poison')
 
-    def test_heal_rewards_are_capped_and_do_not_revive(self):
+    def test_chests_never_heal_but_springs_still_do(self):
+        tables = self.d.exploration_settings['CHEST_REWARD_TABLE']
+        for rows in tables.values():
+            self.assertFalse({'HEAL', 'HEAL_ALL'} & {row['kind'] for row in rows})
         for c in self.s.party:
             c.hp -= 5
         self.s.party[0].hp = 0
-        self.e.chest_effect({'kind': 'HEAL', 'amount': 12})
-        self.assertEqual(sum(c.hp == c.max_hp for c in self.s.party), 1)
-        self.e.chest_effect({'kind': 'HEAL_ALL', 'amount': 12})
+        before = [c.hp for c in self.s.party]
+        self.assertEqual(self.e.chest_effect({'kind': 'HEAL_ALL', 'amount': 12}), [])
+        self.assertEqual([c.hp for c in self.s.party], before)
+        self.e.heal(12)
         self.assertEqual(sum(c.hp == c.max_hp for c in self.s.party), 3)
         self.assertEqual(self.s.party[0].hp, 0)
 
@@ -182,12 +196,39 @@ class FeedbackTests(unittest.TestCase):
             self.assertIn(skill.id, s.mastered_skills)
             self.assertNotIn(skill.id, c.skills)
             c.learn(skill)
-            self.assertEqual(c.skill_uses[skill.id], skill.max_uses + 1)
-            self.assertEqual(c.max_uses(skill), skill.max_uses + 1)
+            self.assertEqual(c.skill_uses[skill.id], skill.max_uses)
+            self.assertEqual(c.power_multiplier(skill), 1.2)
+            self.assertEqual(c.max_uses(skill), skill.max_uses)
         self.assertEqual(other.max_uses(skill), skill.max_uses)
+        self.assertEqual(other.power_multiplier(skill), 1.0)
         other.forget(skill.id)
         other.learn(skill)
-        self.assertEqual(other.max_uses(skill), skill.max_uses + 1)
+        self.assertEqual(other.max_uses(skill), skill.max_uses)
+        self.assertEqual(other.power_multiplier(skill), 1.2)
+
+    def test_mastered_attack_scales_final_damage_but_heal_does_not(self):
+        s, actor = self.s, self.s.party[0]
+        skill = s.skills['punch']
+        enemy = s.next_battle().enemies[0]
+        enemy.hp = enemy.max_hp = 999
+        enemy.defense = 3
+        base = skill.power(actor, apply_mastery=False)
+        normal = max(1, base - enemy.defense)
+        self.assertEqual(s.battle._damage(enemy, base), normal)
+        actor.forget(skill.id)
+        s.mastered_skills.add(skill.id)
+        actor.learn(skill)
+        enemy.hp = enemy.max_hp
+        self.assertEqual(s.battle._damage(enemy, base, power_bonus=actor.power_multiplier(skill)),
+                         round(normal * 1.2))
+        actor.forget(skill.id)
+        actor.learn(skill)
+        self.assertEqual(actor.power_multiplier(skill), 1.2)
+        heal = s.skills['heal']
+        s.mastered_skills.add(heal.id)
+        actor.learn(heal)
+        self.assertEqual(actor.power_multiplier(heal), 1.0)
+        self.assertEqual(heal.power(actor), heal.power(actor, apply_mastery=False))
 
     def test_rare_support_relearn_cost_and_mastered_stock(self):
         s, c = self.s, self.s.party[0]
@@ -199,8 +240,9 @@ class FeedbackTests(unittest.TestCase):
             self.assertEqual(skill.relearn_cost, 4)
             s.mastered_skills.add(sid)
             s.relearn(0, sid)
-            self.assertEqual(c.skill_uses[sid], skill.relearn_uses + 1)
-            self.assertEqual(c.max_uses(skill), skill.max_uses + 1)
+            self.assertEqual(c.skill_uses[sid], skill.relearn_uses)
+            self.assertEqual(c.max_uses(skill), skill.max_uses)
+            self.assertEqual(c.power_multiplier(skill), 1.2 if skill.effect == 'damage' else 1.0)
         self.assertEqual(s.treasure.banked, 12)
         for sid in ('meteor', 'triple_slash'):
             with self.assertRaises(ValueError):
@@ -215,7 +257,8 @@ class FeedbackTests(unittest.TestCase):
         s.mastered_skills.add(skill.id)
         with patch.object(s.rng, 'choice', return_value=skill):
             spark(c, s.skills, s.settings, s.rng, allowed=['LEGEND'], discovered=s.discovered_skills)
-        self.assertEqual(c.skill_uses[skill.id], skill.max_uses + 1)
+        self.assertEqual(c.skill_uses[skill.id], skill.max_uses)
+        self.assertEqual(c.power_multiplier(skill), 1.2)
 
 
 if __name__ == '__main__':

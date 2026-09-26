@@ -3,28 +3,29 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Pyxel Dungeon RPG Prototype</title>
+  <title>SPARK | Game Boy風RPG Prototype</title>
   <style>
     :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0f380f; color: #e5edc4; }
     body { margin: 0; min-height: 100svh; display: grid; place-items: center; }
-    main { width: min(100%, 900px); padding: 18px; box-sizing: border-box; text-align: center; }
+    main { width: min(100%, 900px); padding: 14px; box-sizing: border-box; text-align: center; }
     h1 { margin: 0 0 8px; font-size: clamp(1.35rem, 5vw, 2.1rem); }
     p { line-height: 1.55; }
     .notice { color: #bbce86; font-size: .9rem; }
-    button { border: 0; border-radius: 8px; padding: 12px 28px; background: #9bbc0f; color: #0f380f; font-weight: 800; font-size: 1rem; cursor: pointer; }
-    #game { display: none; width: 100%; height: min(78svh, 680px); margin-top: 16px; border: 0; background: #000; }
+    button { border: 2px solid #e5edc4; border-radius: 8px; padding: 12px 28px; background: #9bbc0f; color: #0f380f; font-weight: 800; font-size: 1rem; cursor: pointer; }
+    #game { display: none; width: 100%; height: min(78svh, 680px); margin-top: 10px; border: 2px solid #9bbc0f; background: #0f380f; box-sizing: border-box; }
     #game:focus { outline: 2px solid #9bbc0f; }
     .controls { margin: 14px auto 0; max-width: 620px; font-size: .9rem; }
+    @media (pointer: coarse) { main { padding: 7px; } #game { height: 80svh; margin-top: 6px; } .intro { display: none; } }
   </style>
 </head>
 <body>
   <main>
-    <h1>Pyxel Dungeon RPG Prototype</h1>
-    <p class="notice">DEVELOPMENT PROTOTYPE / 開発中のプレイテスト版です</p>
-    <p>有限回数のスキルを使い、閃き、宝を持ち帰って再び潜る4人パーティRPGです。</p>
+    <h1>SPARK</h1>
+    <p class="notice">GAME BOY風 RPG PROTOTYPE</p>
+    <p class="intro">有限回数の技を使い切り、閃きを集めて宝を持ち帰る4人パーティRPGです。</p>
     <button id="play" type="button">PLAY / ゲームを開始</button>
-    <iframe id="game" title="Pyxel Dungeon RPG Prototype" allow="fullscreen"></iframe>
-    <p class="controls">PC：矢印キーで移動・選択、Z/Enter/Spaceで決定、X/Escで戻る。<br>タッチゲームパッド：十字キーで移動・選択、Aで決定、Bで戻る・探索メニュー、Yで情報、Xで選択した探索回復技を使用、STARTでヘルプ。横向き推奨です。</p>
+    <iframe id="game" title="SPARK RPG PROTOTYPE" allow="fullscreen"></iframe>
+    <p class="controls">D-PAD：移動・選択　A：決定・調べる・会話送り　B：キャンセル・戻る（探索中はメニュー）<br>PCでは矢印キー、A＝Zキー、B＝Xキー。スマートフォンは画面下の十字キーとB/Aを使用します。</p>
     <p class="notice">感想・不具合はGitHub Issuesへお願いします。ブラウザを閉じると進行状況は失われます。</p>
   </main>
   <script>

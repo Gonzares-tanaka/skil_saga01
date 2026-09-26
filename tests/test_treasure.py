@@ -121,7 +121,7 @@ class TreasureTests(unittest.TestCase):
         self.assertNotIn("return", self.c.skills)
         self.assertIn("return", self.s.mastered_skills)
         self.s.relearn(1, "return")
-        self.assertEqual(self.s.party[1].skill_uses["return"], 2)
+        self.assertEqual(self.s.party[1].skill_uses["return"], 1)
 
     def test_return_rejects_dead_or_missing_caster(self):
         with self.assertRaises(ValueError):

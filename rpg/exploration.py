@@ -7,7 +7,7 @@ from .tiles import TILE_FLOOR
 
 def load_exploration_settings():
     data = json.loads((ROOT / "data/exploration.json").read_text(encoding="utf-8-sig"))
-    kinds = {"TREASURE", "POTION", "HEAL", "HEAL_ALL", "SKILL_CHANCE", "TRAP", "EMPTY"}
+    kinds = {"TREASURE", "POTION", "SKILL_CHANCE", "TRAP", "EMPTY"}
     for rows in data["CHEST_REWARD_TABLE"].values():
         if not rows or sum(r["weight"] for r in rows) <= 0:
             raise ValueError("宝箱の重み合計は正の数が必要です")
@@ -92,8 +92,6 @@ class Exploration:
 
     def chest_effect(self, reward):
         kind = reward["kind"]
-        if kind in ("HEAL", "HEAL_ALL"):
-            return self.heal(reward["amount"], kind == "HEAL_ALL")
         if kind == "TRAP":
             return ["宝箱の罠!"] + self.damage(reward["amount"])
         if kind == "SKILL_CHANCE":
