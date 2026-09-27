@@ -278,7 +278,9 @@ class App:
                 self.state, self.delay = "resolve", 0
                 self.log = [f"第{self.battle.round}ターン / 自動"]
                 return
-            self.cursor = (self.cursor + self.direction()) % 3
+            vertical, horizontal = self.direction(), self.direction(horizontal=True)
+            self.cursor = (((self.cursor // 2 + vertical) % 2) * 2
+                           + (self.cursor % 2 + horizontal) % 2)
             if cancel and self.actions:
                 self.actions.pop()
                 self.actor_position -= 1
@@ -291,6 +293,8 @@ class App:
                         self.tell("使える技がありません")
                 elif self.cursor == 1:
                     self.state, self.item_cursor = "battle_item", 0
+                elif self.cursor == 2:
+                    self.commit(Action(self.actor_index, "GUARD"))
                 else:
                     lines = self.battle.attempt_run()
                     if self.battle.boss:
@@ -408,12 +412,12 @@ class App:
             status = "KO" if not actor.alive else "!" if actor.berserk else "+" if actor.guarding else ""
             text(148, y + 1, status, 3, 2)
             text(115, y + 8, f"{actor.hp}/{actor.max_hp}", 2, 11)
-        self.panel(1, 80, 158, 30)
+        self.panel(1, 80, 158, 31)
         if self.state == "command":
-            for i, label in enumerate(("SKILL 技", "ITEM 道具", "RUN 逃走")):
-                text(5, 84 + i * 8, (">" if i == self.cursor else " ") + label, 3 if i == self.cursor else 2)
-            text(87, 84, f"{self.actor.name}", 3, 18)
-            text(87, 94, f"技{sum(self.actor.skill_uses.values())}回", 2, 18)
+            for i, label in enumerate(("SKILL 技", "ITEM 道具", "GUARD まもる", "RUN 逃走")):
+                text(5 + i % 2 * 75, 84 + i // 2 * 12,
+                     (">" if i == self.cursor else " ") + label,
+                     3 if i == self.cursor else 2)
             self.footer("A:決定 B:戻る D-PAD:選択")
         elif self.state == "target":
             target_index, target = self.targets()[self.target_cursor]
@@ -541,7 +545,7 @@ class App:
     def draw_help(self):
         self.title("SPARK / 操作")
         lines = ["D-PAD  移動・選択", "A  決定・調べる・会話送り", "B  キャンセル・戻る", "探索中のB  メニュー", "PC: A=Zキー B=Xキー",
-                 "たたかう→技→対象を選ぶ", "技は使い切ると消滅", "勝利後に成長・閃き"]
+                 "戦闘 SKILL/ITEM/GUARD/RUN", "GUARD:今ターンの被害半減", "技は使い切ると消滅"]
         for i, line in enumerate(lines):
             text(5, 18 + i * 10, line, 3 if i < 5 else 2, 37)
         self.footer("B:閉じる")

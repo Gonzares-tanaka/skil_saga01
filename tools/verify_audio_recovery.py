@@ -12,6 +12,7 @@ import pyxel
 from rpg.battle import Session
 from rpg.content import load_content
 from rpg.dungeon_app import DungeonApp
+from rpg.models import Action
 
 
 def press(app, key):
@@ -59,7 +60,13 @@ with patch.object(pyxel, "play", side_effect=no_audio), \
     app.begin_encounter()
     for enemy in app.battle.enemies:
         enemy.hp = 1
+    actions = [Action(0, "GUARD")] + [
+        Action(i, "SKILL", 0, session.party[i].skills[0]) for i in range(1, 4)
+    ]
+    app.battle.begin_round(actions)
+    app.state, app.delay = "resolve", 0
     resolve_to_result(app)
+    assert all(not actor.guarding for actor in session.party)
     assert not app.waiting_for_fanfare()
     leave_result(app)
     print("B: silent normal victory -> explore OK")

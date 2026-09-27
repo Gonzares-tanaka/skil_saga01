@@ -88,6 +88,11 @@ press(pyxel.GAMEPAD1_BUTTON_B)
 assert app.overlay is None
 app.begin_encounter()
 assert app.state == "command"
+press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == "command" and app.actions[-1].kind == "GUARD"
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == "command" and not app.actions
 press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "skill"
 press(pyxel.GAMEPAD1_BUTTON_B)

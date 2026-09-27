@@ -1019,7 +1019,7 @@ class DungeonApp(App):
         rate = spark_probability(self.session.settings, multiplier, self.session.debug)
         self.title("DEBUG AUDIO: " + self.audio_state())
         text(5, 16, f"{unit.name} 閃き x{multiplier:.2f} = {rate:.1%}", 2, 37)
-        text(5, 27, f"AGI {battle_agility(unit):g} DEF {getattr(unit, 'defense', 0) * effect_factor(unit, 'armor_break'):g}", 2, 37)
+        text(5, 27, f"AGI {battle_agility(unit):g} DEF {getattr(unit, 'defense', 0) * effect_factor(unit, 'armor_break'):g} GUARD {'ON' if unit.guarding else 'OFF'}", 2, 37)
         if not self.battle.boss:
             text(5, 98, f"RUN {self.battle.run_chance():.0%} F6成功/F8失敗", 2, 37)
         for i, (effect, (factor, turns)) in enumerate(list(unit.effects.items())[:3]):
@@ -1038,7 +1038,7 @@ class DungeonApp(App):
         pyxel.cls(0)
         self.title("SPARK / 操作")
         lines = ["D-PAD  移動・選択", "A  決定・調べる・会話送り", "B  キャンセル・戻る", "探索中のB  メニュー", "PC: A=Zキー B=Xキー",
-                 "技を使い切るとMASTERED", "調査後に生還して報酬", "入口/RETURNで宝を確定"]
+                 "戦闘 SKILL/ITEM/GUARD/RUN", "GUARD:今ターンの被害半減", "技を使い切るとMASTERED", "入口/RETURNで宝を確定"]
         for i, line in enumerate(lines):
             text(5, 18 + i * 10, line, 3 if i < 5 else 2, 37)
         self.footer("B:閉じる")

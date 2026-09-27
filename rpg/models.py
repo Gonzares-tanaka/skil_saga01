@@ -160,7 +160,7 @@ class Enemy:
 @dataclass(frozen=True)
 class Action:
     actor: int
-    kind: str = "DEFEND"
+    kind: str = "GUARD"
     target: int = 0
     skill_id: str | None = None
     item_id: str | None = None

@@ -10,6 +10,10 @@ from .treasure import Treasure
 from .items import Inventory
 
 
+GUARD_DAMAGE_MULTIPLIER = 0.5
+COUNTER_DAMAGE_MULTIPLIER = 0.5
+
+
 class Battle:
     def __init__(self, party, enemies, skills, max_rounds=60, rng=None,
                  skill_slots=MAX_SKILLS, discovered_skills=None, mastered_skills=None,
@@ -43,7 +47,7 @@ class Battle:
             raise ValueError("Exactly one action per living character is required.")
         for action in actions:
             actor = self.party[action.actor]
-            if action.kind not in ("SKILL", "ITEM", "DEFEND"):
+            if action.kind not in ("SKILL", "ITEM", "GUARD", "DEFEND"):
                 raise ValueError("Unknown action.")
             if action.kind == "SKILL":
                 if self.skills.get(action.skill_id) and self.skills[action.skill_id].effect == "return":
@@ -72,7 +76,7 @@ class Battle:
         for action in actions:
             actor = self.party[action.actor]
             skill = self.skills[action.skill_id] if action.kind == "SKILL" else None
-            priority = 1 if action.kind == "DEFEND" or (skill and skill.effect == "counter") else 0
+            priority = 1 if action.kind in ("GUARD", "DEFEND") or (skill and skill.effect == "counter") else 0
             entries.append((priority, battle_agility(actor), self.rng.random(), "party", action))
         for i, enemy in enumerate(self.enemies):
             if enemy.alive:
@@ -86,7 +90,9 @@ class Battle:
         return next((c for c in group if c.alive), None)
 
     def _damage(self, target, amount, magic=False, power_bonus=1.0):
-        factor = (0.5 if target.guarding else 1) * (1.25 if target.berserk else 1) * effect_factor(target, "guard_up")
+        guard_factor = (COUNTER_DAMAGE_MULTIPLIER if getattr(target, "counter", None)
+                        else GUARD_DAMAGE_MULTIPLIER) if target.guarding else 1
+        factor = guard_factor * (1.25 if target.berserk else 1) * effect_factor(target, "guard_up")
         defense = getattr(target, "magic_defense", 0) if magic else getattr(target, "defense", 0) * effect_factor(target, "armor_break")
         damage = max(1, round(max(1, round(max(1, amount - defense) * factor)) * power_bonus))
         removed = min(target.hp, damage)
@@ -97,9 +103,9 @@ class Battle:
         actor = self.party[action.actor]
         if not actor.alive:
             return []
-        if action.kind == "DEFEND":
+        if action.kind in ("GUARD", "DEFEND"):
             actor.guarding = True
-            return [f"{actor.name} は防御"]
+            return [f"{actor.name} はまもる"]
         if action.kind == "ITEM":
             used, message = self.inventory.use(action.item_id, self.party[action.target])
             if used:
@@ -290,7 +296,7 @@ class Battle:
             if skill:
                 actions.append(Action(i, "SKILL", target, skill.id))
             else:
-                actions.append(Action(i, "DEFEND"))
+                actions.append(Action(i, "GUARD"))
         return actions
 
 
