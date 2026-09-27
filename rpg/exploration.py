@@ -7,15 +7,15 @@ from .tiles import TILE_FLOOR
 
 def load_exploration_settings():
     data = json.loads((ROOT / "data/exploration.json").read_text(encoding="utf-8-sig"))
-    kinds = {"TREASURE", "POTION", "SKILL_CHANCE", "TRAP", "EMPTY"}
+    kinds = {"TREASURE", "POTION", "PHOENIX ASH", "REMEDY", "SKILL_CHANCE", "TRAP", "EMPTY"}
     for rows in data["CHEST_REWARD_TABLE"].values():
         if not rows or sum(r["weight"] for r in rows) <= 0:
             raise ValueError("宝箱の重み合計は正の数が必要です")
         for row in rows:
             if row["kind"] not in kinds or row["weight"] < 0 or row.get("amount", 1) < 0 or not 0 <= row.get("chance", 1) <= 1:
                 raise ValueError("宝箱テーブルの値が不正です")
-    if data["poison_damage"] < 0 or data["spring_heal"] < 0:
-        raise ValueError("探索ダメージ・回復量は0以上です")
+    if data["poison_damage"] < 0:
+        raise ValueError("探索ダメージは0以上です")
     return data
 
 
@@ -85,7 +85,7 @@ class Exploration:
             living = [min(living, key=lambda c: c.hp / c.max_hp)]
         recovered = 0
         for c in living:
-            gain = min(amount, c.max_hp - c.hp)
+            gain = c.max_hp - c.hp if amount is None else min(amount, c.max_hp - c.hp)
             c.hp += gain
             recovered += gain
         return [f"{'全員' if everyone else living[0].name if living else '対象なし'} HP回復 合計{recovered}"]

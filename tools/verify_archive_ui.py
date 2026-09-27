@@ -49,8 +49,8 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     assert app.state == "archive" and app.archive_page == 0
     assert app.session.archive_summary()["discovered"] == 3
     capture("01_summary")
-    assert any("DISCOVERED 3/30" in line for line in drawn)
-    assert any("MASTERED   0/30" in line for line in drawn)
+    assert any("DISCOVERED 3/31" in line for line in drawn)
+    assert any("MASTERED   0/31" in line for line in drawn)
 
     drawn.clear()
     key(pyxel.KEY_Z)

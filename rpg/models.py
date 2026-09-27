@@ -42,6 +42,8 @@ class Skill:
     def formula(self):
         if self.effect == "return":
             return "探索専用 / 拠点へ帰還"
+        if self.effect == "revive":
+            return "戦闘不能をHP25%で蘇生"
         if self.duration:
             return f"倍率 {self.modifier:g} / {self.duration}ターン"
         parts = [f"{stat}*{scale:g}" for stat, scale in
@@ -67,6 +69,7 @@ class Character:
     mastered_copies: set[str] = field(default_factory=set, repr=False)
     growth_points: dict[str, float] = field(default_factory=dict)
     used_skills: dict[str, int] = field(default_factory=dict)
+    category_uses: dict[str, int] = field(default_factory=dict)
     history: list[str] = field(default_factory=list)
     pending_skill: str | None = None
     cooldowns: dict[str, int] = field(default_factory=dict)
@@ -119,6 +122,7 @@ class Character:
         """Reset per-battle effects without healing wounds or reviving allies."""
         self.growth_points.clear()
         self.used_skills.clear()
+        self.category_uses.clear()
         self.cooldowns.clear()
         self.guarding = False
         self.counter = None
@@ -156,6 +160,7 @@ class Action:
     kind: str = "DEFEND"
     target: int = 0
     skill_id: str | None = None
+    item_id: str | None = None
 
 
 def effect_factor(actor, effect):

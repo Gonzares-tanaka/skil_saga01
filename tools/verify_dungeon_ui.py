@@ -84,8 +84,11 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     c = app.session.party[0]
     c.hp = 5
     key(pyxel.KEY_Z)
+    assert app.state == "item_target"
+    key(pyxel.KEY_Z)
     assert c.hp == 35 and app.dungeon.potions == 1
     capture("04_items")
+    key(pyxel.KEY_X)
     key(pyxel.KEY_X)
     key(pyxel.KEY_X)
     assert app.state == "explore"

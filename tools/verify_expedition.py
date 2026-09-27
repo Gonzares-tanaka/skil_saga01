@@ -31,17 +31,24 @@ def path_to(d, goal):
             tile = d.tile(d.floor, *nxt)
             if nxt in previous or tile not in PASSABLE - {TILE_PIT}:
                 continue
-            if nxt != goal and tile in (TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_BOSS):
+            if nxt != goal and tile in (TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN):
                 continue
             previous[nxt] = point
             queue.append(nxt)
-    raise AssertionError("No route to event in authored resource")
+    raise AssertionError(f"No route to event in authored resource: B{d.floor + 1}F {start} -> {goal}")
+
+
+def reachable_path(d, goal):
+    try:
+        return path_to(d, goal)
+    except AssertionError:
+        return None
 
 
 def play(seed):
     pyxel.load(str(DUNGEON_RESOURCE))
     s = Session(*load_content(), seed=seed)
-    d = Dungeon(load_maps(), s.enemy_data, load_dungeon_settings(), s.rng, s.treasure)
+    d = Dungeon(load_maps(), s.enemy_data, load_dungeon_settings(), s.rng, s.treasure, s.inventory)
     exploration = Exploration(s, d)
     retreats = potions_used = trips = 0
     for trips in range(1, 11):
@@ -64,8 +71,9 @@ def play(seed):
                 goal = d.find(d.floor, TILE_ENTRANCE if d.floor == 0 else TILE_STAIRS_UP)
             else:
                 chests = [p for tile in (TILE_CHEST, TILE_RARE_CHEST) for p in d.positions(d.floor, tile) if (d.floor, *p) not in d.opened]
-                if chests and d.potions < d.settings["items"]["max_potions"]:
-                    goal = min(chests, key=lambda p: len(path_to(d, p)))
+                reachable = [(p, route) for p in chests if (route := reachable_path(d, p)) is not None]
+                if reachable and d.potions < 9:
+                    goal = min(reachable, key=lambda pair: len(pair[1]))[0]
                 else:
                     boss = d.floor in (4, 9, 14) and d.floor not in d.defeated_bosses
                     goal = d.find(d.floor, TILE_BOSS if boss else TILE_STAIRS_DOWN)
@@ -88,7 +96,7 @@ def play(seed):
                 point = d.floor, d.x, d.y
                 if point not in exploration.springs:
                     exploration.springs.add(point)
-                    exploration.heal(d.exploration_settings['spring_heal'])
+                    exploration.heal(None)
             if event in ("battle", "boss"):
                 before = d.floor, d.x, d.y
                 battle = s.next_battle(d.make_enemies(event == "boss"), recover=False, spark_multiplier=d.spark_multiplier)

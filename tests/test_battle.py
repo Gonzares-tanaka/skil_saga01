@@ -43,7 +43,7 @@ class RulesTests(unittest.TestCase):
         return self.resolve(battle, actions)
 
     def test_no_level_or_experience_and_basic_skills(self):
-        self.assertEqual(len(self.skills), 30)
+        self.assertEqual(len(self.skills), 31)
         for c in self.party:
             self.assertTrue(c.skills)
             self.assertGreaterEqual(c.skill_uses[c.skills[0]], 25)
@@ -147,6 +147,11 @@ class RulesTests(unittest.TestCase):
                 if skill_id == 'return':
                     with self.assertRaises(ValueError):
                         self.use(b, skill_id)
+                    continue
+                if skill_id == 'revive':
+                    self.party[1].hp = 0
+                    self.use(b, skill_id, 1)
+                    self.assertEqual(self.party[1].hp, max(1, self.party[1].max_hp // 4))
                     continue
                 self.use(b, skill_id)
                 self.assertTrue(all(0 <= c.hp <= c.max_hp for c in self.party))

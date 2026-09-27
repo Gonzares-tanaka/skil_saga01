@@ -15,6 +15,5 @@
       {"kind": "SKILL_CHANCE", "chance": 1.0, "weight": 30}
     ]
   },
-  "poison_damage": 2,
-  "spring_heal": 12
+  "poison_damage": 2
 }

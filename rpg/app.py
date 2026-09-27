@@ -76,6 +76,8 @@ class App:
         self.actor_position = 0
         self.cursor = self.skill_cursor = self.target_cursor = 0
         self.selected_skill = None
+        self.selected_item = None
+        self.item_cursor = 0
 
     @property
     def actor_index(self):
@@ -109,14 +111,24 @@ class App:
         self.notice, self.notice_timer = message, 60
 
     def targets(self):
-        group = self.session.party if self.selected_skill and self.selected_skill.target == "ally" else self.battle.enemies
-        return [(i, target) for i, target in enumerate(group) if target.alive]
+        if self.selected_item or (self.selected_skill and self.selected_skill.target == "ally"):
+            dead = self.selected_item == "PHOENIX ASH" or (self.selected_skill and self.selected_skill.effect == "revive")
+            return [(i, target) for i, target in enumerate(self.session.party)
+                    if target.alive != bool(dead) and
+                    (self.selected_item != "POTION" or target.hp < target.max_hp)]
+        return [(i, target) for i, target in enumerate(self.battle.enemies) if target.alive]
+
+    def battle_items(self):
+        reserved = {item: sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
+                    for item in ("POTION", "PHOENIX ASH")}
+        return [item for item in reserved if self.session.inventory.counts[item] > reserved[item]]
 
     def commit(self, action):
         self.actions.append(action)
         self.actor_position += 1
         self.cursor = self.skill_cursor = self.target_cursor = 0
         self.selected_skill = None
+        self.selected_item = None
         if self.actor_position >= len(self.order):
             self.battle.begin_round(self.actions)
             self.state, self.delay = "resolve", 0
@@ -216,7 +228,7 @@ class App:
                 self.state, self.delay = "resolve", 0
                 self.log = [f"第{self.battle.round}ターン / 自動"]
                 return
-            self.cursor = (self.cursor + self.direction()) % 2
+            self.cursor = (self.cursor + self.direction()) % 3
             if cancel and self.actions:
                 self.actions.pop()
                 self.actor_position -= 1
@@ -227,12 +239,36 @@ class App:
                         self.state, self.skill_cursor = "skill", 0
                     else:
                         self.tell("使える技がありません")
+                elif self.cursor == 1:
+                    self.state, self.item_cursor = "battle_item", 0
                 else:
-                    self.commit(Action(self.actor_index, "DEFEND"))
+                    lines = self.battle.attempt_run()
+                    if self.battle.boss:
+                        self.tell(lines[0])
+                    else:
+                        self.actions.clear()
+                        self.pending = deque(lines)
+                        self.state, self.delay = "resolve", 0
+        elif self.state == "battle_item":
+            options = self.battle_items()
+            if cancel:
+                self.state = "command"
+                self.selected_item = None
+            elif options:
+                self.item_cursor = (self.item_cursor + self.direction()) % len(options)
+                if confirm:
+                    self.selected_item = options[self.item_cursor]
+                    if not self.targets():
+                        self.tell("使える対象がいません")
+                    else:
+                        self.state, self.target_cursor = "target", 0
+            elif confirm:
+                self.tell("使える道具がありません")
         elif self.state == "skill":
             self.skill_cursor = (self.skill_cursor + self.direction()) % len(self.actor.skills)
             if cancel:
                 self.state = "command"
+                self.selected_skill = None
             elif confirm:
                 skill = self.session.skills[self.actor.skills[self.skill_cursor]]
                 if self.actor.skill_uses.get(skill.id, 0) <= 0:
@@ -245,16 +281,27 @@ class App:
                     self.commit(Action(self.actor_index, "SKILL", self.actor_index, skill.id))
                 else:
                     self.selected_skill = skill
-                    self.state, self.target_cursor = "target", 0
+                    if not self.targets():
+                        self.selected_skill = None
+                        self.tell("使える対象がいません")
+                    else:
+                        self.state, self.target_cursor = "target", 0
         elif self.state == "target":
             choices = self.targets()
+            if not choices:
+                self.state = "battle_item" if self.selected_item else "skill"
+                return
             self.target_cursor = (self.target_cursor + self.direction() + self.direction(horizontal=True)) % len(choices)
             if cancel:
-                self.state = "skill" if self.selected_skill else "command"
+                self.state = "battle_item" if self.selected_item else "skill"
+                self.selected_item = None
+                self.selected_skill = None
             elif confirm:
                 target = choices[self.target_cursor][0]
-                skill = self.selected_skill
-                self.commit(Action(self.actor_index, "SKILL", target, skill.id))
+                if self.selected_item:
+                    self.commit(Action(self.actor_index, "ITEM", target, item_id=self.selected_item))
+                else:
+                    self.commit(Action(self.actor_index, "SKILL", target, self.selected_skill.id))
 
     def panel(self, x, y, w, h):
         pyxel.rect(x, y, w, h, 0)
@@ -282,6 +329,8 @@ class App:
             self.draw_replacement()
         elif self.state == "skill":
             self.draw_skills()
+        elif self.state == "battle_item":
+            self.draw_battle_items()
         else:
             if self.shake_timer:
                 offsets = ((-2, 0), (2, 1), (-1, -1), (1, 0), (0, 1), (0, 0))
@@ -311,20 +360,20 @@ class App:
             text(115, y + 8, f"{actor.hp}/{actor.max_hp}", 2, 11)
         self.panel(1, 80, 158, 30)
         if self.state == "command":
-            for i, label in enumerate(("たたかう", "まもる")):
+            for i, label in enumerate(("SKILL 技", "ITEM 道具", "RUN 逃走")):
                 text(5, 84 + i * 8, (">" if i == self.cursor else " ") + label, 3 if i == self.cursor else 2)
-            text(48, 84, f"{self.actor.name}の行動", 3, 26)
-            text(48, 92, f"技の残数 合計{sum(self.actor.skill_uses.values())}", 2, 26)
-            text(48, 100, "A:決定 B:戻る", 2, 26)
+            text(87, 84, f"{self.actor.name}", 3, 18)
+            text(87, 94, f"技{sum(self.actor.skill_uses.values())}回", 2, 18)
             self.footer("A:決定 B:戻る D-PAD:選択")
         elif self.state == "target":
             target_index, target = self.targets()[self.target_cursor]
-            ally = self.selected_skill and self.selected_skill.target == "ally"
+            ally = self.selected_item or (self.selected_skill and self.selected_skill.target == "ally")
             if ally:
                 pyxel.rectb(97, 13 + target_index * 16, 62, 16, 3)
             else:
                 text(28, 20 + target_index * 20, ">", 3)
-            text(5, 84, f"{self.selected_skill.name} 残{self.actor.skill_uses[self.selected_skill.id]}", 2, 37)
+            label = self.selected_item or f"{self.selected_skill.name} 残{self.actor.skill_uses[self.selected_skill.id]}"
+            text(5, 84, label, 2, 37)
             target_line = f"> {target.name} HP {target.hp}/{target.max_hp}" if ally else f"> {target.name}"
             text(5, 92, target_line, 3, 37)
             text(5, 100, "対象を選んでください", 2)
@@ -347,6 +396,8 @@ class App:
             detail = EFFECTS[skill.effect] + " / 重複せず更新"
         elif skill.effect == "return":
             detail = "未確定の宝を持ち帰る"
+        elif skill.effect == "revive":
+            detail = "戦闘不能の味方1人 / 残数制"
         text(5, y + 16, detail, 2, 37)
         text(5, y + 24, skill.description, 2, 37)
 
@@ -364,6 +415,19 @@ class App:
             text(101, y, f"{self.actor.skill_uses.get(skill_id, 0)}/{self.actor.max_uses(skill)}" + ("待" if wait else ""), 2, 14)
         self.skill_details(self.actor, self.session.skills[self.actor.skills[self.skill_cursor]])
         self.footer("D-PAD:選択 A:使用 B:戻る")
+
+    def draw_battle_items(self):
+        self.title(f"{self.actor.name} / ITEM")
+        options = self.battle_items()
+        if not options:
+            text(8, 30, "使える道具がありません", 3, 35)
+        for i, item in enumerate(options):
+            remaining = self.session.inventory.counts[item] - sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
+            text(8, 24 + i * 14, (">" if i == self.item_cursor else " ") +
+                 f"{item} x{remaining}", 3 if i == self.item_cursor else 2, 36)
+        text(8, 78, "POTION: 生存者のHP回復", 2, 36)
+        text(8, 90, "ASH: 戦闘不能を25%で蘇生", 2, 36)
+        self.footer("上下:選択 A:使用 B:戻る")
 
     def draw_result(self):
         outcome = self.battle.outcome

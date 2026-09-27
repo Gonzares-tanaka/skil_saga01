@@ -1,14 +1,17 @@
 """Small exploration screens around the existing battle UI."""
 from collections import deque
+import json
 
 import pyxel
 
 from .app import App
+from .content import ROOT
 from .dungeon import Dungeon, load_dungeon_settings
 from .exploration import Exploration
 from .text import text, wrap_lines
 from .map_resources import load_maps
 from .growth import spark_probability
+from .growth import growth_bonus
 from .labels import EFFECTS, CATEGORIES
 from .models import effect_factor, battle_agility
 from .sound import play_cue, start_battle_music, stop_battle_music
@@ -29,7 +32,10 @@ class DungeonApp(App):
         if not DUNGEON_RESOURCE.is_file():
             raise ValueError("game.pyxresがありません。同梱リソースを戻してください。")
         super().__init__(session, run=False, headless=headless, battle_on_start=False)
-        self.dungeon = Dungeon(load_maps(), session.enemy_data, load_dungeon_settings(), session.rng, session.treasure)
+        self.dungeon = Dungeon(load_maps(), session.enemy_data, load_dungeon_settings(), session.rng,
+                               session.treasure, session.inventory)
+        self.rumors = json.loads((ROOT / "data/pub_messages.json").read_text(encoding="utf-8-sig"))
+        self.last_rumor = None
         self.exploration = Exploration(session, self.dungeon)
         self.quest_cursor = self.feedback_cursor = 0
         self.relearn_cursor = self.treasure_cursor = 0
@@ -37,6 +43,7 @@ class DungeonApp(App):
         self.player_facing = "down"
         self.floor_cursor = self.effect_cursor = self.message_page = 0
         self.menu_cursor = self.item_cursor = self.camp_cursor = self.catalog_cursor = 0
+        self.item_kind_cursor = self.shop_cursor = self.pub_cursor = 0
         self.archive_cursor = 0
         self.archive_page = 0
         self.battle = None
@@ -86,7 +93,7 @@ class DungeonApp(App):
         self.battle_position = self.dungeon.floor, self.dungeon.x, self.dungeon.y
         self.battle_is_boss = boss
         self.battle = self.session.next_battle(self.dungeon.make_enemies(boss), recover=False,
-                                               spark_multiplier=self.dungeon.spark_multiplier)
+                                               spark_multiplier=self.dungeon.spark_multiplier, boss=boss)
         self.notice_timer = 0
         self.log = [self.dungeon.boss_data["name"] + "との決戦!" if boss else "敵と遭遇した!"]
         self.pending = deque()
@@ -139,7 +146,7 @@ class DungeonApp(App):
                 self.show_field_event(["泉は静かだ。次の探索でまた使える"])
             else:
                 self.exploration.springs.add(key)
-                self.show_field_event([message] + self.exploration.heal(self.dungeon.exploration_settings["spring_heal"]))
+                self.show_field_event([message] + self.exploration.heal(None))
             return
         if event == "stairs" and self.exploration.hint():
             self.show_field_event([message, self.exploration.hint()])
@@ -200,6 +207,15 @@ class DungeonApp(App):
             self.overlay = None if self.overlay == "effects" else "effects"
             self.notice_timer = 0
             return
+        if self.session.debug and self.battle and self.state == "command":
+            if self.pressed(pyxel.KEY_F6):
+                self.battle.run_override = True
+                self.tell("DEBUG: 次のRUNを成功に固定")
+                return
+            if self.pressed(pyxel.KEY_F8):
+                self.battle.run_override = False
+                self.tell("DEBUG: 次のRUNを失敗に固定")
+                return
         if self.overlay == "dungeon_debug":
             self.update_dungeon_debug()
             return
@@ -264,7 +280,7 @@ class DungeonApp(App):
             self.notice_timer = max(0, self.notice_timer - 1)
             self.update_camp_resources()
             return
-        if self.state not in ("camp", "archive", "explore", "menu", "items", "field_heal", "clear", "boss_message", "boss_after"):
+        if self.state not in ("camp", "archive", "explore", "menu", "items", "item_target", "shop", "pub", "field_heal", "clear", "boss_message", "boss_after"):
             super().update()
             return
         self.notice_timer = max(0, self.notice_timer - 1)
@@ -301,7 +317,7 @@ class DungeonApp(App):
                     self.state = "clear" if self.dungeon.cleared else "explore"
                     self.explore_message = "先の階層への道が開いた"
         elif self.state == "camp":
-            self.camp_cursor = (self.camp_cursor + self.direction()) % 6
+            self.camp_cursor = (self.camp_cursor + self.direction()) % 8
             if confirm:
                 if self.camp_cursor == 0:
                     self.enter_dungeon()
@@ -314,8 +330,33 @@ class DungeonApp(App):
                         self.state, self.notice_timer = "relearn_character", 0
                     elif self.camp_cursor == 4:
                         self.state, self.notice_timer = "quest_board", 0
+                    elif self.camp_cursor == 5:
+                        self.state, self.shop_cursor = "shop", 0
+                    elif self.camp_cursor == 6:
+                        self.state, self.pub_cursor = "pub", 0
                     else:
                         self.overlay = "help"
+        elif self.state == "shop":
+            self.shop_cursor = (self.shop_cursor + self.direction()) % 3
+            if cancel:
+                self.state = "camp"
+            elif confirm:
+                item = ("POTION", "PHOENIX ASH", "REMEDY")[self.shop_cursor]
+                self.tell(self.session.inventory.buy(item, self.session.treasure)[1])
+        elif self.state == "pub":
+            self.pub_cursor = (self.pub_cursor + self.direction()) % 2
+            if cancel or (confirm and self.pub_cursor):
+                self.state = "camp"
+            elif confirm:
+                cost = self.session.inventory.data["pub_cost"]
+                if self.session.treasure.banked < cost:
+                    self.tell("確定した宝が足りません")
+                else:
+                    self.session.treasure.banked -= cost
+                    pool = self.rumors["gameplay" if self.session.rng.random() < self.session.inventory.data["pub_gameplay_weight"] else "flavor"]
+                    choices = [line for line in pool if line != self.last_rumor] or pool
+                    self.last_rumor = self.session.rng.choice(choices)
+                    self.show_field_event(["酒場の噂:", self.last_rumor], return_state="pub")
         elif self.state == "archive":
             if cancel:
                 self.state = "camp"
@@ -360,12 +401,25 @@ class DungeonApp(App):
                 else:
                     self.overlay = "help"
         elif self.state == "items":
-            self.item_cursor = (self.item_cursor + self.direction()) % 4
+            self.item_kind_cursor = (self.item_kind_cursor + self.direction()) % 3
             if cancel:
                 self.state = "menu"
                 self.notice_timer = 0
             elif confirm:
-                self.tell(self.dungeon.use_potion(self.session.party[self.item_cursor]))
+                item = ("POTION", "PHOENIX ASH", "REMEDY")[self.item_kind_cursor]
+                if item == "REMEDY":
+                    self.tell("今は治す状態異常がありません")
+                elif self.session.inventory.counts[item] == 0:
+                    self.tell("道具がありません")
+                else:
+                    self.state, self.item_cursor = "item_target", 0
+        elif self.state == "item_target":
+            self.item_cursor = (self.item_cursor + self.direction()) % 4
+            if cancel:
+                self.state = "items"
+            elif confirm:
+                item = ("POTION", "PHOENIX ASH")[self.item_kind_cursor]
+                self.tell(self.session.inventory.use(item, self.session.party[self.item_cursor])[1])
         elif self.state == "field_heal":
             self.item_cursor = (self.item_cursor + self.direction()) % 4
             if cancel:
@@ -392,7 +446,7 @@ class DungeonApp(App):
             self.draw_dungeon_debug() if self.overlay == "dungeon_debug" else self.draw_effects()
         elif self.overlay == "catalog":
             self.draw_catalog()
-        elif self.overlay or self.state not in ("camp", "archive", "explore", "menu", "items", "field_heal", "clear", "boss_message", "boss_after"):
+        elif self.overlay or self.state not in ("camp", "archive", "explore", "menu", "items", "item_target", "shop", "pub", "field_heal", "clear", "boss_message", "boss_after"):
             super().draw()
             if self.overlay == "info" and self.info_tab == 1 and self.state in ("explore", "menu"):
                 self.footer("左右:人 上下:技 A:回復/頁 B:閉じる")
@@ -408,6 +462,12 @@ class DungeonApp(App):
                 self.draw_menu()
             elif self.state == "items":
                 self.draw_items()
+            elif self.state == "item_target":
+                self.draw_item_target()
+            elif self.state == "shop":
+                self.draw_shop()
+            elif self.state == "pub":
+                self.draw_pub()
             elif self.state == "field_heal":
                 self.draw_field_heal()
             elif self.state in ("boss_message", "boss_after"):
@@ -418,9 +478,9 @@ class DungeonApp(App):
     def draw_camp(self):
         self.title("BASE CAMP / 拠点" + (" DEBUG" if self.session.debug else ""))
         text(4, 18, self.camp_message, 2, 38)
-        for i, label in enumerate(("ダンジョンに入る", "パーティ状態", "SKILL ARCHIVE 技図鑑", "スキル再習得", "QUEST BOARD 調査依頼", "操作 HELP")):
-            text(10, 30 + i * 11, (">" if i == self.camp_cursor else " ") + label, 3, 36)
-        text(8, 98, f"宝{self.session.treasure.banked} 薬{self.dungeon.potions} / {self.session.completed}戦 {self.session.wins}勝", 2, 36)
+        for i, label in enumerate(("ダンジョンに入る", "パーティ状態", "SKILL ARCHIVE 技図鑑", "スキル再習得", "QUEST BOARD 調査依頼", "SHOP 道具購入", "PUB 情報購入", "操作 HELP")):
+            text(10, 24 + i * 10, (">" if i == self.camp_cursor else " ") + label, 3, 36)
+        text(8, 104, f"宝{self.session.treasure.banked} 薬{self.dungeon.potions} / {self.session.completed}戦", 2, 36)
         self.footer("D-PAD:選択 A:決定 B:戻る")
 
     def draw_archive(self):
@@ -518,17 +578,42 @@ class DungeonApp(App):
         self.footer("D-PAD:選択 A:決定 B:探索へ")
 
     def draw_items(self):
-        d = self.dungeon
-        self.title(f"POTION 薬{d.potions}/{d.settings['items']['max_potions']}")
-        text(5, 16, f"HP +{d.settings['items']['potion_heal']} / 誰に使う?", 2, 37)
+        self.title("ITEM / 探索中")
+        for i, item in enumerate(("POTION", "PHOENIX ASH", "REMEDY")):
+            text(6, 23 + i * 17, (">" if i == self.item_kind_cursor else " ") +
+                 f"{item} x{self.session.inventory.counts[item]}", 3 if i == self.item_kind_cursor else 2, 37)
+        text(6, 87, "REMEDYは現在使用できません", 2, 37)
+        self.footer("上下:選択 A:対象へ B:戻る")
+
+    def draw_item_target(self):
+        item = ("POTION", "PHOENIX ASH")[self.item_kind_cursor]
+        self.title(item + " / 誰に使う?")
         for i, actor in enumerate(self.session.party):
             y = 34 + i * 15
             if i == self.item_cursor:
                 pyxel.rect(3, y - 1, 153, 10, 1)
             text(5, y, (">" if i == self.item_cursor else " ") + actor.name, 3, 14)
             text(67, y, f"HP {actor.hp}/{actor.max_hp}", 2, 22)
-        text(5, 99, "満タン・戦闘不能は消費なし", 2, 37)
+        text(5, 99, "無効な対象には消費しません", 2, 37)
         self.footer("上下:選択 A:使う B:戻る")
+
+    def draw_shop(self):
+        self.title("SHOP / 道具購入")
+        text(5, 16, f"確定した宝 {self.session.treasure.banked}", 3, 37)
+        for i, item in enumerate(("POTION", "PHOENIX ASH", "REMEDY")):
+            row = self.session.inventory.data["items"][item]
+            text(5, 34 + i * 17, (">" if i == self.shop_cursor else " ") +
+                 f"{item} {row['price']}宝 x{self.session.inventory.counts[item]}/9",
+                 3 if i == self.shop_cursor else 2, 37)
+        self.footer("上下:選択 A:購入 B:拠点へ")
+
+    def draw_pub(self):
+        self.title("PUB / 情報購入")
+        text(8, 24, f"確定した宝 {self.session.treasure.banked}", 3, 35)
+        text(8, 39, f"噂を聞く? 宝{self.session.inventory.data['pub_cost']}個", 2, 35)
+        for i, label in enumerate(("YES", "NO")):
+            text(12, 61 + i * 16, (">" if i == self.pub_cursor else " ") + label, 3, 20)
+        self.footer("上下:選択 A:決定 B:拠点へ")
 
     def draw_clear(self):
         self.title("DUNGEON CLEAR")
@@ -736,7 +821,11 @@ class DungeonApp(App):
         options += [("RARE宝箱を足元に生成", "rare"), ("毒沼ダメージ", "poison"),
                     ("落とし穴をテスト", "pit")]
         options += [(f"探索Lv{i} 強制受注", i) for i in (1, 2, 3)]
-        return options + [("調査地点へ移動", "warp"), ("調査完了ON/OFF", "survey")]
+        return options + [("調査地点へ移動", "warp"), ("調査完了ON/OFF", "survey"),
+                          ("選択した人を戦闘不能", "ko"), ("REVIVEを取得", "revive"),
+                          ("灰を1個取得", "ash"), ("薬を1個取得", "potion"),
+                          ("全アイテムを9個に", "max_items"), ("泉へ移動", "spring"),
+                          ("酒場へ", "pub"), ("確定宝+10", "bank10")]
 
     def update_feedback_debug(self):
         if self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE):
@@ -744,6 +833,7 @@ class DungeonApp(App):
             return
         options = self.feedback_options()
         self.feedback_cursor = (self.feedback_cursor + self.direction()) % len(options)
+        self.info_character = (self.info_character + self.direction(horizontal=True)) % 4
         if not self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN):
             return
         action = options[self.feedback_cursor][1]
@@ -762,6 +852,49 @@ class DungeonApp(App):
             d.chest_loot.pop((d.floor, d.x, d.y), None)
             self.overlay = None
             self.tell("RARE宝箱を配置。Zで開く")
+        elif action == "ko":
+            actor = self.session.party[self.info_character]
+            if not actor.alive:
+                self.tell(f"{actor.name} はすでに戦闘不能")
+            elif sum(c.alive for c in self.session.party) <= 1:
+                self.tell("最後の生存者は倒せません")
+            else:
+                actor.hp = 0
+                self.tell(f"DEBUG: {actor.name} 戦闘不能")
+        elif action == "revive":
+            try:
+                self.tell(self.session.debug_acquire("revive", self.info_character)[-1])
+                if self.session.pending_replacements:
+                    self.debug_return_state, self.debug_return_overlay = self.state, "feedback_debug"
+                    self.state, self.overlay = "replace", None
+                    self.replacement_cursor, self.replacement_confirm = 0, False
+            except ValueError as error:
+                self.tell(str(error))
+        elif action == "ash":
+            self.tell("灰 +1" if self.session.inventory.add("PHOENIX ASH") else "灰は満杯")
+        elif action == "potion":
+            self.tell("薬 +1" if self.session.inventory.add("POTION") else "薬は満杯")
+        elif action == "max_items":
+            for item in self.session.inventory.counts:
+                self.session.inventory.counts[item] = 9
+            self.tell("DEBUG: 全アイテム9個")
+        elif action == "spring":
+            if self.state != "explore":
+                self.tell("探索中に使ってください")
+            else:
+                from .tiles import TILE_HEAL_POINT
+                positions = d.positions(d.floor, TILE_HEAL_POINT)
+                if positions:
+                    d.x, d.y = positions[0]
+                    self.overlay = None
+                    self.tell("泉へ移動。Zで調べる")
+                else:
+                    self.tell("この階に泉はありません")
+        elif action == "pub":
+            self.state, self.overlay, self.pub_cursor = "pub", None, 0
+        elif action == "bank10":
+            self.session.treasure.banked += 10
+            self.tell("DEBUG: 確定宝+10")
         elif action in ("poison", "pit"):
             if self.state != "explore":
                 self.tell("探索中に試してください")
@@ -791,8 +924,9 @@ class DungeonApp(App):
         for i, (label, _) in enumerate(options[start:start + 6]):
             text(5, 17 + i * 12, (">" if start + i == self.feedback_cursor else " ") + label, 3, 37)
         target = self.exploration.target
-        text(5, 98, f"調査 B{target[0] + 1}F ({target[1]},{target[2]})" if target else "調査対象なし", 2, 37)
-        self.footer("上下:選択 Z:実行 X:閉じる")
+        label = f"調査 B{target[0] + 1}F ({target[1]},{target[2]})" if target else "調査対象なし"
+        text(5, 98, label + " / " + self.session.party[self.info_character].name, 2, 37)
+        self.footer("左右:人 上下:選択 Z:実行 X:閉じる")
 
     def update_treasure_debug(self):
         if self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE):
@@ -883,10 +1017,18 @@ class DungeonApp(App):
         self.title("DEBUG / " + unit.name)
         text(5, 16, f"閃き x{multiplier:.2f} = {rate:.1%}", 2, 37)
         text(5, 27, f"AGI {battle_agility(unit):g} DEF {getattr(unit, 'defense', 0) * effect_factor(unit, 'armor_break'):g}", 2, 37)
-        for i, (effect, (factor, turns)) in enumerate(unit.effects.items()):
+        if not self.battle.boss:
+            text(5, 98, f"RUN {self.battle.run_chance():.0%} F6成功/F8失敗", 2, 37)
+        for i, (effect, (factor, turns)) in enumerate(list(unit.effects.items())[:3]):
             text(5, 40 + i * 10, f"{EFFECTS[effect]} x{factor:g} 残{turns}T", 3, 37)
         if not unit.effects:
             text(5, 44, "補助効果なし", 2, 37)
+        if unit in self.session.party:
+            uses = unit.category_uses
+            text(5, 73, "物/速/魔/補/癒 " + "/".join(str(uses.get(k, 0)) for k in
+                 ("physical", "speed", "magic", "support", "healing")), 2, 37)
+            text(5, 85, "補正 " + " ".join(f"{s}+{growth_bonus(unit, s, self.session.settings):.0%}"
+                 for s in ("HP", "STR", "AGI", "INT")), 2, 37)
         self.footer("上下:敵/味方 F3/X:閉じる")
 
     def draw_help(self):

@@ -1,0 +1,10 @@
+{
+  "items": {
+    "POTION": {"initial": 2, "price": 1, "heal": 30},
+    "PHOENIX ASH": {"initial": 0, "price": 4},
+    "REMEDY": {"initial": 0, "price": 2}
+  },
+  "run": {"base": 0.6, "agi_factor": 0.02, "min": 0.2, "max": 0.9},
+  "pub_cost": 1,
+  "pub_gameplay_weight": 0.7
+}

@@ -38,5 +38,12 @@
   "enemy_power_per_win": 0.25,
   "enemy_scaling_cap": 50,
   "growth_per_point": 0.04,
-  "growth_bonus_cap": 0.35
+  "growth_bonus_cap": 0.35,
+  "category_growth": {
+    "physical": {"STR": 0.05, "HP": 0.025},
+    "speed": {"STR": 0.025, "AGI": 0.05},
+    "magic": {"INT": 0.05, "AGI": 0.025},
+    "support": {"AGI": 0.05, "INT": 0.025},
+    "healing": {"INT": 0.05, "HP": 0.025}
+  }
 }

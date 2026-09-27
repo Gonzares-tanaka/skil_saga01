@@ -649,6 +649,22 @@
     "description": "味方の被ダメージ30%軽減。3ターン。"
   },
   {
+    "id": "revive",
+    "name": "REVIVE",
+    "rarity": "RARE",
+    "effect": "revive",
+    "target": "ally",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 0,
+    "description": "戦闘不能の味方を最大HPの25%で蘇生。",
+    "max_uses": 3,
+    "skill_type": "healing",
+    "growth": {"HP": 0, "STR": 0, "AGI": 0, "INT": 1}
+  },
+  {
     "id": "return",
     "name": "RETURN",
     "rarity": "COMMON",

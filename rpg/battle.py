@@ -2,16 +2,18 @@
 from collections import deque
 import random
 
-from .growth import grow_and_spark, spark
+from .growth import grow_and_spark, spark, growth_bonus
 from .skill_resources import ensure_attack, MAX_SKILLS
 from .models import Action, Enemy, effect_factor, battle_agility
 from .labels import OUTCOMES, EFFECTS
 from .treasure import Treasure
+from .items import Inventory
 
 
 class Battle:
     def __init__(self, party, enemies, skills, max_rounds=60, rng=None,
-                 skill_slots=MAX_SKILLS, discovered_skills=None, mastered_skills=None):
+                 skill_slots=MAX_SKILLS, discovered_skills=None, mastered_skills=None,
+                 inventory=None, run_settings=None, boss=False):
         self.party = party
         self.enemies = enemies
         self.skills = skills
@@ -26,6 +28,10 @@ class Battle:
         self.resource_events = []
         self.discovered_skills = discovered_skills if discovered_skills is not None else set()
         self.mastered_skills = mastered_skills if mastered_skills is not None else set()
+        self.inventory = inventory or Inventory()
+        self.run_settings = run_settings or self.inventory.data["run"]
+        self.boss = boss
+        self.run_override = None
         for actor in self.party:
             actor.mastered_skills = self.mastered_skills
 
@@ -37,7 +43,7 @@ class Battle:
             raise ValueError("Exactly one action per living character is required.")
         for action in actions:
             actor = self.party[action.actor]
-            if action.kind not in ("SKILL", "DEFEND"):
+            if action.kind not in ("SKILL", "ITEM", "DEFEND"):
                 raise ValueError("Unknown action.")
             if action.kind == "SKILL":
                 if self.skills.get(action.skill_id) and self.skills[action.skill_id].effect == "return":
@@ -45,6 +51,18 @@ class Battle:
                 if (action.skill_id not in actor.skills or actor.skill_uses.get(action.skill_id, 0) <= 0
                         or actor.cooldowns.get(action.skill_id, 0)):
                     raise ValueError("Skill is unavailable, exhausted or cooling down.")
+                skill = self.skills[action.skill_id]
+                if skill.effect == "revive" and not (0 <= action.target < len(self.party) and not self.party[action.target].alive):
+                    raise ValueError("REVIVEは戦闘不能の味方だけに使えます。")
+            if action.kind == "ITEM":
+                if action.item_id not in ("POTION", "PHOENIX ASH") or self.inventory.counts[action.item_id] <= 0:
+                    raise ValueError("使用できる道具がありません。")
+                if not 0 <= action.target < len(self.party):
+                    raise ValueError("対象が不正です。")
+                if (action.item_id == "PHOENIX ASH") == self.party[action.target].alive:
+                    raise ValueError("道具の対象が不正です。")
+                if action.item_id == "POTION" and self.party[action.target].hp >= self.party[action.target].max_hp:
+                    raise ValueError("HPが満タンの味方には薬を使えません。")
         self.round += 1
         for actor in self.party:
             actor.guarding = False
@@ -82,6 +100,11 @@ class Battle:
         if action.kind == "DEFEND":
             actor.guarding = True
             return [f"{actor.name} は防御"]
+        if action.kind == "ITEM":
+            used, message = self.inventory.use(action.item_id, self.party[action.target])
+            if used:
+                self.sound_cue = "skill"
+            return [f"{actor.name} {action.item_id}", message]
         if action.kind != "SKILL":
             raise ValueError("通常攻撃はありません。")
         if action.skill_id not in actor.skills or actor.skill_uses.get(action.skill_id, 0) <= 0 or actor.cooldowns.get(action.skill_id, 0):
@@ -90,11 +113,14 @@ class Battle:
         if skill.effect == "return":
             return ["RETURNは探索中だけ使えます。"]
         group = self.party if skill.target == "ally" else self.enemies
-        if skill.target != "self" and self._target(group, action.target) is None:
+        if skill.effect == "revive" and not (0 <= action.target < len(self.party) and not self.party[action.target].alive):
+            return ["戦闘不能の味方がいません"]
+        if skill.effect != "revive" and skill.target != "self" and self._target(group, action.target) is None:
             return []
         self.sound_cue = "attack" if skill.rarity == "BASIC" else "skill"
         actor.skill_uses[skill.id] -= 1
         actor.used_skills[skill.id] = actor.used_skills.get(skill.id, 0) + 1
+        actor.category_uses[skill.skill_type] = actor.category_uses.get(skill.skill_type, 0) + 1
         for stat, contribution in skill.growth.items():
             actor.growth_points[stat] = actor.growth_points.get(stat, 0) + contribution
         actor.cooldowns[skill.id] = skill.cooldown + 1
@@ -136,6 +162,10 @@ class Battle:
             restored = min(target.max_hp - target.hp, skill.power(actor))
             target.hp += restored
             return lines + [f"{target.name} HP +{restored}"]
+        if skill.effect == "revive":
+            target = self.party[target_index]
+            target.hp = max(1, target.max_hp // 4)
+            return [f"{target.name} 復活 HP {target.hp}/{target.max_hp}"]
         target = self._target(self.enemies, target_index)
         if target is None:
             return lines
@@ -206,6 +236,30 @@ class Battle:
             self.clear_effects()
         return lines
 
+    def run_chance(self):
+        allies = [c.agility for c in self.party if c.alive]
+        foes = [e.agility for e in self.enemies if e.alive]
+        if not allies or not foes:
+            return self.run_settings["min"]
+        difference = sum(allies) / len(allies) - sum(foes) / len(foes)
+        rules = self.run_settings
+        return max(rules["min"], min(rules["max"], rules["base"] + difference * rules["agi_factor"]))
+
+    def attempt_run(self):
+        if self.boss:
+            return ["YOU CANNOT ESCAPE!"]
+        if self.outcome or self.queue:
+            raise ValueError("行動中は逃走できません。")
+        success = self.run_override if self.run_override is not None else self.rng.random() < self.run_chance()
+        self.run_override = None
+        if success:
+            self.outcome = "ESCAPE"
+            self.clear_effects()
+            return ["逃走に成功した! 探索を続ける"]
+        self.round += 1
+        self.queue.extend(("enemy", i) for i, enemy in enumerate(self.enemies) if enemy.alive)
+        return ["逃走失敗! 敵の攻撃を受ける"]
+
     def clear_effects(self):
         for unit in self.party + self.enemies:
             unit.effects.clear()
@@ -258,9 +312,10 @@ class Session:
         for actor in self.party:
             actor.mastered_skills = self.mastered_skills
         self.treasure = Treasure()
+        self.inventory = Inventory()
         self.pending_relearn = None
 
-    def next_battle(self, enemies=None, recover=True, spark_multiplier=1.0):
+    def next_battle(self, enemies=None, recover=True, spark_multiplier=1.0, boss=False):
         if self.pending_replacements:
             raise ValueError("先に技の入れ替えを決めてください。")
         if self.battle is not None and not self.settled:
@@ -291,7 +346,8 @@ class Session:
         self.battle = Battle(self.party, enemies, self.skills,
                              self.settings["max_rounds"], self.rng,
                              self.settings["skill_slots"],
-                             self.discovered_skills, self.mastered_skills)
+                             self.discovered_skills, self.mastered_skills,
+                             self.inventory, boss=boss)
         self.settled = False
         self.results = []
         return self.battle
@@ -315,9 +371,15 @@ class Session:
         if outcome == "VICTORY":
             self.wins += 1
             for character in self.party:
+                if self.debug:
+                    detail = " ".join(f"{stat}+{growth_bonus(character, stat, self.settings):.0%}"
+                                      for stat in ("HP", "STR", "AGI", "INT"))
+                    self.results.append(f"DEBUG {character.name} {detail}")
                 self.results.extend(grow_and_spark(character, self.skills, self.settings,
                                                    self.rng, self.completed, self.debug,
                                                    self.discovered_skills, self.spark_multiplier))
+        elif outcome == "ESCAPE":
+            self.results.append("逃走: 成長・閃き・報酬なし")
         else:
             if outcome == "DEFEAT":
                 self.losses += 1

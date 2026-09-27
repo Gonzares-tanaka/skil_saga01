@@ -34,8 +34,8 @@ def load_content(directory=None):
         require(name_ok(skill.name) and name_ok(skill.id) and skill.id.isascii(), "技名は表示可能な文字、IDは半角英数字で指定してください。")
         require(skill.id not in skills, f"Duplicate skill: {skill.id}")
         require(skill.rarity in RARITIES, f"Unknown rarity: {skill.id}")
-        require(skill.effect in {"damage", "heal", "counter", "drain", "berserk", "return"} | EFFECTS.keys(), f"Unknown effect: {skill.id}")
-        expected = "ally" if skill.effect == "heal" or skill.effect in BUFFS else "self" if skill.effect in ("counter", "berserk", "return") else "enemy"
+        require(skill.effect in {"damage", "heal", "revive", "counter", "drain", "berserk", "return"} | EFFECTS.keys(), f"Unknown effect: {skill.id}")
+        expected = "ally" if skill.effect in ("heal", "revive") or skill.effect in BUFFS else "self" if skill.effect in ("counter", "berserk", "return") else "enemy"
         if skill.effect in EFFECTS:
             require(integer(skill.duration, 1, 9), f"durationは1～9: {skill.id}")
             lo, hi = (1.01, 2) if skill.effect in ("power_up", "focus") else (0.1, 0.99)
@@ -66,6 +66,10 @@ def load_content(directory=None):
         require(all(number(rates[k], 0, 1) for k in ("HP", "STR", "AGI", "INT")), "Growth rates must be 0..1.")
     for key in ("spark_chance", "debug_spark_chance", "growth_per_point", "growth_bonus_cap"):
         require(number(settings[key], 0, 1), f"{key} must be 0..1.")
+    for category in ("physical", "speed", "magic", "support", "healing"):
+        rates = settings["category_growth"][category]
+        require(all(stat in ("HP", "STR", "AGI", "INT") and number(rate, 0, 0.2)
+                    for stat, rate in rates.items()), f"Invalid category_growth: {category}")
     weights = settings["rarity_weights"]
     require(all(number(weights[r], 0.000001) for r in RARITIES), "Every rarity must have a positive weight (including LEGEND).")
     require(integer(settings["skill_slots"], 1, 8), "skill_slots must be 1..8.")

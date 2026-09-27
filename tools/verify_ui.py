@@ -52,8 +52,9 @@ with (patch.object(pyxel, "text", side_effect=bounded_text),
       patch.object(pyxel, "play") as playback,
       patch.object(pyxel, "camera", wraps=pyxel.camera) as cameras):
     capture("01_battle")
-    assert any(value.endswith("たたかう") for _, _, value in drawn_text)
-    assert any(value.endswith("まもる") for _, _, value in drawn_text)
+    assert any(value.endswith("SKILL 技") for _, _, value in drawn_text)
+    assert any(value.endswith("ITEM 道具") for _, _, value in drawn_text)
+    assert any(value.endswith("RUN 逃走") for _, _, value in drawn_text)
     assert not any(value == enemy.name and y < 80 for _, y, value in drawn_text for enemy in app.battle.enemies)
     key(pyxel.KEY_Z)
     assert app.state == "skill"

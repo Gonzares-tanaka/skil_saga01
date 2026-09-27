@@ -7,6 +7,7 @@ from .content import ROOT
 from .models import Enemy
 from .treasure import Treasure
 from .exploration import load_exploration_settings
+from .items import Inventory
 from .tiles import (BOSS_FLOORS, MAP_IMAGE_BANK, PASSABLE, TILE_FLOOR,
                     TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_ENTRANCE,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,
@@ -18,7 +19,7 @@ def load_dungeon_settings():
 
 
 class Dungeon:
-    def __init__(self, tilemaps, enemy_data, settings, rng, treasure=None):
+    def __init__(self, tilemaps, enemy_data, settings, rng, treasure=None, inventory=None):
         self.maps = list(tilemaps)
         self.settings, self.rng = settings, rng
         self.exploration_settings = load_exploration_settings()
@@ -33,7 +34,7 @@ class Dungeon:
         self.x, self.y = self.find(0, TILE_ENTRANCE)
         self.opened = set()
         self.chest_loot = {}
-        self.potions = settings["items"]["initial_potions"]
+        self.inventory = inventory if inventory is not None else Inventory()
         self.treasure = treasure if treasure is not None else Treasure()
         self.steps = 0
         self.grace = settings["safe_steps"]
@@ -42,6 +43,14 @@ class Dungeon:
     @property
     def cleared(self):
         return BOSS_FLOORS[-1] in self.defeated_bosses
+
+    @property
+    def potions(self):
+        return self.inventory.counts["POTION"]
+
+    @potions.setter
+    def potions(self, value):
+        self.inventory.counts["POTION"] = value
 
     @property
     def spark_multiplier(self):
@@ -154,15 +163,15 @@ class Dungeon:
     def grant_chest(self, reward):
         """Apply inventory rewards; the field UI applies HP/spark effects once."""
         kind, amount = reward["kind"], reward.get("amount", 1)
-        if kind == "POTION" and self.potions + amount > self.settings["items"]["max_potions"]:
-            return "", "薬が満杯。宝箱は残した"
+        if kind in ("POTION", "PHOENIX ASH", "REMEDY") and self.inventory.counts[kind] + amount > 9:
+            return "", f"{kind} は満杯。宝箱は残した"
         self.last_reward = reward
         if kind == "TREASURE":
             self.treasure.unbanked += amount
             message = f"未確定の宝 +{amount} / 帰還で確定"
-        elif kind == "POTION":
-            self.potions += amount
-            message = f"ポーションを{amount}個入手"
+        elif kind in ("POTION", "PHOENIX ASH", "REMEDY"):
+            self.inventory.add(kind, amount)
+            message = f"{kind} を{amount}個入手"
         else:
             message = "宝箱は空だった" if kind == "EMPTY" else "宝箱を開けた!"
         return "chest", message
@@ -268,13 +277,4 @@ class Dungeon:
                 for i, row in enumerate(rows)]
 
     def use_potion(self, character):
-        if self.potions == 0:
-            return "ポーションがありません"
-        if not character.alive:
-            return "戦闘不能は拠点で回復します"
-        if character.hp == character.max_hp:
-            return "HPは満タンです"
-        heal = min(self.settings["items"]["potion_heal"], character.max_hp - character.hp)
-        character.hp += heal
-        self.potions -= 1
-        return f"{character.name} HP +{heal}"
+        return self.inventory.use("POTION", character)[1]
