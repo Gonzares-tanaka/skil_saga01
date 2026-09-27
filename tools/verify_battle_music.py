@@ -2,6 +2,7 @@
 from array import array
 from pathlib import Path
 import sys
+import time
 from unittest.mock import patch
 import wave
 
@@ -79,6 +80,9 @@ with patch.object(pyxel, "playm") as music:
 # Reproduce repeated confirmation while only the final music channel is active.
 app.battle.outcome = "VICTORY"
 app.result_lines, app.result_page = ["Victory"], 0
+app.fanfare_started_at = time.monotonic()
+app.fanfare_start_frame = pyxel.frame_count
+app.fanfare_timed_out = False
 with patch.object(pyxel, "btnp", side_effect=lambda key, *args: key == pyxel.KEY_Z), patch.object(pyxel, "play_pos", side_effect=lambda ch: (22, 1.0) if ch == 3 else None):
     for _ in range(10):
         app.update()
@@ -95,6 +99,9 @@ with patch.object(pyxel, "btnp", side_effect=lambda key, *args: key == pyxel.GAM
 # Boss victory must wait before its after-battle dialogue too.
 app.state, app.battle_is_boss = "result", True
 app.battle_position = (4, *app.dungeon.find(4, TILE_BOSS))
+app.fanfare_started_at = time.monotonic()
+app.fanfare_start_frame = pyxel.frame_count
+app.fanfare_timed_out = False
 with patch.object(pyxel, "play_pos", return_value=(20, 0.5)):
     app.finish_results()
     assert app.state == "result"

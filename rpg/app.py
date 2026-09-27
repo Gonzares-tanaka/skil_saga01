@@ -1,5 +1,6 @@
 """160x120 UI. All rules live outside this module."""
 from collections import deque
+import time
 
 import pyxel
 
@@ -21,6 +22,9 @@ GAMEPAD_KEYS = {
     pyxel.KEY_Z: pyxel.GAMEPAD1_BUTTON_A,
     pyxel.KEY_X: pyxel.GAMEPAD1_BUTTON_B,
 }
+
+FANFARE_MAX_WAIT_SECONDS = 4.5
+FANFARE_MAX_WAIT_FRAMES = 150
 
 
 class App:
@@ -44,6 +48,10 @@ class App:
         self.debug_return_overlay = "debug_skills"
         self.debug_cursor = 0
         self.shake_timer = 0
+        self.fanfare_started_at = None
+        self.fanfare_start_frame = None
+        self.fanfare_timed_out = False
+        self.debug_events = []
         if battle_on_start:
             self.start_battle()
         if run:
@@ -51,6 +59,8 @@ class App:
 
     def start_battle(self):
         self.notice_timer = 0
+        self.fanfare_started_at = None
+        self.fanfare_start_frame = None
         self.battle = self.session.next_battle()
         self.log = ["新たな敵が現れた", "4人の行動を選ぼう"]
         self.pending = deque()
@@ -61,10 +71,39 @@ class App:
         if self.waiting_for_fanfare():
             return
         stop_battle_music()
+        self.trace("NEXT BATTLE")
         self.start_battle()
 
     def waiting_for_fanfare(self):
-        return self.battle.outcome == "VICTORY" and music_is_playing()
+        if self.battle.outcome != "VICTORY" or self.fanfare_started_at is None:
+            return False
+        elapsed = time.monotonic() - self.fanfare_started_at
+        frames = pyxel.frame_count - self.fanfare_start_frame
+        if elapsed >= FANFARE_MAX_WAIT_SECONDS or frames >= FANFARE_MAX_WAIT_FRAMES:
+            if not self.fanfare_timed_out:
+                self.fanfare_timed_out = True
+                self.trace("FANFARE TIMEOUT")
+                stop_battle_music()
+            return False
+        if not music_is_playing():
+            self.fanfare_started_at = None
+            self.trace("FANFARE END")
+            return False
+        return True
+
+    def trace(self, event):
+        if self.session.debug:
+            message = f"[SPARK] {event} state={self.state} battle={self.session.completed}"
+            self.debug_events.append(message)
+            self.debug_events = self.debug_events[-40:]
+            print(message)
+
+    def audio_state(self):
+        try:
+            import js
+            return str(js.window.sparkAudioState()).upper()
+        except Exception:
+            return "N/A"
 
     def next_result_label(self):
         return "次の戦闘"
@@ -193,6 +232,7 @@ class App:
                     if self.session.pending_replacements:
                         self.notice_timer = 0
                         self.state = "replace"
+                        self.trace("REPLACEMENT")
                         self.replacement_cursor = 0
                         self.replacement_confirm = False
                     else:
@@ -207,13 +247,23 @@ class App:
                 self.log = self.log[-3:]
                 self.delay = 14
             elif self.battle.outcome:
+                self.trace("VICTORY START" if self.battle.outcome == "VICTORY" else "BATTLE END")
                 stop_battle_music()
                 self.notice_timer = 0
                 self.result_lines = wrap_lines(self.session.settle())
+                self.trace("REWARD GROWTH MASTERY SPARK COMPLETE")
                 self.result_page = 0
                 self.state = "result"
+                self.trace("RESULT")
                 if self.battle.outcome == "VICTORY":
-                    play_victory_music()
+                    if play_victory_music():
+                        self.fanfare_started_at = time.monotonic()
+                        self.fanfare_start_frame = pyxel.frame_count
+                        self.fanfare_timed_out = False
+                        self.trace("FANFARE START")
+                    else:
+                        self.fanfare_started_at = None
+                        self.trace("FANFARE UNAVAILABLE")
             elif self.battle.queue:
                 self.pending.extend(wrap_lines(self.battle.step()))
                 play_cue(self.battle.sound_cue)

@@ -90,6 +90,8 @@ class DungeonApp(App):
             self.show_field_event([self.exploration.hint()])
 
     def begin_encounter(self, boss=False):
+        self.fanfare_started_at = None
+        self.fanfare_start_frame = None
         self.battle_position = self.dungeon.floor, self.dungeon.x, self.dungeon.y
         self.battle_is_boss = boss
         self.battle = self.session.next_battle(self.dungeon.make_enemies(boss), recover=False,
@@ -107,6 +109,7 @@ class DungeonApp(App):
         if self.session.pending_replacements or self.waiting_for_fanfare():
             return
         stop_battle_music()
+        self.trace("RETURN MAP" if self.battle.outcome != "DEFEAT" else "RETURN CAMP")
         if self.battle.outcome == "DEFEAT":
             self.enter_camp(defeated=True)
         elif self.battle_is_boss and self.battle.outcome == "VICTORY":
@@ -1014,8 +1017,8 @@ class DungeonApp(App):
         unit = units[self.effect_cursor % len(units)]
         multiplier = self.session.spark_multiplier
         rate = spark_probability(self.session.settings, multiplier, self.session.debug)
-        self.title("DEBUG / " + unit.name)
-        text(5, 16, f"閃き x{multiplier:.2f} = {rate:.1%}", 2, 37)
+        self.title("DEBUG AUDIO: " + self.audio_state())
+        text(5, 16, f"{unit.name} 閃き x{multiplier:.2f} = {rate:.1%}", 2, 37)
         text(5, 27, f"AGI {battle_agility(unit):g} DEF {getattr(unit, 'defense', 0) * effect_factor(unit, 'armor_break'):g}", 2, 37)
         if not self.battle.boss:
             text(5, 98, f"RUN {self.battle.run_chance():.0%} F6成功/F8失敗", 2, 37)

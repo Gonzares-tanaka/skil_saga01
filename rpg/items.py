@@ -19,11 +19,14 @@ def load_items():
         raise ValueError("items.json: POTIONの回復量が不正です")
     rules = data["run"]
     if not (0 < rules["min"] <= rules["base"] <= rules["max"] < 1
-            and 0 <= rules["agi_factor"] <= 1):
+            and 0 <= rules["agi_factor"] <= 1
+            and 0 <= rules["agi_cap"] <= 0.5):
         raise ValueError("items.json: RUN設定が不正です")
     if not (type(data["pub_cost"]) is int and 1 <= data["pub_cost"] <= 99
             and 0 <= data["pub_gameplay_weight"] <= 1):
         raise ValueError("items.json: PUB設定が不正です")
+    if not 0 < data["revive_fraction"] <= 1:
+        raise ValueError("items.json: 蘇生HP割合が不正です")
     return data
 
 
@@ -37,6 +40,9 @@ class Inventory:
             return False
         self.counts[item] += count
         return True
+
+    def revival_hp(self, target):
+        return max(1, int(target.max_hp * self.data["revive_fraction"]))
 
     def use(self, item, target):
         if item not in ITEMS or self.counts[item] <= 0:
@@ -54,7 +60,7 @@ class Inventory:
         else:
             if target.alive:
                 return False, "戦闘不能の味方を選んでください"
-            target.hp = max(1, target.max_hp // 4)
+            target.hp = self.revival_hp(target)
             message = f"{target.name} 復活 HP {target.hp}/{target.max_hp}"
         self.counts[item] -= 1
         return True, message

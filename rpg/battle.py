@@ -164,7 +164,7 @@ class Battle:
             return lines + [f"{target.name} HP +{restored}"]
         if skill.effect == "revive":
             target = self.party[target_index]
-            target.hp = max(1, target.max_hp // 4)
+            target.hp = self.inventory.revival_hp(target)
             return [f"{target.name} 復活 HP {target.hp}/{target.max_hp}"]
         target = self._target(self.enemies, target_index)
         if target is None:
@@ -243,7 +243,8 @@ class Battle:
             return self.run_settings["min"]
         difference = sum(allies) / len(allies) - sum(foes) / len(foes)
         rules = self.run_settings
-        return max(rules["min"], min(rules["max"], rules["base"] + difference * rules["agi_factor"]))
+        correction = max(-rules["agi_cap"], min(rules["agi_cap"], difference * rules["agi_factor"]))
+        return max(rules["min"], min(rules["max"], rules["base"] + correction))
 
     def attempt_run(self):
         if self.boss:

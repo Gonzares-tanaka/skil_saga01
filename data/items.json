@@ -4,7 +4,8 @@
     "PHOENIX ASH": {"initial": 0, "price": 4},
     "REMEDY": {"initial": 0, "price": 2}
   },
-  "run": {"base": 0.6, "agi_factor": 0.02, "min": 0.2, "max": 0.9},
+  "run": {"base": 0.15, "agi_factor": 0.005, "agi_cap": 0.15, "min": 0.10, "max": 0.30},
+  "revive_fraction": 0.25,
   "pub_cost": 1,
   "pub_gameplay_weight": 0.7
 }

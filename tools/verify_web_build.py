@@ -12,6 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT / "dist/game.html").read_text(encoding="utf-8")
 index = (ROOT / "dist/index.html").read_text(encoding="utf-8")
 assert 'gamepad: "disabled"' in html
+assert html.index("window.sparkAudioState") < html.index("cdn.jsdelivr.net/gh/kitao/pyxel")
+assert "window.sparkResumeAudio" in html
+assert all(event in html for event in ("visibilitychange", "pagehide", "pageshow", "blur", "focus"))
 assert html.count('data-gb="') == 6
 assert all(f'data-gb="{name}"' in html for name in ('up', 'down', 'left', 'right', 'a', 'b'))
 assert len(re.findall(r'<button\b[^>]*data-gb="[^"]+"[^>]*></button>', html)) == 6

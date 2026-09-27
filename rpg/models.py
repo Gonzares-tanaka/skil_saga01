@@ -2,6 +2,9 @@ from dataclasses import dataclass, field
 from .labels import EFFECTS
 
 
+MASTERED_POWER_MULTIPLIER = 1.2
+
+
 @dataclass(frozen=True)
 class Skill:
     id: str
@@ -30,7 +33,7 @@ class Skill:
 
     @property
     def mastery_label(self):
-        return "再取得POWER x1.2" if self.effect in ("damage", "drain") else "習熟記録"
+        return f"再取得POWER x{MASTERED_POWER_MULTIPLIER:g}" if self.effect in ("damage", "drain") else "習熟記録"
 
     def power(self, actor, apply_mastery=True):
         strength = actor.strength * effect_factor(actor, "power_up") * (1.5 if actor.berserk else 1)
@@ -107,10 +110,10 @@ class Character:
         return skill.relearn_uses
 
     def next_power_multiplier(self, skill):
-        return 1.2 if skill.id in self.mastered_skills and skill.effect in ("damage", "drain") else 1.0
+        return MASTERED_POWER_MULTIPLIER if skill.id in self.mastered_skills and skill.effect in ("damage", "drain") else 1.0
 
     def power_multiplier(self, skill):
-        return 1.2 if skill.id in self.mastered_copies and skill.effect in ("damage", "drain") else 1.0
+        return MASTERED_POWER_MULTIPLIER if skill.id in self.mastered_copies and skill.effect in ("damage", "drain") else 1.0
 
     def forget(self, skill_id):
         self.skills.remove(skill_id)
