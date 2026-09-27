@@ -10,9 +10,18 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT / "dist/game.html").read_text(encoding="utf-8")
+index = (ROOT / "dist/index.html").read_text(encoding="utf-8")
 assert 'gamepad: "disabled"' in html
 assert html.count('data-gb="') == 6
 assert all(f'data-gb="{name}"' in html for name in ('up', 'down', 'left', 'right', 'a', 'b'))
+assert len(re.findall(r'<button\b[^>]*data-gb="[^"]+"[^>]*></button>', html)) == 6
+assert '<span aria-hidden="true">B</span><button' in html
+assert '<span aria-hidden="true">A</span><button' in html
+assert 'grid-template-columns: repeat(3, var(--pad-size))' in html
+assert 'gap: var(--pad-gap)' in html
+assert '-webkit-user-select: none' in html
+assert 'Yで情報' not in index and 'STARTでヘルプ' not in index
+assert 'スキル収集率100%' in index and 'MASTERED' in index and '最奥のボス' in index
 assert '_virtualGamepadStates[index] = true' in html
 payload = base64.b64decode(re.search(r'base64: "([^"]+)"', html)[1])
 with tempfile.TemporaryDirectory(prefix="verify_pyxel_web_") as temp:

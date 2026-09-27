@@ -15,17 +15,17 @@
     #game { display: none; width: 100%; height: min(78svh, 680px); margin-top: 10px; border: 2px solid #9bbc0f; background: #0f380f; box-sizing: border-box; }
     #game:focus { outline: 2px solid #9bbc0f; }
     .controls { margin: 14px auto 0; max-width: 620px; font-size: .9rem; }
-    @media (pointer: coarse) { main { padding: 7px; } #game { height: 80svh; margin-top: 6px; } .intro { display: none; } }
+    @media (pointer: coarse) { main { padding: 7px; } #game { height: 80svh; margin-top: 6px; } .intro { font-size: .85rem; margin: 6px 0; } .playing .intro { display: none; } }
   </style>
 </head>
 <body>
   <main>
     <h1>SPARK</h1>
     <p class="notice">GAME BOY風 RPG PROTOTYPE</p>
-    <p class="intro">有限回数の技を使い切り、閃きを集めて宝を持ち帰る4人パーティRPGです。</p>
+    <p class="intro">ダンジョン最奥のボスを倒そう。技を閃いてスキル収集率100%を目指せ。使い切ってMASTEREDした攻撃技は、再取得すると威力が上がる。</p>
     <button id="play" type="button">PLAY / ゲームを開始</button>
     <iframe id="game" title="SPARK RPG PROTOTYPE" allow="fullscreen"></iframe>
-    <p class="controls">D-PAD：移動・選択　A：決定・調べる・会話送り　B：キャンセル・戻る（探索中はメニュー）<br>PCでは矢印キー、A＝Zキー、B＝Xキー。スマートフォンは画面下の十字キーとB/Aを使用します。</p>
+    <p class="controls">スマートフォン：画面下の十字キーで移動・選択、Aで決定・調べる、Bで戻る・探索メニュー。<br>PC：矢印キーで移動・選択、ZキーがA、XキーがBです。</p>
     <p class="notice">感想・不具合はGitHub Issuesへお願いします。ブラウザを閉じると進行状況は失われます。</p>
   </main>
   <script>
@@ -35,6 +35,7 @@
       game.src = 'game.html';
       game.style.display = 'block';
       play.hidden = true;
+      document.querySelector('main').classList.add('playing');
       game.focus();
     }, { once: true });
   </script>
