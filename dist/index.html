@@ -32,7 +32,7 @@
     const play = document.querySelector('#play');
     const game = document.querySelector('#game');
     play.addEventListener('click', () => {
-      game.src = 'game.html';
+      game.src = 'game.html?v=' + Date.now();
       game.style.display = 'block';
       play.hidden = true;
       document.querySelector('main').classList.add('playing');

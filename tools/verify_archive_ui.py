@@ -44,7 +44,7 @@ def capture(name):
 
 with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play"):
     key(pyxel.KEY_DOWN)
-    key(pyxel.KEY_DOWN)
+    key(pyxel.KEY_Z)
     key(pyxel.KEY_Z)
     assert app.state == "archive" and app.archive_page == 0
     assert app.session.archive_summary()["discovered"] == 3
@@ -92,6 +92,8 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     assert candidate not in app.session.mastered_skills
     key(pyxel.KEY_X)
     assert app.overlay is None and app.state == "archive"
+    key(pyxel.KEY_X)
+    assert app.state == "facility"
     key(pyxel.KEY_X)
     assert app.state == "camp"
 

@@ -130,6 +130,7 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     assert any('TYPE SUPPORT' in s for s in drawn)
     app.dungeon.defeated_bosses.add(14)
     app.enter_camp()
+    key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)
     assert app.state == 'clear'  # A debug-marked final boss must not crash camp entry.
 

@@ -87,6 +87,7 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     assert app.overlay is None and not app.session.debug
     key(pyxel.KEY_F12)
     assert app.overlay is None
+    key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)  # Enter dungeon.
     assert app.state == "explore"
     c = app.session.party[0]

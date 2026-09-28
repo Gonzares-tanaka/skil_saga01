@@ -49,8 +49,9 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     capture('camp')
     key(pyxel.KEY_F1)
     assert app.overlay is None
-    for _ in range(4):
+    for _ in range(2):
         key(pyxel.KEY_DOWN)
+    key(pyxel.GAMEPAD1_BUTTON_A)
     key(pyxel.GAMEPAD1_BUTTON_A)
     assert app.state == 'quest_board'
     key(pyxel.KEY_Z)
@@ -60,7 +61,8 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     key(pyxel.KEY_Z)
     assert e.active['id'] == 1
     key(pyxel.KEY_X)
-    app.camp_cursor = 0
+    key(pyxel.KEY_X)
+    app.camp_cursor = 4
     key(pyxel.KEY_Z)
     close_event()
     # Reach the quest via an actual directional step; completion is not yet paid.
@@ -183,6 +185,7 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     d.debug_floor(14)
     app.enter_camp(returned=True)
     key(pyxel.KEY_Z)
+    app.camp_cursor = 4
     key(pyxel.KEY_Z)
     assert app.state == 'clear' and d.floor == 0
     key(pyxel.KEY_Z)

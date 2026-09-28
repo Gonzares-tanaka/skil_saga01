@@ -14,6 +14,8 @@ from .growth import spark_probability
 from .growth import growth_bonus
 from .labels import EFFECTS, CATEGORIES
 from .models import effect_factor, battle_agility
+from .hub import (HUB_IMAGE_BANK, HUB_PICTURE_SIZE, HUB_FACILITIES, HUB_ICONS, HUB_PICTURES,
+                  HUB_DESCRIPTIONS, HUB_MENUS)
 from .sound import play_cue, start_battle_music, stop_battle_music
 from .tiles import (DUNGEON_RESOURCE, MAP_IMAGE_BANK, BOSS_FLOORS,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR, TILE_SIZE,
@@ -43,6 +45,8 @@ class DungeonApp(App):
         self.player_facing = "down"
         self.floor_cursor = self.effect_cursor = self.message_page = 0
         self.menu_cursor = self.item_cursor = self.camp_cursor = self.catalog_cursor = 0
+        self.facility_cursor = self.facility_index = 0
+        self.facility_back = "camp"
         self.item_kind_cursor = self.shop_cursor = self.pub_cursor = 0
         self.archive_cursor = 0
         self.archive_page = 0
@@ -66,6 +70,7 @@ class DungeonApp(App):
             actor.recover()
         self.state, self.overlay = "camp", None
         self.camp_cursor = 0
+        self.facility_back = "camp"
         self.notice_timer = 0
         self.camp_message = "全滅・回復 / 調査はやり直し" if defeated else "全員のHPを回復しました"
         if returned:
@@ -283,7 +288,7 @@ class DungeonApp(App):
             self.notice_timer = max(0, self.notice_timer - 1)
             self.update_camp_resources()
             return
-        if self.state not in ("camp", "archive", "explore", "menu", "items", "item_target", "shop", "pub", "field_heal", "clear", "boss_message", "boss_after"):
+        if self.state not in ("camp", "facility", "archive", "explore", "menu", "items", "item_target", "shop", "pub", "field_heal", "clear", "boss_message", "boss_after"):
             super().update()
             return
         self.notice_timer = max(0, self.notice_timer - 1)
@@ -320,36 +325,52 @@ class DungeonApp(App):
                     self.state = "clear" if self.dungeon.cleared else "explore"
                     self.explore_message = "先の階層への道が開いた"
         elif self.state == "camp":
-            self.camp_cursor = (self.camp_cursor + self.direction()) % 8
+            self.camp_cursor = (self.camp_cursor + self.direction()) % len(HUB_FACILITIES)
             if confirm:
-                if self.camp_cursor == 0:
+                if self.camp_cursor == 4:
                     self.enter_dungeon()
-                elif self.camp_cursor == 1:
-                    self.overlay, self.info_tab, self.scroll = "info", 0, 0
                 else:
-                    if self.camp_cursor == 2:
-                        self.state, self.archive_page, self.archive_cursor = "archive", 0, 0
-                    elif self.camp_cursor == 3:
-                        self.state, self.notice_timer = "relearn_character", 0
-                    elif self.camp_cursor == 4:
-                        self.state, self.notice_timer = "quest_board", 0
-                    elif self.camp_cursor == 5:
-                        self.state, self.shop_cursor = "shop", 0
-                    elif self.camp_cursor == 6:
-                        self.state, self.pub_cursor = "pub", 0
+                    self.facility_index = self.camp_cursor
+                    self.facility_cursor = 0
+                    self.state = "facility"
+        elif self.state == "facility":
+            self.facility_cursor = (self.facility_cursor + self.direction()) % len(HUB_MENUS[self.facility_index])
+            if cancel:
+                self.facility_back = "camp"
+                self.state = "camp"
+            elif confirm:
+                facility, option = self.facility_index, self.facility_cursor
+                if facility == 3 and option == 1:
+                    self.facility_back = "camp"
+                    self.state = "camp"
+                else:
+                    self.facility_back = "facility"
+                    if facility == 0:
+                        if option == 0:
+                            self.overlay, self.info_tab, self.scroll = "info", 0, 0
+                        else:
+                            self.overlay = "help"
+                    elif facility == 1:
+                        if option == 0:
+                            self.state, self.archive_page, self.archive_cursor = "archive", 0, 0
+                        else:
+                            self.state, self.notice_timer = "relearn_character", 0
+                    elif facility == 2:
+                        self.state = "quest_board" if option == 0 else "pub"
+                        self.quest_cursor = self.pub_cursor = 0
                     else:
-                        self.overlay = "help"
+                        self.state, self.shop_cursor = "shop", 0
         elif self.state == "shop":
             self.shop_cursor = (self.shop_cursor + self.direction()) % 3
             if cancel:
-                self.state = "camp"
+                self.state = self.facility_back
             elif confirm:
                 item = ("POTION", "PHOENIX ASH", "REMEDY")[self.shop_cursor]
                 self.tell(self.session.inventory.buy(item, self.session.treasure)[1])
         elif self.state == "pub":
             self.pub_cursor = (self.pub_cursor + self.direction()) % 2
             if cancel or (confirm and self.pub_cursor):
-                self.state = "camp"
+                self.state = self.facility_back
             elif confirm:
                 cost = self.session.inventory.data["pub_cost"]
                 if self.session.treasure.banked < cost:
@@ -362,7 +383,7 @@ class DungeonApp(App):
                     self.show_field_event(["酒場の噂:", self.last_rumor], return_state="pub")
         elif self.state == "archive":
             if cancel:
-                self.state = "camp"
+                self.state = self.facility_back
             elif confirm:
                 self.archive_page = 1 - self.archive_page
             elif self.archive_page:
@@ -449,7 +470,7 @@ class DungeonApp(App):
             self.draw_dungeon_debug() if self.overlay == "dungeon_debug" else self.draw_effects()
         elif self.overlay == "catalog":
             self.draw_catalog()
-        elif self.overlay or self.state not in ("camp", "archive", "explore", "menu", "items", "item_target", "shop", "pub", "field_heal", "clear", "boss_message", "boss_after"):
+        elif self.overlay or self.state not in ("camp", "facility", "archive", "explore", "menu", "items", "item_target", "shop", "pub", "field_heal", "clear", "boss_message", "boss_after"):
             super().draw()
             if self.overlay == "info" and self.info_tab == 1 and self.state in ("explore", "menu"):
                 self.footer("左右:人 上下:技 A:回復/頁 B:閉じる")
@@ -457,6 +478,8 @@ class DungeonApp(App):
             pyxel.cls(0)
             if self.state == "camp":
                 self.draw_camp()
+            elif self.state == "facility":
+                self.draw_facility()
             elif self.state == "archive":
                 self.draw_archive()
             elif self.state == "explore":
@@ -479,12 +502,34 @@ class DungeonApp(App):
                 self.draw_clear()
 
     def draw_camp(self):
-        self.title("BASE CAMP / 拠点" + (" DEBUG" if self.session.debug else ""))
-        text(4, 18, self.camp_message, 2, 38)
-        for i, label in enumerate(("ダンジョンに入る", "パーティ状態", "SKILL ARCHIVE 技図鑑", "スキル再習得", "QUEST BOARD 調査依頼", "SHOP 道具購入", "PUB 情報購入", "操作 HELP")):
-            text(10, 24 + i * 10, (">" if i == self.camp_cursor else " ") + label, 3, 36)
-        text(8, 104, f"宝{self.session.treasure.banked} 薬{self.dungeon.potions} / {self.session.completed}戦", 2, 36)
-        self.footer("D-PAD:選択 A:決定 B:戻る")
+        self.title("BASE / TOWN HUB" + (" DEBUG" if self.session.debug else ""))
+        for i, (name, sprite) in enumerate(zip(HUB_FACILITIES, HUB_ICONS)):
+            y = 16 + i * 19
+            if i == self.camp_cursor:
+                pyxel.rect(3, y - 1, 82, 18, 1)
+                pyxel.rectb(3, y - 1, 82, 18, 3)
+            pyxel.blt(5, y, HUB_IMAGE_BANK, *sprite, 16, 16, 0)
+            text(24, y + 5, (">" if i == self.camp_cursor else " ") + name,
+                 3 if i == self.camp_cursor else 2, 18)
+        pyxel.blt(94, 20, HUB_IMAGE_BANK, *HUB_PICTURES[self.camp_cursor],
+                  HUB_PICTURE_SIZE, HUB_PICTURE_SIZE, 0)
+        text(91, 100, f"宝 {self.session.treasure.banked} / {self.session.completed}戦", 2, 16)
+        self.footer("D-PAD:選択 A:入る B:戻る")
+
+    def draw_facility(self):
+        index = self.facility_index
+        self.title(HUB_FACILITIES[index] + " / BASE")
+        pyxel.blt(94, 20, HUB_IMAGE_BANK, *HUB_PICTURES[index],
+                  HUB_PICTURE_SIZE, HUB_PICTURE_SIZE, 0)
+        text(6, 22, HUB_DESCRIPTIONS[index], 2, 21)
+        for i, label in enumerate(HUB_MENUS[index]):
+            y = 57 + i * 18
+            if i == self.facility_cursor:
+                pyxel.rect(4, y - 2, 86, 14, 1)
+            text(8, y, (">" if i == self.facility_cursor else " ") + label,
+                 3 if i == self.facility_cursor else 2, 21)
+        text(7, 100, f"BANKED TREASURE {self.session.treasure.banked}", 2, 30)
+        self.footer("D-PAD:選択 A:決定 B:拠点")
 
     def draw_archive(self):
         skills = list(self.session.skills.values())
@@ -675,7 +720,7 @@ class DungeonApp(App):
         elif self.state == "relearn_character":
             self.info_character = (self.info_character + self.direction()) % 4
             if cancel:
-                self.state = "camp"
+                self.state = self.facility_back
             elif confirm:
                 self.state, self.relearn_cursor = "relearn_list", 0
         elif self.state == "relearn_list":
@@ -781,7 +826,7 @@ class DungeonApp(App):
         quests = self.exploration.quest_data["quests"]
         self.quest_cursor = (self.quest_cursor + self.direction()) % len(quests)
         if cancel:
-            self.state, self.notice_timer = "camp", 0
+            self.state, self.notice_timer = self.facility_back, 0
         elif confirm:
             try:
                 self.tell(self.exploration.accept(quests[self.quest_cursor]["id"]))

@@ -61,6 +61,7 @@ def finish_pages():
 with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, "bltm", side_effect=tilemap_draw), patch.object(pyxel, "play"):
     assert app.state == "camp"
     capture("01_camp")
+    key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)
     assert app.state == "explore" and app.dungeon.floor == 0
     initial = app.dungeon.x, app.dungeon.y
@@ -153,6 +154,7 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     assert all(actor.hp == actor.max_hp for actor in app.session.party)
     assert before == (app.dungeon.potions, c.skills, c.strength)
     assert (app.dungeon.treasure.unbanked, app.dungeon.treasure.banked) == (0, 12)
+    key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)
     # Chests and all five maps draw from the resource.
     app.dungeon.x, app.dungeon.y = app.dungeon.positions(0, TILE_CHEST)[0]

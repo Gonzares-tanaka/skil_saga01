@@ -11,6 +11,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[1]
 html = (ROOT / "dist/game.html").read_text(encoding="utf-8")
 index = (ROOT / "dist/index.html").read_text(encoding="utf-8")
+assert "game.html?v=" in index  # The PLAY button bypasses stale mobile iframe caches.
 assert 'gamepad: "disabled"' in html
 assert html.index("window.sparkAudioState") < html.index("cdn.jsdelivr.net/gh/kitao/pyxel")
 assert "window.sparkResumeAudio" in html
@@ -53,10 +54,19 @@ from rpg.tiles import TILE_FLOOR, TILE_WALL
 app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
 expected = [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 assert len(expected) == 32 and list(pyxel.colors) == expected
+assert pyxel.images[2].pget(7, 5) != 0  # Editable GUILD icon is embedded.
 def press(button):
     with patch.object(pyxel, "btnp", side_effect=lambda code, *args: code == button), patch.object(pyxel, "btn", return_value=False):
         app.update()
     app.draw()
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == "facility" and app.facility_index == 0
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.overlay == "info"
+press(pyxel.GAMEPAD1_BUTTON_B)
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == "camp"
+press(pyxel.GAMEPAD1_BUTTON_DPAD_UP)
 press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "explore"
 app.dungeon.settings["encounter_chance"] = 0

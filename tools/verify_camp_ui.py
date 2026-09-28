@@ -52,8 +52,9 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     key(pyxel.KEY_X)
     key(pyxel.KEY_F9)
     s.discovered_skills.update(("return", "fire"))
-    for _ in range(3):
-        key(pyxel.KEY_DOWN)
+    key(pyxel.KEY_DOWN)
+    key(pyxel.KEY_Z)
+    key(pyxel.KEY_DOWN)
     key(pyxel.KEY_Z)
     assert app.state == "relearn_character"
     key(pyxel.KEY_Z)
@@ -69,7 +70,8 @@ with patch.object(pyxel, "text", side_effect=bounded), patch.object(pyxel, "play
     assert s.party[0].skill_uses["return"] == 1 and s.treasure.banked == 2
     key(pyxel.KEY_X)
     key(pyxel.KEY_X)
-    app.camp_cursor = 0
+    key(pyxel.KEY_X)
+    app.camp_cursor = 4
     key(pyxel.KEY_Z)
     assert app.state == "explore"
     key(pyxel.KEY_X)
