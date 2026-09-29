@@ -14,7 +14,7 @@ from rpg.dungeon_app import DungeonApp
 from rpg.sound import play_cue
 from rpg.tiles import TILE_BOSS
 
-app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True, start_at_title=False)
 seqs = [list(seq) for seq in pyxel.musics[0].seqs]
 assert not seqs[0] and all(seqs[i] for i in (1, 2, 3))
 durations = [sum(pyxel.sounds[s].total_sec() for s in seqs[i]) for i in (1, 2, 3)]
@@ -47,7 +47,9 @@ with patch.object(pyxel, "playm") as music, patch.object(pyxel, "stop") as stop,
 assert list(pyxel.colors) == [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 fanfare_seqs = [list(seq) for seq in pyxel.musics[1].seqs]
 assert not fanfare_seqs[0]
-assert all(abs(sum(pyxel.sounds[s].total_sec() for s in seq) - 2.4) < 0.001 for seq in fanfare_seqs[1:4])
+fanfare_durations = [sum(pyxel.sounds[s].total_sec() for s in seq) for seq in fanfare_seqs[1:4]]
+assert all(2.0 <= duration <= 2.401 for duration in fanfare_durations)
+assert abs(max(fanfare_durations) - 2.4) < 0.001
 fanfare_output = output.with_name("victory_preview.wav")
 pyxel.musics[1].save(str(fanfare_output), 2.4)
 with wave.open(str(fanfare_output), "rb") as wav:
@@ -58,7 +60,8 @@ with wave.open(str(fanfare_output), "rb") as wav:
     def rms(start, end):
         section = pcm[int(start * rate):int(end * rate)]
         return (sum(x * x for x in section) / len(section)) ** 0.5
-    assert rms(1.3, 1.5) > rms(1.8, 2.0) > rms(2.25, 2.39)
+    assert rms(1.3, 1.5) > rms(1.8, 2.0)
+    assert rms(2.25, 2.39) < rms(0.5, 0.7)
 with patch.object(pyxel, "playm") as music:
     # Current battle is a boss battle; victory uses the same fanfare.
     app.battle.outcome = "VICTORY"

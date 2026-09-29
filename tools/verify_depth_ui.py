@@ -12,7 +12,7 @@ from rpg.models import Action
 from rpg.text import text_width, FONT_HEIGHT
 from rpg.tiles import TILE_BOSS
 
-app = DungeonApp(Session(*load_content(), seed=9), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=9), run=False, headless=True, start_at_title=False)
 output = ROOT / 'verification/screenshots'
 output.mkdir(parents=True, exist_ok=True)
 drawn, calls = [], 0

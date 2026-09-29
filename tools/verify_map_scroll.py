@@ -12,7 +12,7 @@ from rpg.dungeon_app import (DungeonApp, MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT,
 from rpg.text import font, text_width, FONT_HEIGHT
 
 
-app = DungeonApp(Session(*load_content(), seed=91), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=91), run=False, headless=True, start_at_title=False)
 app.enter_dungeon()
 app.dungeon.width, app.dungeon.height = 32, 24
 output = ROOT / "verification" / "screenshots"

@@ -14,7 +14,7 @@ from rpg.hub import (HUB_DESCRIPTIONS, HUB_FACILITIES, HUB_ICONS, HUB_MENUS, HUB
 from rpg.text import FONT_HEIGHT, font, text_width
 
 
-app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True, start_at_title=False)
 assert all(text_width(description) <= 84 for description in HUB_DESCRIPTIONS)
 assert all(text_width(">" + label) <= 84 for menu in HUB_MENUS for label in menu)
 assert len({(x + dx, y + dy) for x, y in HUB_PICTURES

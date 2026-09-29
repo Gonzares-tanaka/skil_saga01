@@ -1,19 +1,27 @@
 """Small exploration screens around the existing battle UI."""
 from collections import deque
+from copy import deepcopy
 import json
 
 import pyxel
 
 from .app import App
+from .battle import Session
 from .content import ROOT
 from .dungeon import Dungeon, load_dungeon_settings
 from .exploration import Exploration
-from .text import text, wrap_lines
+from .text import FONT_HEIGHT, text, text_width, wrap_lines
 from .map_resources import load_maps
 from .growth import spark_probability
 from .growth import growth_bonus
 from .labels import EFFECTS, CATEGORIES
 from .models import effect_factor, battle_agility
+from .opening import (TITLE_MAIN, TITLE_SUBTITLE, TITLE_OPTIONS, TITLE_FADE_FRAMES,
+                      HUB_PREVIEW_FRAMES,
+                      INTRO_MARGIN, INTRO_LINE_HEIGHT, load_intro_pages,
+                      load_hub_intro_lines)
+from .battle_transition import (BATTLE_TRANSITION_HOLD_FRAMES, BATTLE_TRANSITION_FRAMES,
+                                BATTLE_TRANSITION_FLASH_FRAMES, draw_pieces)
 from .hub import (HUB_IMAGE_BANK, HUB_PICTURE_SIZE, HUB_FACILITIES, HUB_ICONS, HUB_PICTURES,
                   HUB_DESCRIPTIONS, HUB_MENUS)
 from .sound import play_cue, start_battle_music, stop_battle_music
@@ -27,13 +35,29 @@ MAP_WIDTH = MAP_HEIGHT = 96
 PLAYER_WIDTH = PLAYER_HEIGHT = 16
 PLAYER_SPRITES = {"up": (64, 0), "down": (80, 0),
                   "right": (96, 0), "left": (112, 0)}
+TRANSITION_INPUTS = (pyxel.KEY_UP, pyxel.KEY_DOWN, pyxel.KEY_LEFT, pyxel.KEY_RIGHT,
+                     pyxel.KEY_Z, pyxel.KEY_X, pyxel.KEY_RETURN, pyxel.KEY_SPACE,
+                     pyxel.KEY_ESCAPE, pyxel.GAMEPAD1_BUTTON_DPAD_UP,
+                     pyxel.GAMEPAD1_BUTTON_DPAD_DOWN, pyxel.GAMEPAD1_BUTTON_DPAD_LEFT,
+                     pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT, pyxel.GAMEPAD1_BUTTON_A,
+                     pyxel.GAMEPAD1_BUTTON_B)
 
 
 class DungeonApp(App):
-    def __init__(self, session, run=True, headless=False):
+    def __init__(self, session, run=True, headless=False, start_at_title=True):
         if not DUNGEON_RESOURCE.is_file():
             raise ValueError("game.pyxresがありません。同梱リソースを戻してください。")
         super().__init__(session, run=False, headless=headless, battle_on_start=False)
+        self.initial_content = deepcopy((session.settings, session.skills,
+                                         session.party, session.enemy_data))
+        self.initial_rng_state = session.rng.getstate()
+        self.initial_debug = session.debug
+        self.intro_pages = load_intro_pages()
+        self.hub_intro_lines = load_hub_intro_lines()
+        self.hub_intro_shown = False
+        self.title_cursor = self.intro_page = self.title_fade_remaining = 0
+        self.hub_preview_remaining = 0
+        self.opening_input_blocked = False
         self.dungeon = Dungeon(load_maps(), session.enemy_data, load_dungeon_settings(), session.rng,
                                session.treasure, session.inventory)
         self.rumors = json.loads((ROOT / "data/pub_messages.json").read_text(encoding="utf-8-sig"))
@@ -53,10 +77,133 @@ class DungeonApp(App):
         self.battle = None
         self.battle_is_boss = False
         self.battle_position = None
+        self.battle_transition_image = pyxel.Image(pyxel.width, pyxel.height)
+        self.battle_transition_frame = 0
+        self.battle_transition_hold = 0
+        self.battle_input_blocked = False
         self.explore_message = "入口へ戻ると全回復"
         self.enter_camp()
+        if start_at_title:
+            self.state = "title"
         if run:
             pyxel.run(self.update, self.draw)
+
+    def start_new_game(self):
+        """Reset every run-owned system before the opening story begins."""
+        self.session = Session(*deepcopy(self.initial_content))
+        self.session.rng.setstate(self.initial_rng_state)
+        self.session.debug = self.initial_debug
+        self.dungeon = Dungeon(load_maps(), self.session.enemy_data,
+                               load_dungeon_settings(), self.session.rng,
+                               self.session.treasure, self.session.inventory)
+        self.exploration = Exploration(self.session, self.dungeon)
+        self.last_rumor = None
+        self.return_lines = []
+        self.battle = None
+        self.battle_is_boss = False
+        self.battle_position = None
+        self.player_facing = "down"
+        self.overlay = None
+        self.notice = ""
+        self.enter_camp()
+        self.intro_page = 0
+        self.hub_intro_shown = False
+        self.hub_preview_remaining = 0
+        self.title_fade_remaining = TITLE_FADE_FRAMES
+        self.opening_input_blocked = True
+        self.state = "title_fade"
+
+    def update_opening(self):
+        if self.state == "title_fade":
+            self.title_fade_remaining -= 1
+            if self.title_fade_remaining <= 0:
+                self.state = "intro"
+            return
+        if self.state == "hub_preview":
+            self.hub_preview_remaining -= 1
+            if self.hub_preview_remaining <= 0:
+                self.state = "hub_intro"
+            return
+        if self.opening_input_blocked:
+            if not any(pyxel.btn(button) for button in TRANSITION_INPUTS):
+                self.opening_input_blocked = False
+            return
+        if self.state == "title":
+            self.title_cursor = (self.title_cursor + self.direction()) % len(TITLE_OPTIONS)
+            if self.confirm():
+                if self.title_cursor == 0:
+                    self.start_new_game()
+                else:
+                    self.state = "title_no_save"
+        elif self.state == "title_no_save":
+            if self.confirm() or self.cancel():
+                self.state = "title"
+        elif self.state == "intro" and self.confirm():
+            if self.intro_page + 1 < len(self.intro_pages):
+                self.intro_page += 1
+            else:
+                if self.hub_intro_shown:
+                    self.enter_camp()
+                else:
+                    self.hub_preview_remaining = HUB_PREVIEW_FRAMES
+                    self.opening_input_blocked = True
+                    self.state = "hub_preview"
+        elif self.state == "hub_intro" and self.confirm():
+            self.hub_intro_shown = True
+            self.enter_camp()
+            self.opening_input_blocked = True
+
+    def draw_title_logo(self):
+        """Replace only this method with Image Bank blits for future title art."""
+        text((pyxel.width - text_width(TITLE_MAIN)) // 2, 28, TITLE_MAIN, 3)
+        text((pyxel.width - text_width(TITLE_SUBTITLE)) // 2, 43,
+             TITLE_SUBTITLE, 2)
+
+    def draw_title_menu(self):
+        for index, label in enumerate(TITLE_OPTIONS):
+            y = 70 + index * 17
+            display = ("> " if index == self.title_cursor else "  ") + label
+            width = text_width(display)
+            x = (pyxel.width - width) // 2
+            if index == self.title_cursor:
+                pyxel.rect(x - 5, y - 2, width + 10, 13, 1)
+            text(x, y, display, 3 if index == self.title_cursor else 2)
+
+    def draw_title(self):
+        pyxel.cls(0)
+        pyxel.line(17, 21, 142, 21, 1)
+        self.draw_title_logo()
+        pyxel.line(17, 57, 142, 57, 1)
+        self.draw_title_menu()
+        self.footer("D-PAD:選択 A:決定")
+
+    def draw_title_no_save(self):
+        pyxel.cls(0)
+        self.draw_title_logo()
+        pyxel.rect(14, 68, 132, 22, 1)
+        message = "セーブデータがありません"
+        text((pyxel.width - text_width(message)) // 2, 75, message, 3)
+        self.footer("A/B:タイトルへ")
+
+    def draw_opening_page(self, lines):
+        """Center editable story lines, including their intentional blank lines."""
+        pyxel.cls(3)
+        display_lines = wrap_lines(lines, (pyxel.width - 2 * INTRO_MARGIN) // 4)
+        count = len(display_lines)
+        line_height = min(INTRO_LINE_HEIGHT, max(FONT_HEIGHT,
+                          (pyxel.height - 2 * INTRO_MARGIN - FONT_HEIGHT) // max(1, count - 1)))
+        block_height = FONT_HEIGHT + (count - 1) * line_height
+        y = (pyxel.height - block_height) // 2
+        for line in display_lines:
+            if line:
+                text((pyxel.width - text_width(line)) // 2, y, line, 0)
+            y += line_height
+
+    def draw_intro(self):
+        self.draw_opening_page(self.intro_pages[self.intro_page])
+
+    def draw_hub_intro(self):
+        self.draw_opening_page(self.hub_intro_lines)
 
     def enter_camp(self, defeated=False, returned=False):
         stop_battle_music()
@@ -94,7 +241,14 @@ class DungeonApp(App):
         if self.exploration.hint():
             self.show_field_event([self.exploration.hint()])
 
-    def begin_encounter(self, boss=False):
+    def begin_encounter(self, boss=False, animate=False):
+        animate = animate and not boss
+        if animate:
+            # Draw the current position, including the step that triggered battle.
+            pyxel.cls(0)
+            self.draw_explore()
+            self.battle_transition_image.blt(0, 0, pyxel.screen, 0, 0,
+                                             pyxel.width, pyxel.height)
         self.fanfare_started_at = None
         self.fanfare_start_frame = None
         self.battle_position = self.dungeon.floor, self.dungeon.x, self.dungeon.y
@@ -105,8 +259,15 @@ class DungeonApp(App):
         self.log = [self.dungeon.boss_data["name"] + "との決戦!" if boss else "敵と遭遇した!"]
         self.pending = deque()
         self.begin_input()
+        self.shake_timer = 0
+        self.battle_input_blocked = animate
         if boss:
             stop_battle_music()
+        elif animate:
+            self.state = "battle_transition"
+            self.battle_transition_frame = 0
+            self.battle_transition_hold = BATTLE_TRANSITION_HOLD_FRAMES
+            play_cue("battle_transition")
         else:
             start_battle_music()
 
@@ -166,13 +327,38 @@ class DungeonApp(App):
             self.message_lines = wrap_lines(self.dungeon.boss_data["message"], 36)
             self.state, self.message_page, self.notice_timer = "boss_message", 0, 0
         elif event == "battle":
-            self.begin_encounter()
+            self.begin_encounter(animate=True)
         elif event == "base":
             self.return_lines = []
             self.enter_camp(returned=True)
 
     def update(self):
         self.keyboard.update()
+        if self.state in ("title", "title_no_save", "title_fade", "intro",
+                          "hub_preview", "hub_intro"):
+            self.update_opening()
+            return
+        if self.opening_input_blocked:
+            if not any(pyxel.btn(button) for button in TRANSITION_INPUTS):
+                self.opening_input_blocked = False
+            return
+        if self.state == "battle_transition":
+            if self.battle_transition_hold:
+                self.battle_transition_hold -= 1
+                return
+            self.battle_transition_frame += 1
+            if self.battle_transition_frame >= BATTLE_TRANSITION_FRAMES:
+                self.state = "command"
+                start_battle_music()
+            return
+        if self.battle_input_blocked:
+            # Require a released frame, then a fresh press for the first command.
+            if not any(pyxel.btn(button) for button in TRANSITION_INPUTS):
+                self.battle_input_blocked = False
+            return
+        if self.session.debug and self.state == "explore" and not self.overlay and self.pressed(pyxel.KEY_T):
+            self.begin_encounter(animate=True)
+            return
         if self.session.debug and self.pressed(pyxel.KEY_F1) and self.state in ("camp", "explore"):
             self.overlay = None if self.overlay == "feedback_debug" else "feedback_debug"
             self.notice_timer = 0
@@ -457,7 +643,33 @@ class DungeonApp(App):
                 self.tell(lines[-1])
 
     def draw(self):
-        if self.overlay == "feedback_debug":
+        if self.state == "title":
+            self.draw_title()
+        elif self.state == "title_no_save":
+            self.draw_title_no_save()
+        elif self.state == "title_fade":
+            pyxel.cls(0)
+        elif self.state == "intro":
+            self.draw_intro()
+        elif self.state == "hub_preview":
+            pyxel.cls(0)
+            self.draw_camp()
+        elif self.state == "hub_intro":
+            self.draw_hub_intro()
+        elif self.state == "battle_transition":
+            flash = self.battle_transition_frame in BATTLE_TRANSITION_FLASH_FRAMES
+            if flash:
+                # Brighten existing palette indices for a single frame; no new colors.
+                pyxel.pal(0, 2)
+                pyxel.pal(1, 3)
+                pyxel.pal(2, 3)
+            try:
+                super().draw()
+                draw_pieces(self.battle_transition_image, self.battle_transition_frame)
+            finally:
+                if flash:
+                    pyxel.pal()
+        elif self.overlay == "feedback_debug":
             self.draw_feedback_debug()
         elif not self.overlay and self.state in ("field_event", "quest_board"):
             self.draw_field_ui()

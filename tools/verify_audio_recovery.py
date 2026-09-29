@@ -37,7 +37,7 @@ def leave_result(app):
 
 
 session = Session(*load_content(), seed=29)
-app = DungeonApp(session, run=False, headless=True)
+app = DungeonApp(session, run=False, headless=True, start_at_title=False)
 app.enter_dungeon()
 
 # A: Input still works after a background/foreground cycle. A real device lock

@@ -1,6 +1,7 @@
 """Editable battle music on channels 1-3; synthesized effects on channel 0."""
 import pyxel
 from .content import ROOT
+from .battle_transition import SOUND_BATTLE_TRANSITION
 
 ATTACK_SOUND = 60
 SKILL_SOUND = 61
@@ -22,7 +23,8 @@ def init_sound():
 
 
 def play_cue(cue):
-    sounds = {"attack": ATTACK_SOUND, "skill": SKILL_SOUND,
+    sounds = {"battle_transition": SOUND_BATTLE_TRANSITION,
+              "attack": ATTACK_SOUND, "skill": SKILL_SOUND,
               "chest": CHEST_SOUND, "mastered": MASTERED_SOUND}
     if cue in sounds:
         try:

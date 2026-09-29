@@ -1,5 +1,5 @@
 """Run the game or a reproducible headless growth simulation."""
-# title: Pyxel Dungeon RPG Prototype
+# title: Skill Seekers!!~深淵のアムリタ~
 # desc: 4人パーティのスキル消耗・閃き・帰還を検証する開発中プロトタイプ
 # license: TBD
 import argparse

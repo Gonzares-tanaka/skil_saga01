@@ -11,7 +11,7 @@ from rpg.dungeon_app import DungeonApp
 from rpg.text import font, text_width, FONT_HEIGHT
 
 
-app = DungeonApp(Session(*load_content(), seed=73), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=73), run=False, headless=True, start_at_title=False)
 output = ROOT / "verification" / "screenshots"
 output.mkdir(parents=True, exist_ok=True)
 real_text = pyxel.text

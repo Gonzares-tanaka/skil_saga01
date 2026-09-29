@@ -12,7 +12,7 @@ from rpg.text import font, text_width, FONT_HEIGHT
 from rpg.tiles import TILE_BOSS, TILE_CHEST, TILE_FLOOR, TILE_ENTRANCE, TILE_STAIRS_DOWN
 
 
-app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True, start_at_title=False)
 output = ROOT / "verification" / "screenshots"
 output.mkdir(parents=True, exist_ok=True)
 real_text, real_bltm = pyxel.text, pyxel.bltm
@@ -103,6 +103,10 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     app.dungeon.grace = 0
     app.dungeon.x, app.dungeon.y = 2, 1
     key(pyxel.KEY_RIGHT)
+    assert app.state == "battle_transition"
+    while app.state == "battle_transition":
+        key()
+    key()  # Release frame before the first battle command.
     assert app.state == "command"
     origin = app.dungeon.floor, app.dungeon.x, app.dungeon.y
     assert c.hp == 35

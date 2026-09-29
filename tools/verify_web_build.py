@@ -48,17 +48,48 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path.cwd()))
 import pyxel
 from rpg.battle import Session
+from rpg.battle_transition import BATTLE_TRANSITION_HOLD_FRAMES, BATTLE_TRANSITION_FRAMES
 from rpg.content import ROOT, load_content
 from rpg.dungeon_app import DungeonApp
+from rpg.opening import TITLE_FADE_FRAMES, HUB_PREVIEW_FRAMES
 from rpg.tiles import TILE_FLOOR, TILE_WALL
 app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
 expected = [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 assert len(expected) == 32 and list(pyxel.colors) == expected
 assert pyxel.images[2].pget(7, 5) != 0  # Editable GUILD icon is embedded.
-def press(button):
-    with patch.object(pyxel, "btnp", side_effect=lambda code, *args: code == button), patch.object(pyxel, "btn", return_value=False):
+def press(button, held=False):
+    with patch.object(pyxel, "btnp", side_effect=lambda code, *args: code == button), patch.object(pyxel, "btn", return_value=held):
         app.update()
     app.draw()
+assert app.state == "title"
+press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == "title_no_save"
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == "title"
+press(pyxel.GAMEPAD1_BUTTON_DPAD_UP)
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == "title_fade"
+for _ in range(TITLE_FADE_FRAMES):
+    press(pyxel.GAMEPAD1_BUTTON_A, held=True)
+assert app.state == "intro" and app.intro_page == 0
+press(None)
+for page in range(4):
+    press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == "hub_preview"
+for _ in range(HUB_PREVIEW_FRAMES - 1):
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN, held=True)
+    assert app.state == "hub_preview" and app.camp_cursor == 0
+press(pyxel.GAMEPAD1_BUTTON_A, held=True)
+assert app.state == "hub_intro"
+press(pyxel.GAMEPAD1_BUTTON_A, held=True)
+assert app.state == "hub_intro"
+press(None)
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == "hub_intro"
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == "camp"
+press(None)
 press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "facility" and app.facility_index == 0
 press(pyxel.GAMEPAD1_BUTTON_A)
@@ -96,7 +127,16 @@ press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.overlay == "help"
 press(pyxel.GAMEPAD1_BUTTON_B)
 assert app.overlay is None
-app.begin_encounter()
+assert pyxel.sounds[59].notes  # Editable transition sound is in the Web payload.
+with patch.object(pyxel, "play", side_effect=RuntimeError("audio suspended")), patch.object(pyxel, "playm", side_effect=RuntimeError("audio suspended")):
+    app.handle_event("battle", "")
+    assert app.state == "battle_transition"
+    for _ in range(BATTLE_TRANSITION_HOLD_FRAMES + BATTLE_TRANSITION_FRAMES):
+        press(pyxel.GAMEPAD1_BUTTON_A, held=True)
+assert app.state == "command" and not app.actions
+press(pyxel.GAMEPAD1_BUTTON_A, held=True)  # Held touch cannot choose a command.
+assert app.state == "command" and not app.actions
+press(None)  # Release before a fresh touch.
 assert app.state == "command"
 press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
 press(pyxel.GAMEPAD1_BUTTON_A)

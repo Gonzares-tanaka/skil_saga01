@@ -11,7 +11,7 @@ from rpg.dungeon_app import DungeonApp
 from rpg.text import text_width, FONT_HEIGHT
 from rpg.tiles import TILE_FLOOR, TILE_HEAL_POINT
 
-app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
+app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True, start_at_title=False)
 s, d, e = app.session, app.dungeon, app.exploration
 output = ROOT / 'verification/screenshots'
 output.mkdir(parents=True, exist_ok=True)

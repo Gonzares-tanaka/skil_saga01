@@ -11,6 +11,7 @@ from .text import text, wrap_lines, font
 from .sound import init_sound, play_cue, start_battle_music, stop_battle_music, play_victory_music, music_is_playing
 from .growth import growth_bonus
 from .keyboard import GameKeyboard
+from .opening import GAME_TITLE
 
 
 # The official Web touch pad emits gamepad buttons, not keyboard keys.
@@ -30,7 +31,7 @@ FANFARE_MAX_WAIT_FRAMES = 150
 class App:
     def __init__(self, session, run=True, headless=False, battle_on_start=True):
         self.session = session
-        pyxel.init(160, 120, title="SPARK - Growth Lab", fps=30,
+        pyxel.init(160, 120, title=GAME_TITLE, fps=30,
                    display_scale=5, quit_key=pyxel.KEY_NONE, headless=headless)
         self.keyboard = GameKeyboard(enabled=not headless)
         self.keyboard.update()
@@ -405,7 +406,7 @@ class App:
                 pyxel.blt(38, y, 0, *enemy.sprite, 16, 16, 0)
         for i, actor in enumerate(self.session.party):
             y = 13 + i * 16
-            active = self.state in ("command", "target") and self.actor_index == i
+            active = self.state in ("command", "target", "battle_transition") and self.actor_index == i
             pyxel.rect(97, y, 62, 16, 1 if active else 0)
             pyxel.blt(98, y, 0, *actor.sprite, 16, 16, 0)
             text(115, y + 1, actor.name, 3 if actor.alive else 1, 7)
@@ -413,7 +414,7 @@ class App:
             text(148, y + 1, status, 3, 2)
             text(115, y + 8, f"{actor.hp}/{actor.max_hp}", 2, 11)
         self.panel(1, 80, 158, 31)
-        if self.state == "command":
+        if self.state in ("command", "battle_transition"):
             for i, label in enumerate(("SKILL 技", "ITEM 道具", "GUARD まもる", "RUN 逃走")):
                 text(5 + i % 2 * 75, 84 + i // 2 * 12,
                      (">" if i == self.cursor else " ") + label,
