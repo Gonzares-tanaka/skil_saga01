@@ -2,7 +2,7 @@
 import json
 from .content import ROOT
 from .growth import spark
-from .tiles import TILE_FLOOR
+from .tiles import TILE_FLOOR, TILE_QUEST
 
 
 def load_exploration_settings():
@@ -40,8 +40,10 @@ class Exploration:
             raise ValueError("先のエリアのボス撃破が必要です")
         candidates = {}
         for floor in range(quest["floors"][0] - 1, quest["floors"][1]):
-            points = sorted(p for p in self.dungeon.reachable(floor)
-                            if self.dungeon.tile(floor, *p) == TILE_FLOOR)
+            reachable = self.dungeon.reachable(floor)
+            marked = sorted(p for p in reachable if self.dungeon.tile(floor, *p) == TILE_QUEST)
+            points = marked or sorted(p for p in reachable
+                                      if self.dungeon.tile(floor, *p) == TILE_FLOOR)
             if points:
                 candidates[floor] = points
         if not candidates:

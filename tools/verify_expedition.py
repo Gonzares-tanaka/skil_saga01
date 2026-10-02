@@ -12,7 +12,7 @@ from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.map_resources import load_maps
 from rpg.exploration import Exploration
 from rpg.tiles import (DUNGEON_RESOURCE, PASSABLE, TILE_ENTRANCE, TILE_STAIRS_UP,
-                       TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS, TILE_RARE_CHEST, TILE_PIT)
+                       TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS, TILE_RARE_CHEST, TILE_PIT, TILE_SWITCH)
 
 
 def path_to(d, goal):
@@ -29,7 +29,7 @@ def path_to(d, goal):
         for dx, dy in ((0, 1), (1, 0), (0, -1), (-1, 0)):
             nxt = point[0] + dx, point[1] + dy
             tile = d.tile(d.floor, *nxt)
-            if nxt in previous or tile not in PASSABLE - {TILE_PIT}:
+            if nxt in previous or tile == TILE_PIT or not d.can_enter(d.floor, *nxt):
                 continue
             if nxt != goal and tile in (TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN):
                 continue
@@ -51,12 +51,16 @@ def play(seed):
     d = Dungeon(load_maps(), s.enemy_data, load_dungeon_settings(), s.rng, s.treasure, s.inventory)
     exploration = Exploration(s, d)
     retreats = potions_used = trips = 0
+    progression = [1]
+    bosses_won = []
+    switches_operated = 0
     for trips in range(1, 11):
         for actor in s.party:
             actor.recover()
         d.enter()
         exploration.springs.clear()
         retreat = False
+        unavailable_chests = set()
         for _ in range(5000):
             injured = [c for c in s.party if c.alive and c.hp < c.max_hp * 0.55]
             while d.potions and injured:
@@ -70,10 +74,13 @@ def play(seed):
             if retreat:
                 goal = d.find(d.floor, TILE_ENTRANCE if d.floor == 0 else TILE_STAIRS_UP)
             else:
-                chests = [p for tile in (TILE_CHEST, TILE_RARE_CHEST) for p in d.positions(d.floor, tile) if (d.floor, *p) not in d.opened]
+                chests = [p for tile in (TILE_CHEST, TILE_RARE_CHEST) for p in d.positions(d.floor, tile)
+                          if (d.floor, *p) not in d.opened | unavailable_chests]
                 reachable = [(p, route) for p in chests if (route := reachable_path(d, p)) is not None]
                 if reachable and d.potions < 9:
                     goal = min(reachable, key=lambda pair: len(pair[1]))[0]
+                elif d.floor not in d.activated_switches and d.positions(d.floor, TILE_SWITCH):
+                    goal = d.positions(d.floor, TILE_SWITCH)[0]
                 else:
                     boss = d.floor in (4, 9, 14) and d.floor not in d.defeated_bosses
                     goal = d.find(d.floor, TILE_BOSS if boss else TILE_STAIRS_DOWN)
@@ -83,6 +90,12 @@ def play(seed):
                 event, _ = d.move(nx - d.x, ny - d.y)
             else:
                 event, _ = d.interact()
+                if not event and d.tile(d.floor, *goal) in (TILE_CHEST, TILE_RARE_CHEST):
+                    unavailable_chests.add((d.floor, *goal))
+            if d.floor + 1 not in progression:
+                progression.append(d.floor + 1)
+            if event == 'switch':
+                switches_operated += 1
             if event == "base":
                 s.treasure.secure()
                 break
@@ -114,6 +127,7 @@ def play(seed):
                 if battle.outcome == "DEFEAT":
                     break
                 if event == "boss" and battle.outcome == "VICTORY":
+                    bosses_won.append(d.floor + 1)
                     d.defeat_boss()
                     if d.cleared:
                         break
@@ -122,6 +136,7 @@ def play(seed):
         if d.cleared:
             break
     return {"seed": seed, "clear": d.cleared, "trips": trips, "battles": s.completed,
+            "progression": progression, "bosses_won": bosses_won, "switches_operated": switches_operated,
             "wins": s.wins, "defeats": s.losses, "retreats": retreats, "steps": d.steps,
             "potions_used": potions_used, "unbanked_treasure": d.treasure.unbanked,
             "banked_treasure": d.treasure.banked,
@@ -139,3 +154,5 @@ if __name__ == "__main__":
     for r in results:
         print({k: v for k, v in r.items() if k != "party"})
     assert all(r["clear"] for r in results), "Some test parties could not clear within ten trips"
+    assert all(r['progression'] == list(range(1, 16)) and r['bosses_won'] == [5, 10, 15]
+               and r['switches_operated'] > 0 for r in results), 'Ordinary staircase/switch/boss progression failed'

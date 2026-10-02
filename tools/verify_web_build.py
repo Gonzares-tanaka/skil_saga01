@@ -52,7 +52,7 @@ from rpg.battle_transition import BATTLE_TRANSITION_HOLD_FRAMES, BATTLE_TRANSITI
 from rpg.content import ROOT, load_content
 from rpg.dungeon_app import DungeonApp
 from rpg.opening import TITLE_FADE_FRAMES, HUB_PREVIEW_FRAMES
-from rpg.tiles import TILE_FLOOR, TILE_WALL
+from rpg.tiles import TILE_FLOOR, TILE_WALL, TILE_SWITCH, TILE_DOOR, TILE_QUEST
 app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
 expected = [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 assert len(expected) == 32 and list(pyxel.colors) == expected
@@ -153,6 +153,34 @@ for _ in range(4):
     press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "resolve"
 assert list(pyxel.colors) == expected
-print("PASS: embedded resources/palette, all pad directions, menu, information, help and battle commands")
+app.enter_camp()
+app.enter_dungeon()
+d = app.dungeon
+d.settings['encounter_chance'] = 0
+assert [len(d.positions(f, TILE_QUEST)) for f in range(5, 10)] == [3, 3, 4, 3, 3]
+d.debug_floor(6)
+door = d.positions(6, TILE_DOOR)[0]
+d.x, d.y = door[0]-1, door[1]
+press(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT)
+assert (d.x, d.y) != door
+sx, sy = d.positions(6, TILE_SWITCH)[0]
+d.x, d.y = sx, sy-1
+press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+assert not d.activated_switches
+with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')):
+    press(pyxel.GAMEPAD1_BUTTON_A)
+assert d.activated_switches == {6} and app.state == 'field_event'
+for _ in range(10):
+    if app.state == 'explore':
+        break
+    press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == 'explore'
+d.x, d.y = door[0]-1, door[1]
+press(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT)
+assert (d.x, d.y) == door
+app.enter_camp()
+app.enter_dungeon()
+assert not d.activated_switches and not d.can_enter(6, *door)
+print("PASS: embedded resources/palette, all pad directions, menu, battle commands, B6-B10 quests and silent switch/door/reset")
 '''
     subprocess.run([sys.executable, "-c", check], cwd=Path(temp) / "spark_web", check=True)

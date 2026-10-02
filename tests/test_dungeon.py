@@ -41,6 +41,7 @@ class DungeonTests(unittest.TestCase):
     def test_wall_bounds_and_diagonal_do_not_move_or_roll(self):
         d = self.dungeon
         d.enter()
+        d.x, d.y = 2, 3  # One step west of the authored entrance room wall.
         before = d.x, d.y, d.steps, d.rng.getstate()
         self.assertEqual(d.move(-1, 0)[0], "")
         self.assertEqual(d.move(1, 1)[0], "")
@@ -64,16 +65,18 @@ class DungeonTests(unittest.TestCase):
         d = self.dungeon
         d.settings["encounter_chance"] = 1
         d.enter()
+        # Controlled floor corridor, independent of the author's entrance placement.
+        d.x, d.y = 3, 3
         self.assertEqual(d.move(1, 0)[0], "")
         self.assertEqual(d.move(1, 0)[0], "")
         self.assertEqual(d.move(-1, 0)[0], "battle")
-        self.assertEqual((d.x, d.y), (2, 1))
+        self.assertEqual((d.x, d.y), (4, 3))
         self.assertEqual(d.steps, 3)
 
     def test_random_encounter_rate_and_no_random_fights_on_boss_floor(self):
         d = self.dungeon
         d.grace = 0
-        d.x, d.y = 2, 1
+        d.x, d.y = 4, 3
         counts = []
         for debug in (False, True):
             count = 0
@@ -86,49 +89,54 @@ class DungeonTests(unittest.TestCase):
         d.debug_floor(4)
         d.settings["debug_encounter_chance"] = 1
         for _ in range(100):
-            d.x, d.y = 2, 1
+            d.x, d.y = d.find(4, TILE_STAIRS_UP)
             self.assertEqual(d.move(1, 0, True)[0], "")
 
     def test_editor_moved_stairs_use_new_arrival_and_exit(self):
         d = self.dungeon
         old = d.find(1, TILE_STAIRS_UP)
         d.maps[1].pset(*old, TILE_FLOOR)
-        d.maps[1].pset(2, 1, TILE_STAIRS_UP)
+        d.maps[1].pset(3, 4, TILE_STAIRS_UP)
         old_down = d.find(0, TILE_STAIRS_DOWN)
         d.maps[0].pset(*old_down, TILE_FLOOR)
-        d.maps[0].pset(3, 1, TILE_STAIRS_DOWN)
-        d.x, d.y = 2, 1
+        start = d.find(0, TILE_ENTRANCE)
+        new_down = start[0] + 1, start[1]
+        d.maps[0].pset(*new_down, TILE_STAIRS_DOWN)
+        d.x, d.y = start
         event, _ = d.move(1, 0)
         self.assertEqual(event, "stairs")
-        self.assertEqual((d.floor, d.x, d.y), (1, 2, 1))
+        self.assertEqual((d.floor, d.x, d.y), (1, 3, 4))
         event, _ = d.interact()
         self.assertEqual(event, "stairs")
-        self.assertEqual((d.floor, d.x, d.y), (0, 3, 1))
+        self.assertEqual((d.floor, d.x, d.y), (0, *new_down))
 
     def test_editor_moved_chest_once_per_excursion(self):
         d = self.dungeon
         d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "POTION", "amount": 1, "weight": 1}]
-        old = d.positions(0, TILE_CHEST)[0]
-        d.maps[0].pset(*old, TILE_FLOOR)
-        d.maps[0].pset(2, 1, TILE_CHEST)
+        old = d.positions(1, TILE_CHEST)[0]
+        d.maps[1].pset(*old, TILE_FLOOR)
+        d.maps[1].pset(20, 19, TILE_CHEST)
         d.enter()
+        d.change_floor(1)
         self.assertEqual(d.move(1, 0)[0], "chest")
         self.assertEqual(d.potions, 3)
         d.interact()
         self.assertEqual(d.potions, 3)
+        d.change_floor(2)
         d.change_floor(1)
-        d.change_floor(0)
-        d.x, d.y = 2, 1
+        d.x, d.y = 20, 19
         d.interact()
         self.assertEqual(d.potions, 3)
         d.enter()
+        d.change_floor(1)
         d.move(1, 0)
         self.assertEqual(d.potions, 4)
 
     def test_full_potion_inventory_keeps_same_chest_contents(self):
         d = self.dungeon
         d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "POTION", "amount": 1, "weight": 1}]
-        d.x, d.y = d.positions(0, TILE_CHEST)[0]
+        d.x, d.y = d.positions(1, TILE_CHEST)[0]
+        d.floor = 1
         d.potions = 9
         d.interact()
         self.assertFalse(d.opened)
@@ -141,7 +149,8 @@ class DungeonTests(unittest.TestCase):
     def test_treasure_and_potion_rules(self):
         d = self.dungeon
         d.exploration_settings["CHEST_REWARD_TABLE"]["NORMAL"] = [{"kind": "TREASURE", "amount": 1, "weight": 1}]
-        d.x, d.y = d.positions(0, TILE_CHEST)[0]
+        d.x, d.y = d.positions(1, TILE_CHEST)[0]
+        d.floor = 1
         d.interact()
         self.assertEqual(d.treasure.unbanked, 1)
         self.assertEqual(d.treasure.banked, 0)
@@ -193,7 +202,7 @@ class DungeonTests(unittest.TestCase):
         d = self.dungeon
         old = d.find(4, TILE_BOSS)
         d.maps[4].pset(*old, TILE_FLOOR)
-        d.maps[4].pset(2, 1, TILE_BOSS)
+        d.maps[4].pset(5, 19, TILE_BOSS)
         d.debug_floor(4)
         self.assertEqual(d.move(1, 0)[0], "boss")
         boss = d.make_enemies(boss=True)
@@ -213,18 +222,19 @@ class DungeonTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(dir=ROOT / "verification") as directory:
             # Pyxel Editor writes exactly these Image/Tilemap fields into .pyxres.
             edited = Path(directory) / "edited.pyxres"
-            pyxel.tilemaps[0].pset(2, 1, TILE_WALL)
+            pyxel.tilemaps[0].pset(4, 3, TILE_WALL)
             pyxel.images[1].pset(0, 0, 3)
             pyxel.save(str(edited))
             pyxel.load(str(DUNGEON_RESOURCE))
-            self.assertEqual(tuple(pyxel.tilemaps[0].pget(2, 1)), TILE_FLOOR)
+            self.assertEqual(tuple(pyxel.tilemaps[0].pget(4, 3)), TILE_FLOOR)
             pyxel.load(str(edited))
-            self.assertEqual(tuple(pyxel.tilemaps[0].pget(2, 1)), TILE_WALL)
+            self.assertEqual(tuple(pyxel.tilemaps[0].pget(4, 3)), TILE_WALL)
             self.assertEqual(pyxel.images[1].pget(0, 0), 3)
             # Runtime maps are independent copies; reload to see Editor changes.
             self.dungeon.maps[0].blt(0, 0, pyxel.tilemaps[0], 0, 0, 256, 256)
+            self.dungeon.x, self.dungeon.y = 3, 3
             self.assertEqual(self.dungeon.move(1, 0)[0], "")
-            self.assertEqual((self.dungeon.x, self.dungeon.y), (1, 1))
+            self.assertEqual((self.dungeon.x, self.dungeon.y), (3, 3))
         self.assertEqual(hashlib.sha256(DUNGEON_RESOURCE.read_bytes()).hexdigest(), original_hash)
 
     def test_invalid_event_layout_is_reported(self):
@@ -276,18 +286,21 @@ class DungeonTests(unittest.TestCase):
             pyxel.load(str(AREA_RESOURCES[1]))
             old = self.dungeon.find(9, TILE_BOSS)
             pyxel.tilemaps[4].pset(*old, TILE_FLOOR)
-            pyxel.tilemaps[4].pset(2, 1, TILE_BOSS)
-            pyxel.tilemaps[0].pset(2, 1, TILE_WALL)
+            boss_start = self.dungeon.find(9, TILE_STAIRS_UP)
+            new_boss = boss_start[0] + 1, boss_start[1]
+            pyxel.tilemaps[4].pset(*new_boss, TILE_BOSS)
+            start = self.dungeon.find(5, TILE_STAIRS_UP)
+            pyxel.tilemaps[0].pset(start[0] + 1, start[1], TILE_WALL)
             pyxel.save(str(edited))
             with patch('rpg.map_resources.AREA_RESOURCES', (AREA_RESOURCES[0], edited, AREA_RESOURCES[2])):
                 d = Dungeon(load_maps(), self.session.enemy_data, self.settings, self.session.rng)
             d.debug_floor(5)
             self.assertEqual(d.move(1, 0)[0], '')
-            self.assertEqual((d.x, d.y), (1, 1))
+            self.assertEqual((d.x, d.y), start)
             d.debug_floor(9)
             self.assertEqual(d.move(1, 0)[0], 'boss')
             self.assertEqual(d.boss_data['id'], 'skill_keeper')
-            self.assertEqual(d.boss_positions[9], (2, 1))
+            self.assertEqual(d.boss_positions[9], new_boss)
             d.defeat_boss()
             self.assertEqual(d.interact()[0], '')
         self.assertEqual(hashes, [hashlib.sha256(p.read_bytes()).hexdigest() for p in AREA_RESOURCES])

@@ -27,7 +27,8 @@ from .hub import (HUB_IMAGE_BANK, HUB_PICTURE_SIZE, HUB_FACILITIES, HUB_ICONS, H
 from .sound import play_cue, start_battle_music, stop_battle_music
 from .tiles import (DUNGEON_RESOURCE, MAP_IMAGE_BANK, BOSS_FLOORS,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR, TILE_SIZE,
-                    TILE_FLOOR, TILE_RARE_CHEST, TILE_QUEST)
+                    TILE_FLOOR, TILE_RARE_CHEST, TILE_QUEST,
+                    TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR, TILE_DOOR_OPEN)
 
 
 MAP_X, MAP_Y = 2, 13
@@ -306,7 +307,7 @@ class DungeonApp(App):
         if event == "poison":
             self.show_field_event([message] + self.exploration.damage(self.dungeon.exploration_settings["poison_damage"]))
             return
-        if event == "pit":
+        if event in ("pit", "switch"):
             self.show_field_event([message])
             return
         if event == "spring":
@@ -798,6 +799,21 @@ class DungeonApp(App):
                        MAP_Y + source_y - camera_y,
                        d.maps[d.floor], source_x, source_y,
                        draw_width, draw_height)
+        # Candidate markers stay editable in Tilemap but look like ordinary floor.
+        if d.floor in d.activated_switches:
+            for source, replacement in ((TILE_SWITCH, TILE_SWITCH_ON), (TILE_DOOR, TILE_DOOR_OPEN)):
+                for x, y in d.positions(d.floor, source):
+                    u, v = replacement
+                    pyxel.blt(MAP_X + x * TILE_SIZE - camera_x,
+                              MAP_Y + y * TILE_SIZE - camera_y,
+                              MAP_IMAGE_BANK, u * TILE_SIZE, v * TILE_SIZE,
+                              TILE_SIZE, TILE_SIZE)
+        u, v = TILE_FLOOR
+        for x, y in d.positions(d.floor, TILE_QUEST):
+            pyxel.blt(MAP_X + x * TILE_SIZE - camera_x,
+                      MAP_Y + y * TILE_SIZE - camera_y,
+                      MAP_IMAGE_BANK, u * TILE_SIZE, v * TILE_SIZE,
+                      TILE_SIZE, TILE_SIZE)
         for floor, x, y in d.opened:
             if floor == d.floor:
                 u, v = TILE_CHEST_OPEN

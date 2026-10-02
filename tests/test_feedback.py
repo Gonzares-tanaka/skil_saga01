@@ -11,7 +11,8 @@ from rpg.growth import spark
 from rpg.map_resources import load_maps
 from rpg.models import Action
 from rpg.tiles import (TILE_CHEST, TILE_RARE_CHEST, TILE_POISON, TILE_PIT,
-                       TILE_HEAL_POINT, TILE_FLOOR, TILE_ENTRANCE, TILE_STAIRS_UP, PASSABLE)
+                       TILE_HEAL_POINT, TILE_FLOOR, TILE_QUEST, TILE_ENTRANCE,
+                       TILE_STAIRS_UP, PASSABLE)
 
 
 class FeedbackTests(unittest.TestCase):
@@ -37,12 +38,12 @@ class FeedbackTests(unittest.TestCase):
         self.assertGreater(normal, rare)
         self.d.validate_maps()
 
-    def test_tilemap2_spring_and_rare_chest_are_events(self):
-        for tile, event in ((TILE_HEAL_POINT, 'spring'), (TILE_RARE_CHEST, 'chest')):
-            positions = self.d.positions(2, tile)
+    def test_editor_spring_and_rare_chest_are_events(self):
+        for floor, tile, event in ((3, TILE_HEAL_POINT, 'spring'), (2, TILE_RARE_CHEST, 'chest')):
+            positions = self.d.positions(floor, tile)
             self.assertTrue(positions)
             self.assertIn(tile, PASSABLE)
-            self.d.floor = 2
+            self.d.floor = floor
             self.d.x, self.d.y = positions[0]
             self.assertEqual(self.d.interact()[0], event)
 
@@ -53,7 +54,8 @@ class FeedbackTests(unittest.TestCase):
         for _ in range(400):
             d.enter()
             d.potions = 0
-            d.x, d.y = d.positions(0, TILE_CHEST)[0]
+            d.floor = 1
+            d.x, d.y = d.positions(1, TILE_CHEST)[0]
             before = d.treasure.unbanked
             self.assertEqual(d.interact()[0], 'chest')
             reward = d.last_reward
@@ -76,7 +78,7 @@ class FeedbackTests(unittest.TestCase):
             c.hp = hp
         self.e.chest_effect({'kind': 'TRAP', 'amount': 4})
         self.assertEqual([c.hp for c in self.s.party], [0, 1, 1, 6])
-        self.d.maps[0].pset(2, 1, TILE_POISON)
+        self.d.maps[0].pset(self.d.x + 1, self.d.y, TILE_POISON)
         self.assertEqual(self.d.move(1, 0)[0], 'poison')
         self.e.damage(self.d.exploration_settings['poison_damage'])
         self.assertEqual([c.hp for c in self.s.party], [0, 1, 1, 4])
@@ -100,8 +102,8 @@ class FeedbackTests(unittest.TestCase):
         d = self.d
         for floor in range(15):
             d.debug_floor(floor)
-            d.maps[floor].pset(2, 1, TILE_PIT)
-            d.x, d.y = 1, 1
+            start = d.x, d.y
+            d.maps[floor].pset(start[0] + 1, start[1], TILE_PIT)
             self.assertEqual(d.move(1, 0)[0], 'pit')
             self.assertEqual(d.floor, floor)
             self.assertEqual((d.x, d.y), d.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP))
@@ -111,12 +113,14 @@ class FeedbackTests(unittest.TestCase):
         self.assertEqual(d.defeated_bosses, set())
 
     def test_editor_moved_gimmicks_and_unreachable_pit_layout(self):
-        self.d.maps[0].pset(2, 1, TILE_HEAL_POINT)
+        start = self.d.x, self.d.y
+        self.d.maps[0].pset(start[0] + 1, start[1], TILE_HEAL_POINT)
         self.assertEqual(self.d.move(1, 0)[0], 'spring')
         # A pit in the only exit from the entrance must fail map validation.
-        self.d.maps[0].pset(2, 1, TILE_PIT)
+        self.d.maps[0].pset(start[0] + 1, start[1], TILE_PIT)
         from rpg.tiles import TILE_WALL
-        self.d.maps[0].pset(1, 2, TILE_WALL)
+        for point in ((start[0] - 1, start[1]), (start[0], start[1] - 1), (start[0], start[1] + 1)):
+            self.d.maps[0].pset(*point, TILE_WALL)
         with self.assertRaises(ValueError):
             self.d.validate_maps()
 
@@ -135,7 +139,7 @@ class FeedbackTests(unittest.TestCase):
                 e.accept(qid)
                 floor, x, y = e.target
                 floors.add(floor)
-                self.assertEqual(self.d.tile(floor, x, y), TILE_FLOOR)
+                self.assertEqual(self.d.tile(floor, x, y), TILE_QUEST if floor < 10 else TILE_FLOOR)
                 self.assertIn((x, y), self.d.reachable(floor))
             self.assertEqual(floors, set(range((qid - 1) * 5, qid * 5)))
 

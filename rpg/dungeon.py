@@ -11,7 +11,8 @@ from .items import Inventory
 from .tiles import (BOSS_FLOORS, MAP_IMAGE_BANK, PASSABLE, TILE_FLOOR,
                     TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_ENTRANCE,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,
-                    TILE_RARE_CHEST, TILE_POISON, TILE_PIT, TILE_HEAL_POINT)
+                    TILE_RARE_CHEST, TILE_POISON, TILE_PIT, TILE_HEAL_POINT,
+                    TILE_QUEST, TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR, TILE_DOOR_OPEN)
 
 
 def load_dungeon_settings():
@@ -33,6 +34,7 @@ class Dungeon:
         self.floor = 0
         self.x, self.y = self.find(0, TILE_ENTRANCE)
         self.opened = set()
+        self.activated_switches = set()  # Floor IDs, retained until the next expedition.
         self.chest_loot = {}
         self.inventory = inventory if inventory is not None else Inventory()
         self.treasure = treasure if treasure is not None else Treasure()
@@ -134,31 +136,40 @@ class Dungeon:
                 raise ValueError("B1Fの上り階段・B15Fの下り階段は不要です。")
             if floor not in BOSS_FLOORS and self.positions(floor, TILE_BOSS):
                 raise ValueError("ボスはB5F/B10F/B15Fに配置してください。")
-            seen, queue = {start}, deque([start])
-            while queue:
-                x, y = queue.popleft()
-                for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
-                    point = x + dx, y + dy
-                    if point not in seen and self.tile(floor, *point) in PASSABLE - {TILE_PIT}:
-                        seen.add(point)
-                        queue.append(point)
-            events = {TILE_CHEST, TILE_RARE_CHEST, TILE_HEAL_POINT, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS}
+            if self.positions(floor, TILE_DOOR) and not self.positions(floor, TILE_SWITCH):
+                raise ValueError(f"{floor + 1}F: 閉扉には同じ階のスイッチが必要です。")
+            seen = self._reachable(floor, through_stairs=True)
+            events = {TILE_CHEST, TILE_RARE_CHEST, TILE_HEAL_POINT, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS, TILE_QUEST, TILE_SWITCH, TILE_DOOR}
             for y in range(self.height):
                 for x in range(self.width):
                     if self.tile(floor, x, y) in events and (x, y) not in seen:
                         raise ValueError(f"{floor + 1}F ({x},{y}) のイベントへ通路がつながっていません。")
 
     def reachable(self, floor):
+        """Potential quest reachability, including doors unlocked by a reachable switch."""
+        return self._reachable(floor)
+
+    def _reachable(self, floor, through_stairs=False):
         start = self.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
-        seen, queue = {start}, deque([start])
-        while queue:
-            x, y = queue.popleft()
-            for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
-                point = x + dx, y + dy
-                if point not in seen and self.tile(floor, *point) in PASSABLE - {TILE_PIT, TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN}:
-                    seen.add(point)
-                    queue.append(point)
-        return seen
+        allowed = PASSABLE - {TILE_PIT}
+        if not through_stairs:
+            allowed -= {TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN}
+        for doors_open in (False, True):
+            seen, queue = {start}, deque([start])
+            while queue:
+                x, y = queue.popleft()
+                for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                    point = x + dx, y + dy
+                    tile = self.tile(floor, *point)
+                    if point not in seen and (tile in allowed or doors_open and tile == TILE_DOOR):
+                        seen.add(point)
+                        queue.append(point)
+            if doors_open or not any(self.tile(floor, *p) == TILE_SWITCH for p in seen):
+                return seen
+
+    def can_enter(self, floor, x, y):
+        tile = self.tile(floor, x, y)
+        return tile in PASSABLE or tile == TILE_DOOR and floor in self.activated_switches
 
     def grant_chest(self, reward):
         """Apply inventory rewards; the field UI applies HP/spark effects once."""
@@ -187,6 +198,7 @@ class Dungeon:
         self.floor = 0
         self.x, self.y = self.find(0, TILE_ENTRANCE)
         self.opened.clear()
+        self.activated_switches.clear()
         self.chest_loot.clear()
         self.grace = self.settings["safe_steps"]
 
@@ -211,6 +223,11 @@ class Dungeon:
 
     def interact(self):
         tile = self.tile(self.floor, self.x, self.y)
+        if tile == TILE_SWITCH:
+            if self.floor in self.activated_switches:
+                return "", "スイッチはON。扉は開いている"
+            self.activated_switches.add(self.floor)
+            return "switch", "スイッチON! この階の扉が開いた"
         if tile == TILE_ENTRANCE:
             return "base", "入口から帰還した"
         if tile == TILE_STAIRS_UP:
@@ -240,7 +257,9 @@ class Dungeon:
         if abs(dx) + abs(dy) != 1:
             return "", ""
         x, y = self.x + dx, self.y + dy
-        if self.tile(self.floor, x, y) not in PASSABLE:
+        if not self.can_enter(self.floor, x, y):
+            if self.tile(self.floor, x, y) == TILE_DOOR:
+                return "", "閉じた扉。同じ階のスイッチを探そう"
             return "", "壁で進めません"
         self.x, self.y = x, y
         self.steps += 1
@@ -249,7 +268,10 @@ class Dungeon:
             return "poison", "毒沼に足を踏み入れた"
         if tile == TILE_PIT:
             return self.fall_in_pit()
-        if tile not in (TILE_FLOOR, TILE_CHEST_OPEN, TILE_BOSS_CLEAR):
+        if tile == TILE_SWITCH:
+            return "", "スイッチ: Aで操作" if self.floor not in self.activated_switches else "スイッチはON"
+        if tile not in (TILE_FLOOR, TILE_CHEST_OPEN, TILE_BOSS_CLEAR, TILE_QUEST,
+                        TILE_DOOR, TILE_DOOR_OPEN, TILE_SWITCH_ON):
             return self.interact()
         if self.floor in BOSS_FLOORS:
             return "", ""

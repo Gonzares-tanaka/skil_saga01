@@ -20,7 +20,12 @@ TILE_RARE_CHEST = (9, 0)  # Image Bank 1 (72, 0): potion appearance, rare-chest 
 TILE_POISON = (10, 0)
 TILE_PIT = (11, 0)
 TILE_HEAL_POINT = (12, 0)  # Image Bank 1 (96, 0): healing spring.
-TILE_QUEST = (13, 0)  # Image only: quest locations are selected on reachable floor.
+TILE_QUEST = (13, 0)  # Editor-visible quest candidate; drawn as floor until selected.
+TILE_SWITCH = (15, 0)  # A operates a floor-wide switch group.
+TILE_DOOR = (16, 0)
+TILE_DOOR_OPEN = (17, 0)
+TILE_SWITCH_ON = (18, 0)  # Runtime overlay, not an initial switch placement.
 PASSABLE = {TILE_FLOOR, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST,
             TILE_ENTRANCE, TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,
-            TILE_RARE_CHEST, TILE_POISON, TILE_PIT, TILE_HEAL_POINT}
+            TILE_RARE_CHEST, TILE_POISON, TILE_PIT, TILE_HEAL_POINT, TILE_QUEST,
+            TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR_OPEN}

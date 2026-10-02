@@ -64,8 +64,9 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)
     assert app.state == "explore" and app.dungeon.floor == 0
+    app.dungeon.x, app.dungeon.y = 4, 3
     initial = app.dungeon.x, app.dungeon.y
-    key(pyxel.KEY_LEFT)
+    key(pyxel.KEY_UP)
     assert (app.dungeon.x, app.dungeon.y) == initial
     capture("02_floor1")
     key(pyxel.KEY_RIGHT)
@@ -101,7 +102,7 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
             actor.learn(app.session.skills[sid])
     app.dungeon.settings["encounter_chance"] = 1
     app.dungeon.grace = 0
-    app.dungeon.x, app.dungeon.y = 2, 1
+    app.dungeon.x, app.dungeon.y = 4, 3
     key(pyxel.KEY_RIGHT)
     assert app.state == "battle_transition"
     while app.state == "battle_transition":
@@ -147,7 +148,8 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     capture("07_return_wounded")
     # Walking back into the actual entrance tile heals and preserves possessions.
     app.dungeon.settings["encounter_chance"] = 0
-    app.dungeon.x, app.dungeon.y = 2, 1
+    ex, ey = app.dungeon.find(0, TILE_ENTRANCE)
+    app.dungeon.x, app.dungeon.y = ex + 1, ey
     app.dungeon.treasure.unbanked = 5
     app.dungeon.treasure.banked = 7
     before = app.dungeon.potions, list(c.skills), c.strength
@@ -160,15 +162,18 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
     assert (app.dungeon.treasure.unbanked, app.dungeon.treasure.banked) == (0, 12)
     key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)
-    # Chests and all five maps draw from the resource.
-    app.dungeon.x, app.dungeon.y = app.dungeon.positions(0, TILE_CHEST)[0]
+    # B1 teaches navigation without treasure; B2 introduces the first chest.
+    app.dungeon.x, app.dungeon.y = app.dungeon.find(0, TILE_STAIRS_DOWN)
+    key(pyxel.KEY_Z)
+    assert app.dungeon.floor == 1
+    app.dungeon.x, app.dungeon.y = app.dungeon.positions(1, TILE_CHEST)[0]
     key(pyxel.KEY_Z)
     capture("08_open_chest")
     for _ in range(20):
         if app.state != "field_event":
             break
         key(pyxel.KEY_Z)
-    for floor in range(1, 5):
+    for floor in range(2, 5):
         app.dungeon.x, app.dungeon.y = app.dungeon.find(floor - 1, TILE_STAIRS_DOWN)
         key(pyxel.KEY_Z)
         assert app.dungeon.floor == floor
