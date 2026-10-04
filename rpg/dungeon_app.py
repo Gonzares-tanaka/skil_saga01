@@ -27,8 +27,9 @@ from .hub import (HUB_IMAGE_BANK, HUB_PICTURE_SIZE, HUB_FACILITIES, HUB_ICONS, H
 from .sound import play_cue, start_battle_music, stop_battle_music
 from .tiles import (DUNGEON_RESOURCE, MAP_IMAGE_BANK, BOSS_FLOORS,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR, TILE_SIZE,
-                    TILE_FLOOR, TILE_RARE_CHEST, TILE_QUEST,
-                    TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR, TILE_DOOR_OPEN)
+                    TILE_FLOOR, FLOOR_TILES, TILE_RARE_CHEST, TILE_QUEST,
+                    TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR, TILE_DOOR_OPEN,
+                    TILE_GUARDIAN, TILE_WARNING)
 
 
 MAP_X, MAP_Y = 2, 13
@@ -77,6 +78,8 @@ class DungeonApp(App):
         self.archive_page = 0
         self.battle = None
         self.battle_is_boss = False
+        self.battle_kind = 'normal'
+        self.next_guardian_index = None
         self.battle_position = None
         self.battle_transition_image = pyxel.Image(pyxel.width, pyxel.height)
         self.battle_transition_frame = 0
@@ -103,6 +106,8 @@ class DungeonApp(App):
         self.battle = None
         self.battle_is_boss = False
         self.battle_position = None
+        self.battle_kind = 'normal'
+        self.next_guardian_index = None
         self.player_facing = "down"
         self.overlay = None
         self.notice = ""
@@ -208,6 +213,8 @@ class DungeonApp(App):
 
     def enter_camp(self, defeated=False, returned=False):
         stop_battle_music()
+        self.dungeon.finale.abort_guardians()
+        self.next_guardian_index = None
         quest_failure = []
         if returned:
             self.return_secured = self.session.treasure.secure()
@@ -232,7 +239,7 @@ class DungeonApp(App):
             self.dungeon.enter(allow_cleared=True)
             self.exploration.springs.clear()
             self.player_facing = "down"
-            self.state, self.notice_timer = "clear", 0
+            self.state, self.notice_timer = "explore", 0
             return
         self.dungeon.enter()
         self.exploration.springs.clear()
@@ -242,7 +249,8 @@ class DungeonApp(App):
         if self.exploration.hint():
             self.show_field_event([self.exploration.hint()])
 
-    def begin_encounter(self, boss=False, animate=False):
+    def begin_encounter(self, boss=False, animate=False, guardian_index=None):
+        boss = boss or guardian_index is not None
         animate = animate and not boss
         if animate:
             # Draw the current position, including the step that triggered battle.
@@ -254,14 +262,19 @@ class DungeonApp(App):
         self.fanfare_start_frame = None
         self.battle_position = self.dungeon.floor, self.dungeon.x, self.dungeon.y
         self.battle_is_boss = boss
-        self.battle = self.session.next_battle(self.dungeon.make_enemies(boss), recover=False,
+        self.battle_kind = ('guardian' if guardian_index is not None else
+                            'demon' if boss and self.dungeon.floor == 14 else
+                            'boss' if boss else 'normal')
+        self.battle = self.session.next_battle(self.dungeon.make_enemies(boss, guardian_index), recover=False,
                                                spark_multiplier=self.dungeon.spark_multiplier, boss=boss)
         self.notice_timer = 0
-        self.log = [self.dungeon.boss_data["name"] + "との決戦!" if boss else "敵と遭遇した!"]
+        self.log = [self.battle.enemies[0].name + "との決戦!" if boss else "敵と遭遇した!"]
         self.pending = deque()
         self.begin_input()
         self.shake_timer = 0
         self.battle_input_blocked = animate
+        self.debug_return_state = None
+        self.debug_return_overlay = None
         if boss:
             stop_battle_music()
         elif animate:
@@ -279,6 +292,20 @@ class DungeonApp(App):
         self.trace("RETURN MAP" if self.battle.outcome != "DEFEAT" else "RETURN CAMP")
         if self.battle.outcome == "DEFEAT":
             self.enter_camp(defeated=True)
+        elif self.battle_kind == 'guardian':
+            self.dungeon.floor, self.dungeon.x, self.dungeon.y = self.battle_position
+            f = self.dungeon.finale
+            if self.battle.outcome != 'VICTORY':
+                f.abort_guardians()
+                self.next_guardian_index = None
+                self.show_field_event(['守護者との決着はつかなかった。', '連戦は最初からやり直しになる。'])
+                return
+            finished = f.guardian_victory()
+            self.next_guardian_index = f.guardian_index
+            self.message_lines = wrap_lines(f.data['guardian_after'] if finished else
+                                             f.data['guardian_between'][f.guardian_index - 1], 36)
+            self.state = 'guardian_after' if finished else 'guardian_between'
+            self.message_page, self.notice_timer = 0, 0
         elif self.battle_is_boss and self.battle.outcome == "VICTORY":
             self.dungeon.floor, self.dungeon.x, self.dungeon.y = self.battle_position
             self.message_lines = wrap_lines(self.dungeon.defeat_boss(), 36)
@@ -294,11 +321,21 @@ class DungeonApp(App):
     def next_result_label(self):
         if self.battle.outcome == "DEFEAT":
             return "拠点へ"
+        if self.battle_kind == 'guardian' and self.battle.outcome == 'VICTORY':
+            return '守護者との連戦へ'
         if self.battle_is_boss and self.battle.outcome == "VICTORY":
             return "撃破後の会話へ"
         return "探索へ"
 
     def handle_event(self, event, message):
+        if event == 'lore':
+            self.show_field_event(self.dungeon.finale.read(message))
+            return
+        if event == 'guardian':
+            self.message_lines = wrap_lines(self.dungeon.finale.data['guardian_warning'], 36)
+            self.message_page, self.notice_timer = 0, 0
+            self.state, self.overlay = 'guardian_warning', None
+            return
         if event == "chest":
             lines = [message] + self.exploration.chest_effect(self.dungeon.last_reward)
             play_cue("chest")
@@ -356,6 +393,9 @@ class DungeonApp(App):
             # Require a released frame, then a fresh press for the first command.
             if not any(pyxel.btn(button) for button in TRANSITION_INPUTS):
                 self.battle_input_blocked = False
+            return
+        if self.state in ('guardian_warning', 'guardian_between', 'guardian_after'):
+            self.update_guardians()
             return
         if self.session.debug and self.state == "explore" and not self.overlay and self.pressed(pyxel.KEY_T):
             self.begin_encounter(animate=True)
@@ -497,6 +537,8 @@ class DungeonApp(App):
                 self.dungeon.debug_floor(floor)
                 if self.pressed(pyxel.KEY_F8):
                     self.dungeon.x, self.dungeon.y = self.dungeon.find(floor, TILE_BOSS)
+                    if floor == 14:
+                        self.dungeon.finale.guardians_defeated = True
                 self.tell(f"DEBUG: {self.dungeon.floor + 1}Fへ移動")
                 return
         confirm, cancel = self.confirm(), self.cancel()
@@ -509,8 +551,9 @@ class DungeonApp(App):
                 elif self.state == "boss_message":
                     self.begin_encounter(boss=True)
                 else:
-                    self.state = "clear" if self.dungeon.cleared else "explore"
-                    self.explore_message = "先の階層への道が開いた"
+                    self.state = "explore"
+                    self.explore_message = ('アムリタを持ち帰ろう' if self.dungeon.finale.has_amrita else
+                                            '先の階層への道が開いた')
         elif self.state == "camp":
             self.camp_cursor = (self.camp_cursor + self.direction()) % len(HUB_FACILITIES)
             if confirm:
@@ -672,6 +715,9 @@ class DungeonApp(App):
                     pyxel.pal()
         elif self.overlay == "feedback_debug":
             self.draw_feedback_debug()
+        elif not self.overlay and self.state in ('guardian_warning', 'guardian_between', 'guardian_after'):
+            pyxel.cls(0)
+            self.draw_guardians()
         elif not self.overlay and self.state in ("field_event", "quest_board"):
             self.draw_field_ui()
         elif self.overlay == "treasure_debug":
@@ -808,8 +854,8 @@ class DungeonApp(App):
                               MAP_Y + y * TILE_SIZE - camera_y,
                               MAP_IMAGE_BANK, u * TILE_SIZE, v * TILE_SIZE,
                               TILE_SIZE, TILE_SIZE)
-        u, v = TILE_FLOOR
         for x, y in d.positions(d.floor, TILE_QUEST):
+            u, v = d.floor_appearance(d.floor, x, y)
             pyxel.blt(MAP_X + x * TILE_SIZE - camera_x,
                       MAP_Y + y * TILE_SIZE - camera_y,
                       MAP_IMAGE_BANK, u * TILE_SIZE, v * TILE_SIZE,
@@ -834,6 +880,11 @@ class DungeonApp(App):
             pyxel.blt(MAP_X + x * TILE_SIZE - camera_x, MAP_Y + y * TILE_SIZE - camera_y,
                       MAP_IMAGE_BANK, u * TILE_SIZE, v * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         # Map-only facing sprites in Image Bank 0 of game.pyxres.
+        if d.floor == 14 and d.finale.guardians_defeated:
+            x, y = d.find(14, TILE_GUARDIAN)
+            u, v = d.floor_appearance(14, x, y)
+            pyxel.blt(MAP_X + x * TILE_SIZE - camera_x, MAP_Y + y * TILE_SIZE - camera_y,
+                      MAP_IMAGE_BANK, u * TILE_SIZE, v * TILE_SIZE, TILE_SIZE, TILE_SIZE)
         player_x = MAP_X + MAP_WIDTH // 2 - PLAYER_WIDTH // 2
         player_y = MAP_Y + MAP_HEIGHT // 2 - PLAYER_HEIGHT // 2
         pyxel.blt(player_x, player_y, 0, *PLAYER_SPRITES[self.player_facing],
@@ -892,8 +943,8 @@ class DungeonApp(App):
         self.footer("上下:選択 A:決定 B:拠点へ")
 
     def draw_clear(self):
-        self.title("DUNGEON CLEAR")
-        text(12, 28, "B15Fの最終ボスを倒した!", 3, 34)
+        self.title("アムリタ取得")
+        text(12, 28, "デーモンを倒した!", 3, 34)
         text(12, 45, f"{self.session.completed}戦 / {self.session.wins}勝", 2, 34)
         text(12, 60, f"確定宝{self.session.treasure.banked} 未確定{self.session.treasure.unbanked}", 2, 34)
         text(12, 78, "Dで育成結果を確認できます", 2, 34)
@@ -934,6 +985,9 @@ class DungeonApp(App):
             if confirm:
                 self.state, self.notice_timer = "camp", 0
         elif self.state == "field_return":
+            if self.dungeon.finale.guardian_index is not None:
+                self.tell(self.dungeon.finale.data['return_locked'][0])
+                return
             self.item_cursor = (self.item_cursor + self.direction()) % 4
             if cancel:
                 self.state = "menu"
@@ -1120,7 +1174,7 @@ class DungeonApp(App):
             if self.state == "field_event":
                 self.field_after = previous
         elif action == "rare":
-            if self.state != "explore" or d.tile(d.floor, d.x, d.y) != TILE_FLOOR or e.target == (d.floor, d.x, d.y):
+            if self.state != "explore" or d.tile(d.floor, d.x, d.y) not in FLOOR_TILES or e.target == (d.floor, d.x, d.y):
                 self.tell("探索中の通常の床で使ってください")
                 return
             d.maps[d.floor].pset(d.x, d.y, TILE_RARE_CHEST)
@@ -1253,17 +1307,66 @@ class DungeonApp(App):
         more = (self.message_page + 1) * 8 < len(self.message_lines)
         self.footer("A:続きを読む" if more else "A:戦闘開始 B:戻る" if self.state == "boss_message" else "A:先へ進む")
 
+    def update_guardians(self):
+        confirm, cancel = self.confirm(), self.cancel()
+        if self.state == 'guardian_warning' and cancel:
+            self.state = 'explore'
+            return
+        if not confirm:
+            return
+        if (self.message_page + 1) * 8 < len(self.message_lines):
+            self.message_page += 1
+            return
+        f = self.dungeon.finale
+        if self.state == 'guardian_warning':
+            f.start_guardians()
+            self.next_guardian_index = 0
+            self.begin_encounter(boss=True, guardian_index=0)
+        elif self.state == 'guardian_between':
+            self.begin_encounter(boss=True, guardian_index=f.guardian_index)
+        else:
+            self.next_guardian_index = None
+            self.dungeon.grace = self.dungeon.settings['safe_steps']
+            self.state = 'explore'
+
+    def draw_guardians(self):
+        self.title('B15F / 守護者')
+        pyxel.rectb(3, 17, 154, 84, 2)
+        for i, line in enumerate(self.message_lines[self.message_page * 8:(self.message_page + 1) * 8]):
+            text(7, 24 + i * 9, line, 3, 36)
+        more = (self.message_page + 1) * 8 < len(self.message_lines)
+        label = ('A:連戦へ B:戻る' if self.state == 'guardian_warning' else
+                 'A:次の戦い' if self.state == 'guardian_between' else 'A:泉の先へ')
+        self.footer('A:続きを読む' if more else label)
+
     def update_dungeon_debug(self):
         self.floor_cursor = (self.floor_cursor + self.direction()) % 15
         for key, floor in zip((pyxel.KEY_1, pyxel.KEY_2, pyxel.KEY_3), BOSS_FLOORS):
             if self.pressed(key):
                 self.dungeon.defeated_bosses.symmetric_difference_update({floor})
+                if floor == 14:
+                    defeated = floor in self.dungeon.defeated_bosses
+                    f = self.dungeon.finale
+                    f.abort_guardians()
+                    f.guardians_defeated = f.demon_defeated = f.has_amrita = defeated
+        if self.pressed(pyxel.KEY_G, pyxel.KEY_M):
+            demon = self.pressed(pyxel.KEY_M)
+            self.dungeon.debug_floor(14)
+            f = self.dungeon.finale
+            f.abort_guardians()
+            if demon:
+                f.guardians_defeated = True
+            self.dungeon.x, self.dungeon.y = self.dungeon.find(14, TILE_BOSS if demon else TILE_WARNING)
+            self.state, self.overlay, self.notice_timer = 'explore', None, 0
+            return
         if self.pressed(pyxel.KEY_Z, pyxel.KEY_RETURN, pyxel.KEY_B):
             boss = self.pressed(pyxel.KEY_B)
             floor = BOSS_FLOORS[self.floor_cursor // 5] if boss else self.floor_cursor
             self.dungeon.debug_floor(floor)
             if boss:
                 self.dungeon.x, self.dungeon.y = self.dungeon.find(floor, TILE_BOSS)
+                if floor == 14:
+                    self.dungeon.finale.guardians_defeated = True
             self.state, self.overlay, self.notice_timer = "explore", None, 0
         elif self.pressed(pyxel.KEY_X, pyxel.KEY_ESCAPE):
             self.overlay = None
@@ -1282,7 +1385,8 @@ class DungeonApp(App):
         for i, floor in enumerate(BOSS_FLOORS):
             flag = "ON 撃破済" if floor in d.defeated_bosses else "OFF 未撃破"
             text(5, 53 + i * 12, f"{i + 1}: B{floor + 1}F {flag}", 3, 37)
-        text(5, 92, "上下:階選択 B:エリアのボス前", 2, 37)
+        text(5, 88, 'G:B15守護者前 M:デーモン前', 2, 37)
+        text(5, 98, '上下:階 B:ボス前（守護者突破）', 2, 37)
         self.footer("Z:移動 1/2/3:撃破切替 X:閉じる")
 
     def draw_effects(self):

@@ -1,0 +1,434 @@
+{
+  "preservation": {
+    "baseline_available": true,
+    "B1_B5_tilemaps_unchanged": true,
+    "B6_B10_resource_byte_identical": true,
+    "B1_B10_existing_images_sounds_music_unchanged": true,
+    "B11_B15_changes_within_24x24": true,
+    "area3_unused_tilemaps_sounds_music_unchanged": true,
+    "B1_B5_tilemap_sha256": "22f4538e112b50e322c9b2c2573a9ac6da1047a4a3addc9e235749373e45cc24"
+  },
+  "baseline_B6_B10_walkable_average": 205.0,
+  "floors": [
+    {
+      "floor": 11,
+      "resource": "area3.pyxres",
+      "tilemap": 0,
+      "bounds": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "walkable": 274,
+      "ratio_to_B6_B10_average": 1.337,
+      "stairs_up": [
+        3,
+        3
+      ],
+      "stairs_down": [
+        20,
+        20
+      ],
+      "shortest_exit_or_boss_steps": 34,
+      "chest_tour_steps": 80,
+      "events": {
+        "normal_chests": [
+          [
+            21,
+            3
+          ],
+          [
+            3,
+            21
+          ]
+        ],
+        "rare_chests": [
+          [
+            21,
+            14
+          ]
+        ],
+        "poison": [],
+        "pits": [],
+        "springs": [],
+        "switches": [],
+        "doors": [],
+        "quests": [
+          [
+            6,
+            3
+          ],
+          [
+            14,
+            11
+          ],
+          [
+            15,
+            21
+          ]
+        ],
+        "lore": [
+          [
+            6,
+            13
+          ]
+        ],
+        "guardians": [],
+        "warnings": [],
+        "bosses": []
+      }
+    },
+    {
+      "floor": 12,
+      "resource": "area3.pyxres",
+      "tilemap": 1,
+      "bounds": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "walkable": 282,
+      "ratio_to_B6_B10_average": 1.376,
+      "stairs_up": [
+        3,
+        20
+      ],
+      "stairs_down": [
+        12,
+        3
+      ],
+      "shortest_exit_or_boss_steps": 26,
+      "chest_tour_steps": 74,
+      "events": {
+        "normal_chests": [
+          [
+            3,
+            3
+          ],
+          [
+            21,
+            3
+          ],
+          [
+            14,
+            21
+          ]
+        ],
+        "rare_chests": [
+          [
+            21,
+            5
+          ]
+        ],
+        "poison": [
+          [
+            8,
+            12
+          ],
+          [
+            9,
+            12
+          ]
+        ],
+        "pits": [
+          [
+            18,
+            19
+          ]
+        ],
+        "springs": [],
+        "switches": [
+          [
+            21,
+            21
+          ]
+        ],
+        "doors": [
+          [
+            16,
+            4
+          ]
+        ],
+        "quests": [
+          [
+            13,
+            10
+          ],
+          [
+            19,
+            12
+          ],
+          [
+            6,
+            19
+          ]
+        ],
+        "lore": [
+          [
+            20,
+            4
+          ],
+          [
+            5,
+            11
+          ]
+        ],
+        "guardians": [],
+        "warnings": [],
+        "bosses": []
+      }
+    },
+    {
+      "floor": 13,
+      "resource": "area3.pyxres",
+      "tilemap": 2,
+      "bounds": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "walkable": 279,
+      "ratio_to_B6_B10_average": 1.361,
+      "stairs_up": [
+        3,
+        3
+      ],
+      "stairs_down": [
+        21,
+        3
+      ],
+      "shortest_exit_or_boss_steps": 20,
+      "chest_tour_steps": 72,
+      "events": {
+        "normal_chests": [
+          [
+            6,
+            14
+          ],
+          [
+            21,
+            14
+          ],
+          [
+            11,
+            21
+          ]
+        ],
+        "rare_chests": [
+          [
+            2,
+            21
+          ],
+          [
+            22,
+            21
+          ]
+        ],
+        "poison": [
+          [
+            8,
+            12
+          ],
+          [
+            9,
+            12
+          ],
+          [
+            16,
+            20
+          ],
+          [
+            17,
+            20
+          ]
+        ],
+        "pits": [
+          [
+            11,
+            9
+          ]
+        ],
+        "springs": [],
+        "switches": [],
+        "doors": [],
+        "quests": [
+          [
+            6,
+            5
+          ],
+          [
+            20,
+            11
+          ],
+          [
+            3,
+            19
+          ]
+        ],
+        "lore": [
+          [
+            13,
+            13
+          ]
+        ],
+        "guardians": [],
+        "warnings": [],
+        "bosses": []
+      }
+    },
+    {
+      "floor": 14,
+      "resource": "area3.pyxres",
+      "tilemap": 3,
+      "bounds": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "walkable": 283,
+      "ratio_to_B6_B10_average": 1.38,
+      "stairs_up": [
+        21,
+        3
+      ],
+      "stairs_down": [
+        3,
+        21
+      ],
+      "shortest_exit_or_boss_steps": 36,
+      "chest_tour_steps": 78,
+      "events": {
+        "normal_chests": [
+          [
+            3,
+            3
+          ],
+          [
+            21,
+            21
+          ]
+        ],
+        "rare_chests": [
+          [
+            11,
+            19
+          ]
+        ],
+        "poison": [],
+        "pits": [],
+        "springs": [],
+        "switches": [],
+        "doors": [],
+        "quests": [
+          [
+            11,
+            3
+          ],
+          [
+            19,
+            14
+          ],
+          [
+            6,
+            19
+          ]
+        ],
+        "lore": [
+          [
+            13,
+            11
+          ],
+          [
+            5,
+            13
+          ]
+        ],
+        "guardians": [],
+        "warnings": [],
+        "bosses": []
+      }
+    },
+    {
+      "floor": 15,
+      "resource": "area3.pyxres",
+      "tilemap": 4,
+      "bounds": [
+        0,
+        0,
+        24,
+        24
+      ],
+      "walkable": 184,
+      "ratio_to_B6_B10_average": 0.898,
+      "stairs_up": [
+        3,
+        20
+      ],
+      "stairs_down": null,
+      "shortest_exit_or_boss_steps": 44,
+      "chest_tour_steps": 46,
+      "events": {
+        "normal_chests": [
+          [
+            6,
+            10
+          ]
+        ],
+        "rare_chests": [],
+        "poison": [],
+        "pits": [],
+        "springs": [
+          [
+            15,
+            5
+          ]
+        ],
+        "switches": [],
+        "doors": [],
+        "quests": [
+          [
+            10,
+            6
+          ],
+          [
+            12,
+            12
+          ],
+          [
+            6,
+            21
+          ]
+        ],
+        "lore": [],
+        "guardians": [
+          [
+            19,
+            8
+          ]
+        ],
+        "warnings": [
+          [
+            16,
+            11
+          ]
+        ],
+        "bosses": [
+          [
+            6,
+            5
+          ]
+        ]
+      }
+    }
+  ],
+  "lore_total": 6,
+  "quest_total": 15,
+  "B12_switch_archive_and_poison_shortcut": "PASS",
+  "B13_safe_shortest_vs_long_treasure_tour": "PASS",
+  "B15_warning_guardians_spring_demon_chokepoints": "PASS",
+  "physical_PC_browser_smartphone_test": "NOT_RUN: resource topology only"
+}

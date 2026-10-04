@@ -132,6 +132,6 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     app.enter_camp()
     key(pyxel.KEY_UP)
     key(pyxel.KEY_Z)
-    assert app.state == 'clear'  # A debug-marked final boss must not crash camp entry.
+    assert app.state == 'explore'  # Re-entering after the demon permits normal exploration.
 
 print(f'Depth UI passed: {calls} bounded text calls')

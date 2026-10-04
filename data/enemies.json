@@ -12,5 +12,8 @@
   {"id":"assassin","name":"暗殺者","max_hp":65,"str":18,"agi":28,"int":8,"magic_chance":0,"sprite":[80,16],"defense":2,"feature":"高速。スロウで次ターンから先手を取る"},
   {"id":"stone_beast","name":"石の獣","max_hp":88,"str":16,"agi":8,"int":4,"magic_chance":0,"sprite":[64,16],"defense":18,"magic_defense":0,"feature":"物理に強い。集中した魔法でも攻略可能"},
   {"id":"skill_keeper","name":"技の番人","max_hp":600,"str":32,"agi":24,"int":30,"magic_chance":0.35,"sprite":[112,16],"defense":14,"magic_defense":3,"boss":true,"floor":10,"message":["多くの技を集めたようだな。","その使い道を示してみよ。"],"after_message":["技の番人を倒した。","B11Fへの道が開いた！"]},
-  {"id":"depth_lord","name":"深淵の王","max_hp":900,"str":42,"agi":34,"int":44,"magic_chance":0.5,"sprite":[112,16],"defense":20,"magic_defense":5,"boss":true,"floor":15,"message":["ついに最深部へ来たか。","学んだすべてを解き放て。"],"after_message":["深淵の王を倒した。","DUNGEON CLEAR"]}
+  {"id":"depth_lord","name":"デーモン","max_hp":900,"str":42,"agi":34,"int":44,"magic_chance":0.5,"sprite":[112,16],"defense":20,"magic_defense":5,"boss":true,"floor":15,"message":["アムリタを渡すと思うな。","地上の者はここで滅びよ。"],"after_message":["デーモンを倒した。","深淵に静けさが戻った。"]},
+  {"id":"sentinel_armor","name":"重装の守護者","max_hp":500,"str":30,"agi":12,"int":8,"magic_chance":0,"sprite":[64,16],"defense":24,"magic_defense":2,"boss":true,"floor":15,"feature":"高DEF。魔法・装甲砕き・高威力物理で技Usesを節約"},
+  {"id":"sentinel_speed","name":"高速の守護者","max_hp":420,"str":32,"agi":45,"int":12,"magic_chance":0,"sprite":[80,16],"defense":8,"magic_defense":3,"boss":true,"floor":15,"feature":"高AGI。スロウは有効だが、他の技でも攻略可能"},
+  {"id":"sentinel_mind","name":"魔導の守護者","max_hp":460,"str":20,"agi":24,"int":38,"magic_chance":0.8,"sprite":[96,16],"defense":6,"magic_defense":10,"boss":true,"floor":15,"feature":"魔法中心。弱体・守り・物理の高威力技が有効"}
 ]

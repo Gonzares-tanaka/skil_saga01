@@ -73,6 +73,31 @@ class DungeonTests(unittest.TestCase):
         self.assertEqual((d.x, d.y), (4, 3))
         self.assertEqual(d.steps, 3)
 
+    def test_image_row_64_corridors_allow_movement_reachability_and_encounters(self):
+        d = self.dungeon
+        d.settings["encounter_chance"] = 1
+        for floor in (0, 5):
+            start = d.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
+            destination = next((start[0] + dx, start[1] + dy)
+                               for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                               if d.can_enter(floor, start[0] + dx, start[1] + dy))
+            for u in range(9):
+                with self.subTest(floor=floor, tile=(u, 8)):
+                    d.maps[floor].pset(*destination, (u, 8))
+                    self.assertTrue(d.can_enter(floor, *destination))
+                    self.assertIn(destination, d.reachable(floor))
+                    d.floor, d.x, d.y = floor, *start
+                    d.grace = 1
+                    delta = destination[0] - start[0], destination[1] - start[1]
+                    self.assertEqual(d.move(*delta)[0], "")
+                    self.assertEqual(d.grace, 0)
+                    d.x, d.y = start
+                    self.assertEqual(d.move(*delta)[0], "battle")
+                    self.assertEqual(d.tile(floor, *destination), (u, 8))
+            for tile in ((9, 8), (0, 7), (0, 9)):
+                d.maps[floor].pset(*destination, tile)
+                self.assertFalse(d.can_enter(floor, *destination))
+
     def test_random_encounter_rate_and_no_random_fights_on_boss_floor(self):
         d = self.dungeon
         d.grace = 0
@@ -213,6 +238,7 @@ class DungeonTests(unittest.TestCase):
         self.assertEqual(d.interact()[0], "")
         d.enter()
         d.debug_floor(14)
+        d.finale.guardians_defeated = True
         d.defeat_boss()
         with self.assertRaises(ValueError):
             d.enter()
@@ -266,6 +292,7 @@ class DungeonTests(unittest.TestCase):
         d.debug_floor(14)
         self.assertEqual(d.boss_data["id"], "depth_lord")
         self.assertFalse(d.positions(14, TILE_STAIRS_DOWN))
+        d.finale.guardians_defeated = True
         d.defeat_boss()
         self.assertTrue(d.cleared)
 

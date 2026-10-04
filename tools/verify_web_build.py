@@ -52,7 +52,7 @@ from rpg.battle_transition import BATTLE_TRANSITION_HOLD_FRAMES, BATTLE_TRANSITI
 from rpg.content import ROOT, load_content
 from rpg.dungeon_app import DungeonApp
 from rpg.opening import TITLE_FADE_FRAMES, HUB_PREVIEW_FRAMES
-from rpg.tiles import TILE_FLOOR, TILE_WALL, TILE_SWITCH, TILE_DOOR, TILE_QUEST
+from rpg.tiles import TILE_FLOOR, TILE_WALL, TILE_SWITCH, TILE_DOOR, TILE_QUEST, TILE_WARNING, TILE_BOSS
 app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
 expected = [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 assert len(expected) == 32 and list(pyxel.colors) == expected
@@ -153,6 +153,20 @@ for _ in range(4):
     press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "resolve"
 assert list(pyxel.colors) == expected
+# Settle this fixture before starting the later final-area battles. Repeated A
+# cannot choose a different skill when the selected skill has run out of Uses.
+for _ in range(app.battle.max_rounds + 1):
+    while app.battle.queue:
+        app.battle.step()
+    if app.battle.outcome:
+        break
+    app.battle.begin_round(app.battle.auto_actions())
+else:
+    raise AssertionError('Initial command-check battle did not terminate')
+app.session.settle()
+for actor_index in list(app.session.pending_replacements):
+    app.session.resolve_replacement(actor_index)
+assert app.session.settled and not app.session.pending_replacements
 app.enter_camp()
 app.enter_dungeon()
 d = app.dungeon
@@ -181,6 +195,38 @@ assert (d.x, d.y) == door
 app.enter_camp()
 app.enter_dungeon()
 assert not d.activated_switches and not d.can_enter(6, *door)
-print("PASS: embedded resources/palette, all pad directions, menu, battle commands, B6-B10 quests and silent switch/door/reset")
+d.debug_floor(14)
+d.x, d.y = d.find(14, TILE_WARNING)
+for actor in app.session.party:
+    actor.hp = actor.max_hp = 500
+    actor.strength = actor.intellect = 80
+app.session.settings['spark_chance'] = 0
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.state == 'guardian_warning'
+press(pyxel.GAMEPAD1_BUTTON_B)
+assert app.state == 'explore' and d.finale.guardian_index is None
+press(pyxel.GAMEPAD1_BUTTON_A)
+press(pyxel.GAMEPAD1_BUTTON_A)
+assert app.battle_kind == 'guardian' and app.battle.boss
+with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), patch.object(pyxel, 'playm', side_effect=RuntimeError('audio suspended')):
+    for _ in range(2500):
+        press(pyxel.GAMEPAD1_BUTTON_A)
+        if app.state == 'explore' and d.finale.guardians_defeated:
+            break
+    else:
+        raise AssertionError('Silent pad-only gauntlet did not terminate')
+assert not d.finale.has_amrita
+with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), patch.object(pyxel, 'playm', side_effect=RuntimeError('audio suspended')):
+    d.x, d.y = d.find(14, TILE_BOSS)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'boss_message'
+    for _ in range(1500):
+        press(pyxel.GAMEPAD1_BUTTON_A)
+        if app.state == 'explore' and d.finale.has_amrita:
+            break
+    else:
+        raise AssertionError('Pad-only demon and story did not terminate')
+assert d.finale.demon_defeated and 'AMRITA' not in app.session.inventory.counts
+print("PASS: embedded resources/palette, pad input, silent guardians, demon/story and separate Amrita state")
 '''
     subprocess.run([sys.executable, "-c", check], cwd=Path(temp) / "spark_web", check=True)

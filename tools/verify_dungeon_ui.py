@@ -258,6 +258,9 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
                 app.dungeon.x, app.dungeon.y = app.dungeon.find(floor, TILE_STAIRS_DOWN)
                 key(pyxel.KEY_Z)
                 assert app.dungeon.floor == 9 and app.state == "explore"
+            else:
+                # Dedicated verify_phase6a_ui.py exercises the actual gauntlet.
+                app.dungeon.finale.guardians_defeated = True
             app.dungeon.x, app.dungeon.y = app.dungeon.find(floor, TILE_BOSS)
             key(pyxel.KEY_Z)
             assert app.state == "boss_message"
@@ -279,10 +282,12 @@ with patch.object(pyxel, "text", side_effect=bounded_text), patch.object(pyxel, 
             assert app.state == "boss_after"
             assert floor in app.dungeon.defeated_bosses
             capture(f"boss{floor + 1}_after")
-            key(pyxel.KEY_Z)
-    assert app.state == "clear" and app.dungeon.cleared
+            for _ in range(10):
+                if app.state != 'boss_after':
+                    break
+                key(pyxel.KEY_Z)
+    assert app.state == "explore" and app.dungeon.cleared and app.dungeon.finale.has_amrita
     capture("12_clear")
-    key(pyxel.KEY_Z)
     key(pyxel.KEY_F8)
     assert app.state == "explore"  # Carry unfinished surveys and treasure home.
     key(pyxel.KEY_D)

@@ -187,8 +187,7 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     key(pyxel.KEY_Z)
     app.camp_cursor = 4
     key(pyxel.KEY_Z)
-    assert app.state == 'clear' and d.floor == 0
-    key(pyxel.KEY_Z)
+    assert app.state == 'explore' and d.floor == 0
     assert app.state == 'explore' and d.floor == 0
 
 print(f'PASS: quests/RETURN/death, chest replacement, spring, mastery/debug, {len(draws)} bounded text draws')

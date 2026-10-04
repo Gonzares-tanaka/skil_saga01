@@ -14,7 +14,7 @@ import pyxel
 from rpg.content import ROOT, load_content
 from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.map_resources import load_maps
-from rpg.tiles import (AREA_RESOURCES, PASSABLE, TILE_FLOOR, TILE_PIT,
+from rpg.tiles import (AREA_RESOURCES, PASSABLE, TILE_FLOOR, TILE_PIT, PIT_TILES,
                        TILE_POISON, TILE_HEAL_POINT, TILE_RARE_CHEST)
 
 
@@ -37,7 +37,7 @@ def reachable(tilemap, width, height):
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             point = x + dx, y + dy
             if (0 <= point[0] < width and 0 <= point[1] < height and point not in seen
-                    and tuple(tilemap.pget(*point)) in PASSABLE - {TILE_PIT}):
+                    and tuple(tilemap.pget(*point)) in PASSABLE - PIT_TILES):
                 seen.add(point)
                 queue.append(point)
     return start, seen

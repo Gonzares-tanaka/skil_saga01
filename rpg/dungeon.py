@@ -1,5 +1,5 @@
 """Exploration state. Every terrain/event position comes from Tilemap.pget()."""
-from collections import deque
+from collections import Counter, deque
 import json
 import math
 
@@ -8,11 +8,13 @@ from .models import Enemy
 from .treasure import Treasure
 from .exploration import load_exploration_settings
 from .items import Inventory
-from .tiles import (BOSS_FLOORS, MAP_IMAGE_BANK, PASSABLE, TILE_FLOOR,
+from .finale import FinaleProgress
+from .tiles import (BOSS_FLOORS, MAP_IMAGE_BANK, PASSABLE, FLOOR_TILES, TILE_FLOOR,
                     TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_ENTRANCE,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,
-                    TILE_RARE_CHEST, TILE_POISON, TILE_PIT, TILE_HEAL_POINT,
-                    TILE_QUEST, TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR, TILE_DOOR_OPEN)
+                    TILE_RARE_CHEST, TILE_POISON, TILE_PIT, PIT_TILES, TILE_HEAL_POINT,
+                    TILE_QUEST, TILE_SWITCH, TILE_SWITCH_ON, TILE_DOOR, TILE_DOOR_OPEN,
+                    LORE_TILES, TILE_GUARDIAN, TILE_WARNING)
 
 
 def load_dungeon_settings():
@@ -29,6 +31,7 @@ class Dungeon:
         if len(self.enemies) != len(enemy_data):
             raise ValueError("enemies.json: 敵のidが重複しています。")
         self.width, self.height = settings["width"], settings["height"]
+        self.finale = FinaleProgress()
         self.validate_settings()
         self.validate_maps()
         self.floor = 0
@@ -65,6 +68,10 @@ class Dungeon:
     def defeat_boss(self):
         if self.floor not in BOSS_FLOORS:
             raise ValueError("この階にボスはいません。")
+        if self.floor == 14:
+            self.finale.claim_amrita()
+            self.defeated_bosses.add(self.floor)
+            return self.finale.data['demon_after']
         self.defeated_bosses.add(self.floor)
         return self.boss_data["after_message"]
 
@@ -104,6 +111,9 @@ class Dungeon:
             require(all(number(w, 0.001, 10000) for w in row["weights"]), "敵の重みは正の数")
             require(len(row["count"]) == 2 and all(type(v) is int for v in row["count"]) and 1 <= row["count"][0] <= row["count"][1] <= 3, "敵数は1～3")
             require(all(number(row[k], 0.1, 20) for k in ("hp_scale", "power_scale")), "敵の倍率が無効")
+        for ident in self.finale.data['guardian_ids']:
+            row = self.enemies.get(ident, {})
+            require(row.get('boss') and row.get('floor') == 15, '守護者はfloor 15のboss敵が必要です')
 
     def tile(self, floor, x, y):
         if not (0 <= x < self.width and 0 <= y < self.height):
@@ -113,6 +123,18 @@ class Dungeon:
     def positions(self, floor, tile):
         return [(x, y) for y in range(self.height) for x in range(self.width)
                 if self.tile(floor, x, y) == tile]
+
+    def floor_appearance(self, floor, x, y):
+        """Use a nearby authored floor when covering an event marker."""
+        for radius in range(1, max(self.width, self.height)):
+            candidates = [self.tile(floor, px, py)
+                          for py in range(max(0, y - radius), min(self.height, y + radius + 1))
+                          for px in range(max(0, x - radius), min(self.width, x + radius + 1))
+                          if max(abs(px - x), abs(py - y)) == radius
+                          and self.tile(floor, px, py) in FLOOR_TILES]
+            if candidates:
+                return Counter(candidates).most_common(1)[0][0]
+        return TILE_FLOOR
 
     def find(self, floor, tile):
         positions = self.positions(floor, tile)
@@ -138,8 +160,19 @@ class Dungeon:
                 raise ValueError("ボスはB5F/B10F/B15Fに配置してください。")
             if self.positions(floor, TILE_DOOR) and not self.positions(floor, TILE_SWITCH):
                 raise ValueError(f"{floor + 1}F: 閉扉には同じ階のスイッチが必要です。")
+            if floor == 14:
+                self.find(floor, TILE_GUARDIAN)
+                self.find(floor, TILE_WARNING)
+                self.find(floor, TILE_HEAL_POINT)
+            elif self.positions(floor, TILE_GUARDIAN) or self.positions(floor, TILE_WARNING):
+                raise ValueError('守護者・警告地点はB15Fだけに配置してください。')
+            for y in range(self.height):
+                for x in range(self.width):
+                    tile = self.tile(floor, x, y)
+                    if tile in LORE_TILES and self.finale.lore_at(floor, tile) is None:
+                        raise ValueError(f'{floor + 1}F: この石碑タイルには文章がありません。')
             seen = self._reachable(floor, through_stairs=True)
-            events = {TILE_CHEST, TILE_RARE_CHEST, TILE_HEAL_POINT, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS, TILE_QUEST, TILE_SWITCH, TILE_DOOR}
+            events = {TILE_CHEST, TILE_RARE_CHEST, TILE_HEAL_POINT, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS, TILE_QUEST, TILE_SWITCH, TILE_DOOR, TILE_GUARDIAN, TILE_WARNING} | LORE_TILES
             for y in range(self.height):
                 for x in range(self.width):
                     if self.tile(floor, x, y) in events and (x, y) not in seen:
@@ -151,7 +184,7 @@ class Dungeon:
 
     def _reachable(self, floor, through_stairs=False):
         start = self.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
-        allowed = PASSABLE - {TILE_PIT}
+        allowed = PASSABLE - PIT_TILES
         if not through_stairs:
             allowed -= {TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN}
         for doors_open in (False, True):
@@ -169,6 +202,8 @@ class Dungeon:
 
     def can_enter(self, floor, x, y):
         tile = self.tile(floor, x, y)
+        if tile == TILE_GUARDIAN:
+            return self.finale.guardians_defeated
         return tile in PASSABLE or tile == TILE_DOOR and floor in self.activated_switches
 
     def grant_chest(self, reward):
@@ -200,6 +235,7 @@ class Dungeon:
         self.opened.clear()
         self.activated_switches.clear()
         self.chest_loot.clear()
+        self.finale.abort_guardians()
         self.grace = self.settings["safe_steps"]
 
     def change_floor(self, floor):
@@ -223,6 +259,12 @@ class Dungeon:
 
     def interact(self):
         tile = self.tile(self.floor, self.x, self.y)
+        if tile in LORE_TILES:
+            return 'lore', self.finale.lore_at(self.floor, tile)
+        if tile in (TILE_GUARDIAN, TILE_WARNING):
+            if not self.finale.guardians_defeated:
+                return 'guardian', self.finale.data['guardian_warning'][0]
+            return '', '守護者の気配は消えている'
         if tile == TILE_SWITCH:
             if self.floor in self.activated_switches:
                 return "", "スイッチはON。扉は開いている"
@@ -235,6 +277,8 @@ class Dungeon:
         if tile == TILE_STAIRS_DOWN:
             return self.change_floor(self.floor + 1)
         if tile == TILE_BOSS:
+            if self.floor == 14 and not self.finale.guardians_defeated:
+                return 'guardian', self.finale.data['guardian_warning'][0]
             if self.floor not in self.defeated_bosses:
                 return "boss", self.boss_data["name"]
             return "", "この階のボスは撃破済み"
@@ -258,6 +302,8 @@ class Dungeon:
             return "", ""
         x, y = self.x + dx, self.y + dy
         if not self.can_enter(self.floor, x, y):
+            if self.tile(self.floor, x, y) == TILE_GUARDIAN:
+                return 'guardian', self.finale.data['guardian_warning'][0]
             if self.tile(self.floor, x, y) == TILE_DOOR:
                 return "", "閉じた扉。同じ階のスイッチを探そう"
             return "", "壁で進めません"
@@ -266,12 +312,14 @@ class Dungeon:
         tile = self.tile(self.floor, x, y)
         if tile == TILE_POISON:
             return "poison", "毒沼に足を踏み入れた"
-        if tile == TILE_PIT:
+        if tile in PIT_TILES:
             return self.fall_in_pit()
         if tile == TILE_SWITCH:
             return "", "スイッチ: Aで操作" if self.floor not in self.activated_switches else "スイッチはON"
-        if tile not in (TILE_FLOOR, TILE_CHEST_OPEN, TILE_BOSS_CLEAR, TILE_QUEST,
-                        TILE_DOOR, TILE_DOOR_OPEN, TILE_SWITCH_ON):
+        if tile in LORE_TILES:
+            return '', '石碑: Aで読む'
+        if tile not in FLOOR_TILES and tile not in (TILE_CHEST_OPEN, TILE_BOSS_CLEAR, TILE_QUEST,
+                        TILE_DOOR, TILE_DOOR_OPEN, TILE_SWITCH_ON, TILE_GUARDIAN):
             return self.interact()
         if self.floor in BOSS_FLOORS:
             return "", ""
@@ -283,9 +331,15 @@ class Dungeon:
             return "battle", "敵と遭遇した!"
         return "", ""
 
-    def make_enemies(self, boss=False):
+    def make_enemies(self, boss=False, guardian_index=None):
         profile = self.settings["floors"][self.floor]
-        if boss:
+        if guardian_index is not None:
+            if self.floor != 14 or guardian_index not in (0, 1, 2):
+                raise ValueError('守護者はB15Fの3体です。')
+            rows = [self.enemies[self.finale.data['guardian_ids'][guardian_index]]]
+            boss = True
+            hp_scale = power_scale = 1
+        elif boss:
             rows = [self.boss_data]
             hp_scale = power_scale = 1
         else:

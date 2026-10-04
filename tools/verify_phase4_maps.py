@@ -12,7 +12,7 @@ from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.exploration import Exploration
 from rpg.map_resources import load_maps
 from rpg.tiles import (DUNGEON_RESOURCE, PASSABLE, TILE_BOSS, TILE_CHEST,
-                       TILE_ENTRANCE, TILE_HEAL_POINT, TILE_PIT, TILE_POISON,
+                       TILE_ENTRANCE, TILE_HEAL_POINT, TILE_PIT, PIT_TILES, TILE_POISON,
                        TILE_QUEST, TILE_RARE_CHEST, TILE_STAIRS_DOWN,
                        TILE_STAIRS_UP)
 
@@ -30,7 +30,7 @@ def route(dungeon, floor, start, goal, blocked=frozenset()):
         for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
             next_point = point[0] + dx, point[1] + dy
             tile = dungeon.tile(floor, *next_point)
-            if next_point in previous or tile not in PASSABLE - {TILE_PIT} - blocked:
+            if next_point in previous or tile not in PASSABLE - PIT_TILES - blocked:
                 continue
             if next_point != goal and tile in (TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_BOSS):
                 continue
@@ -52,7 +52,7 @@ for floor in range(5):
     chests = len(dungeon.positions(floor, TILE_CHEST)) + len(dungeon.positions(floor, TILE_RARE_CHEST))
     springs = len(dungeon.positions(floor, TILE_HEAL_POINT))
     poison = len(dungeon.positions(floor, TILE_POISON))
-    pits = len(dungeon.positions(floor, TILE_PIT))
+    pits = sum(len(dungeon.positions(floor, tile)) for tile in PIT_TILES)
     quests = len(dungeon.positions(floor, TILE_QUEST))
     counts.append((chests, springs, poison, pits, quests))
     assert quests == 3

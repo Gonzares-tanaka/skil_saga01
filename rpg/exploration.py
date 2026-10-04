@@ -2,7 +2,7 @@
 import json
 from .content import ROOT
 from .growth import spark
-from .tiles import TILE_FLOOR, TILE_QUEST
+from .tiles import FLOOR_TILES, TILE_QUEST
 
 
 def load_exploration_settings():
@@ -43,7 +43,7 @@ class Exploration:
             reachable = self.dungeon.reachable(floor)
             marked = sorted(p for p in reachable if self.dungeon.tile(floor, *p) == TILE_QUEST)
             points = marked or sorted(p for p in reachable
-                                      if self.dungeon.tile(floor, *p) == TILE_FLOOR)
+                                      if self.dungeon.tile(floor, *p) in FLOOR_TILES)
             if points:
                 candidates[floor] = points
         if not candidates:

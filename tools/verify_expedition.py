@@ -12,7 +12,8 @@ from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.map_resources import load_maps
 from rpg.exploration import Exploration
 from rpg.tiles import (DUNGEON_RESOURCE, PASSABLE, TILE_ENTRANCE, TILE_STAIRS_UP,
-                       TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS, TILE_RARE_CHEST, TILE_PIT, TILE_SWITCH)
+                       TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS, TILE_RARE_CHEST, TILE_PIT,
+                       PIT_TILES, TILE_SWITCH, TILE_WARNING, TILE_HEAL_POINT)
 
 
 def path_to(d, goal):
@@ -29,7 +30,7 @@ def path_to(d, goal):
         for dx, dy in ((0, 1), (1, 0), (0, -1), (-1, 0)):
             nxt = point[0] + dx, point[1] + dy
             tile = d.tile(d.floor, *nxt)
-            if nxt in previous or tile == TILE_PIT or not d.can_enter(d.floor, *nxt):
+            if nxt in previous or tile in PIT_TILES or not d.can_enter(d.floor, *nxt):
                 continue
             if nxt != goal and tile in (TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN):
                 continue
@@ -54,10 +55,13 @@ def play(seed):
     progression = [1]
     bosses_won = []
     switches_operated = 0
+    guardian_wins = []
+    amrita_returned = False
+    spring_uses_preserved = False
     for trips in range(1, 11):
         for actor in s.party:
             actor.recover()
-        d.enter()
+        d.enter(allow_cleared=d.cleared)
         exploration.springs.clear()
         retreat = False
         unavailable_chests = set()
@@ -71,7 +75,7 @@ def play(seed):
                                 sum(c.hp for c in s.party) < sum(c.max_hp for c in s.party) * 0.38):
                 retreat = True
                 retreats += 1
-            if retreat:
+            if retreat or d.cleared:
                 goal = d.find(d.floor, TILE_ENTRANCE if d.floor == 0 else TILE_STAIRS_UP)
             else:
                 chests = [p for tile in (TILE_CHEST, TILE_RARE_CHEST) for p in d.positions(d.floor, tile)
@@ -81,6 +85,10 @@ def play(seed):
                     goal = min(reachable, key=lambda pair: len(pair[1]))[0]
                 elif d.floor not in d.activated_switches and d.positions(d.floor, TILE_SWITCH):
                     goal = d.positions(d.floor, TILE_SWITCH)[0]
+                elif d.floor == 14 and not d.finale.guardians_defeated:
+                    goal = d.find(14, TILE_WARNING)
+                elif d.floor == 14 and (14, *d.find(14, TILE_HEAL_POINT)) not in exploration.springs:
+                    goal = d.find(14, TILE_HEAL_POINT)
                 else:
                     boss = d.floor in (4, 9, 14) and d.floor not in d.defeated_bosses
                     goal = d.find(d.floor, TILE_BOSS if boss else TILE_STAIRS_DOWN)
@@ -98,6 +106,7 @@ def play(seed):
                 switches_operated += 1
             if event == "base":
                 s.treasure.secure()
+                amrita_returned = d.finale.has_amrita
                 break
             if event == "chest":
                 exploration.chest_effect(d.last_reward)
@@ -109,10 +118,36 @@ def play(seed):
                 point = d.floor, d.x, d.y
                 if point not in exploration.springs:
                     exploration.springs.add(point)
+                    uses = [dict(c.skill_uses) for c in s.party]
                     exploration.heal(None)
+                    assert uses == [dict(c.skill_uses) for c in s.party]
+                    if d.floor == 14:
+                        spring_uses_preserved = True
+            if event == 'guardian':
+                d.finale.start_guardians()
+                for index in range(3):
+                    battle = s.next_battle(d.make_enemies(guardian_index=index), recover=False,
+                                          spark_multiplier=d.spark_multiplier, boss=True)
+                    while not battle.outcome:
+                        battle.begin_round(battle.auto_actions())
+                        while battle.queue:
+                            battle.step()
+                    hp = [c.hp for c in s.party]
+                    s.settle()
+                    for actor_index in s.pending_replacements:
+                        s.resolve_replacement(actor_index)
+                    assert hp == [c.hp for c in s.party]
+                    if battle.outcome != 'VICTORY':
+                        d.finale.abort_guardians()
+                        break
+                    guardian_wins.append(index+1)
+                    assert d.finale.guardian_victory() == (index == 2)
+                if battle.outcome == 'DEFEAT':
+                    break
             if event in ("battle", "boss"):
                 before = d.floor, d.x, d.y
-                battle = s.next_battle(d.make_enemies(event == "boss"), recover=False, spark_multiplier=d.spark_multiplier)
+                battle = s.next_battle(d.make_enemies(event == "boss"), recover=False,
+                                      spark_multiplier=d.spark_multiplier, boss=event == 'boss')
                 while not battle.outcome:
                     battle.begin_round(battle.auto_actions())
                     while battle.queue:
@@ -129,14 +164,14 @@ def play(seed):
                 if event == "boss" and battle.outcome == "VICTORY":
                     bosses_won.append(d.floor + 1)
                     d.defeat_boss()
-                    if d.cleared:
-                        break
         else:
             raise AssertionError("Exploration failed to terminate")
-        if d.cleared:
+        if amrita_returned:
             break
     return {"seed": seed, "clear": d.cleared, "trips": trips, "battles": s.completed,
             "progression": progression, "bosses_won": bosses_won, "switches_operated": switches_operated,
+            'guardian_wins': guardian_wins, 'has_amrita': d.finale.has_amrita,
+            'amrita_returned': amrita_returned, 'spring_uses_preserved': spring_uses_preserved,
             "wins": s.wins, "defeats": s.losses, "retreats": retreats, "steps": d.steps,
             "potions_used": potions_used, "unbanked_treasure": d.treasure.unbanked,
             "banked_treasure": d.treasure.banked,
@@ -156,3 +191,5 @@ if __name__ == "__main__":
     assert all(r["clear"] for r in results), "Some test parties could not clear within ten trips"
     assert all(r['progression'] == list(range(1, 16)) and r['bosses_won'] == [5, 10, 15]
                and r['switches_operated'] > 0 for r in results), 'Ordinary staircase/switch/boss progression failed'
+    assert all(r['guardian_wins'][-3:] == [1, 2, 3] and r['has_amrita'] and r['amrita_returned']
+               and r['spring_uses_preserved'] for r in results), 'Guardians/spring/demon/Amrita/camp progression failed'

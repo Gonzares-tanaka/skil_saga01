@@ -14,7 +14,7 @@ from rpg.content import ROOT, load_content
 from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.map_resources import load_maps
 from rpg.tiles import (AREA_RESOURCES, PASSABLE, TILE_BOSS, TILE_CHEST, TILE_DOOR,
-                       TILE_ENTRANCE, TILE_HEAL_POINT, TILE_PIT, TILE_POISON,
+                       TILE_ENTRANCE, TILE_HEAL_POINT, TILE_PIT, PIT_TILES, TILE_POISON,
                        TILE_QUEST, TILE_RARE_CHEST, TILE_STAIRS_DOWN,
                        TILE_STAIRS_UP, TILE_SWITCH)
 
@@ -32,7 +32,7 @@ def route(d, floor, start, goal, blocked=frozenset(), open_doors=True):
         for dx, dy in ((1, 0), (0, 1), (-1, 0), (0, -1)):
             nxt = point[0] + dx, point[1] + dy
             tile = d.tile(floor, *nxt)
-            if nxt in previous or tile in blocked or tile == TILE_PIT:
+            if nxt in previous or tile in blocked or tile in PIT_TILES:
                 continue
             if tile not in PASSABLE and not (open_doors and tile == TILE_DOOR):
                 continue
@@ -96,6 +96,7 @@ def main():
             ('chests', TILE_CHEST), ('rare_chests', TILE_RARE_CHEST), ('poison', TILE_POISON),
             ('pits', TILE_PIT), ('springs', TILE_HEAL_POINT), ('switches', TILE_SWITCH),
             ('doors', TILE_DOOR), ('quests', TILE_QUEST), ('bosses', TILE_BOSS))}
+        events['pits'] = sorted(p for tile in PIT_TILES for p in d.positions(f, tile))
         assert len(events['chests']) + len(events['rare_chests']) == [3, 3, 4, 4, 1][f-5]
         assert len(events['quests']) == [3, 3, 4, 3, 3][f-5]
         assert len(events['springs']) == (1 if f == 8 else 0)
@@ -104,7 +105,7 @@ def main():
         for y in range(24):
             for x in range(24):
                 tile = d.tile(f, x, y)
-                if tile in PASSABLE - {TILE_PIT} | {TILE_DOOR}:
+                if tile in PASSABLE - PIT_TILES | {TILE_DOOR}:
                     assert route(d, f, start, (x, y)) is not None, (f, x, y)
         greedy = 0
         point = start

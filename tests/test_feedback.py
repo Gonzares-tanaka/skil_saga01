@@ -12,7 +12,7 @@ from rpg.map_resources import load_maps
 from rpg.models import Action
 from rpg.tiles import (TILE_CHEST, TILE_RARE_CHEST, TILE_POISON, TILE_PIT,
                        TILE_HEAL_POINT, TILE_FLOOR, TILE_QUEST, TILE_ENTRANCE,
-                       TILE_STAIRS_UP, PASSABLE)
+                       TILE_STAIRS_UP, PASSABLE, PIT_TILES)
 
 
 class FeedbackTests(unittest.TestCase):
@@ -112,6 +112,25 @@ class FeedbackTests(unittest.TestCase):
             self.assertEqual(d.change_floor(floor + 1)[0], '')
         self.assertEqual(d.defeated_bosses, set())
 
+    def test_three_pit_chips_and_area_floor_cover(self):
+        d = self.d
+        for floor in (0, 5, 10):
+            d.debug_floor(floor)
+            start = d.x, d.y
+            for tile in PIT_TILES:
+                d.maps[floor].pset(start[0] + 1, start[1], tile)
+                self.assertNotIn((start[0] + 1, start[1]), d.reachable(floor))
+                self.assertEqual(d.move(1, 0)[0], 'pit')
+                self.assertEqual((d.x, d.y), start)
+        # B6's authored floor remains visible under its inactive quest marker.
+        self.assertEqual(d.floor_appearance(5, 5, 5), (8, 8))
+        d.maps[5].pset(5, 5, TILE_QUEST)
+        for x, y in ((4, 5), (6, 5), (5, 4), (5, 6),
+                     (4, 4), (6, 4), (4, 6), (6, 6)):
+            d.maps[5].pset(x, y, (3, 8))
+        self.assertEqual(d.floor_appearance(5, 5, 5), (3, 8))
+        self.assertEqual(d.tile(5, 5, 5), TILE_QUEST)
+
     def test_editor_moved_gimmicks_and_unreachable_pit_layout(self):
         start = self.d.x, self.d.y
         self.d.maps[0].pset(start[0] + 1, start[1], TILE_HEAL_POINT)
@@ -139,7 +158,7 @@ class FeedbackTests(unittest.TestCase):
                 e.accept(qid)
                 floor, x, y = e.target
                 floors.add(floor)
-                self.assertEqual(self.d.tile(floor, x, y), TILE_QUEST if floor < 10 else TILE_FLOOR)
+                self.assertEqual(self.d.tile(floor, x, y), TILE_QUEST)
                 self.assertIn((x, y), self.d.reachable(floor))
             self.assertEqual(floors, set(range((qid - 1) * 5, qid * 5)))
 
