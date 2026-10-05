@@ -99,6 +99,11 @@ class Dungeon:
         require(len(multipliers) == 15 and all(number(v, 0.01, 100) for v in multipliers), "spark_multipliersは15階分の正の倍率")
         require(multipliers == sorted(multipliers), "spark_multipliersは浅い順に同値か増加")
         for floor, row in enumerate(self.settings["floors"]):
+            width, height = self.map_bounds(floor)
+            require(type(width) is int and 8 <= width <= self.maps[floor].width,
+                    f'{floor + 1}F: widthはTilemap内の8以上の整数です')
+            require(type(height) is int and 8 <= height <= self.maps[floor].height,
+                    f'{floor + 1}F: heightはTilemap内の8以上の整数です')
             if floor in BOSS_FLOORS:
                 boss = self.enemies.get(row.get("boss_id"), {})
                 require(boss.get("boss") and boss.get("floor") == floor + 1, "ボスIDまたは出現floorが無効")
@@ -115,21 +120,28 @@ class Dungeon:
             row = self.enemies.get(ident, {})
             require(row.get('boss') and row.get('floor') == 15, '守護者はfloor 15のboss敵が必要です')
 
+    def map_bounds(self, floor):
+        profile = self.settings['floors'][floor]
+        return profile.get('width', self.width), profile.get('height', self.height)
+
     def tile(self, floor, x, y):
-        if not (0 <= x < self.width and 0 <= y < self.height):
+        width, height = self.map_bounds(floor)
+        if not (0 <= x < width and 0 <= y < height):
             return None
         return tuple(self.maps[floor].pget(x, y))
 
     def positions(self, floor, tile):
-        return [(x, y) for y in range(self.height) for x in range(self.width)
+        width, height = self.map_bounds(floor)
+        return [(x, y) for y in range(height) for x in range(width)
                 if self.tile(floor, x, y) == tile]
 
     def floor_appearance(self, floor, x, y):
         """Use a nearby authored floor when covering an event marker."""
-        for radius in range(1, max(self.width, self.height)):
+        width, height = self.map_bounds(floor)
+        for radius in range(1, max(width, height)):
             candidates = [self.tile(floor, px, py)
-                          for py in range(max(0, y - radius), min(self.height, y + radius + 1))
-                          for px in range(max(0, x - radius), min(self.width, x + radius + 1))
+                          for py in range(max(0, y - radius), min(height, y + radius + 1))
+                          for px in range(max(0, x - radius), min(width, x + radius + 1))
                           if max(abs(px - x), abs(py - y)) == radius
                           and self.tile(floor, px, py) in FLOOR_TILES]
             if candidates:
@@ -145,6 +157,7 @@ class Dungeon:
     def validate_maps(self):
         self.boss_positions = {}
         for floor, tilemap in enumerate(self.maps):
+            width, height = self.map_bounds(floor)
             if tilemap.imgsrc != MAP_IMAGE_BANK:
                 raise ValueError(f"{floor + 1}FのImage Bankは1にしてください。")
             start = self.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
@@ -166,15 +179,15 @@ class Dungeon:
                 self.find(floor, TILE_HEAL_POINT)
             elif self.positions(floor, TILE_GUARDIAN) or self.positions(floor, TILE_WARNING):
                 raise ValueError('守護者・警告地点はB15Fだけに配置してください。')
-            for y in range(self.height):
-                for x in range(self.width):
+            for y in range(height):
+                for x in range(width):
                     tile = self.tile(floor, x, y)
                     if tile in LORE_TILES and self.finale.lore_at(floor, tile) is None:
                         raise ValueError(f'{floor + 1}F: この石碑タイルには文章がありません。')
             seen = self._reachable(floor, through_stairs=True)
             events = {TILE_CHEST, TILE_RARE_CHEST, TILE_HEAL_POINT, TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_ENTRANCE, TILE_BOSS, TILE_QUEST, TILE_SWITCH, TILE_DOOR, TILE_GUARDIAN, TILE_WARNING} | LORE_TILES
-            for y in range(self.height):
-                for x in range(self.width):
+            for y in range(height):
+                for x in range(width):
                     if self.tile(floor, x, y) in events and (x, y) not in seen:
                         raise ValueError(f"{floor + 1}F ({x},{y}) のイベントへ通路がつながっていません。")
 

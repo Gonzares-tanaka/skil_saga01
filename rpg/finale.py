@@ -38,7 +38,7 @@ def load_finale_data():
 
 
 class FinaleProgress:
-    """All durable Phase 6A flags live here; only NEW GAME creates a new instance."""
+    """Durable story flags; only NEW GAME creates a new instance."""
     def __init__(self, data=None):
         self.data = data if data is not None else load_finale_data()
         self.guardian_index = None
@@ -46,6 +46,35 @@ class FinaleProgress:
         self.demon_defeated = False
         self.has_amrita = False
         self.read_lore = set()
+        self.final_event_started = False
+        self.lord_of_elysion_defeated = False
+        self.amrita_power_spent = False
+
+    @property
+    def can_offer_amrita(self):
+        return self.has_amrita and not self.final_event_started
+
+    def start_final_event(self):
+        if not self.can_offer_amrita:
+            raise ValueError('今はアムリタを献上できません。')
+        self.final_event_started = True
+
+    def final_victory(self):
+        if not self.final_event_started or not self.has_amrita:
+            raise ValueError('アムリタを持って決戦へ進んでください。')
+        self.lord_of_elysion_defeated = True
+        self.amrita_power_spent = True
+        self.has_amrita = False
+
+    def snapshot(self):
+        return {**{key: getattr(self, key) for key in (
+            'guardian_index', 'guardians_defeated', 'demon_defeated', 'has_amrita',
+            'final_event_started', 'lord_of_elysion_defeated', 'amrita_power_spent')},
+            'read_lore': sorted(self.read_lore)}
+
+    def restore(self, snapshot):
+        for key, value in snapshot.items():
+            setattr(self, key, set(value) if key == 'read_lore' else value)
 
     def start_guardians(self):
         if self.guardians_defeated or self.guardian_index is not None:

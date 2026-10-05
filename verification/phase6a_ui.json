@@ -2,7 +2,7 @@
   "main_scenario": "Prepared HP900 STR70 AGI55 INT70 party at B10 arrival; no warps after setup",
   "audio": "pyxel.play and pyxel.playm raise RuntimeError for entire test",
   "B10_victory_to_B15_demon_and_RETURN": true,
-  "normal_DPAD_steps": 286,
+  "normal_DPAD_steps": 298,
   "lore_read_ids": [
     "B11_01",
     "B12_01",
@@ -96,7 +96,7 @@
   "spring_living_HP_only_once_Uses_items_KO_unchanged": true,
   "demon_story_pages": 2,
   "amrita_key_retained_at_hub": true,
-  "bounded_text_calls": 16375,
+  "bounded_text_calls": 16527,
   "battle_count": 19,
   "screenshots": [
     "verification\\screenshots\\phase6a_debug_demon.png",
@@ -173,6 +173,7 @@
     "verification\\screenshots\\phase6a_replacement_10.png",
     "verification\\screenshots\\phase6a_demon_story_1.png",
     "verification\\screenshots\\phase6a_demon_story_2.png",
+    "verification\\screenshots\\phase6a_amrita_offer_after_RETURN.png",
     "verification\\screenshots\\phase6a_hub_with_amrita.png"
   ],
   "physical_smartphone_tested": false,

@@ -1,0 +1,105 @@
+{
+  "silent_audio_apis": [
+    "play",
+    "playm",
+    "stop"
+  ],
+  "arrival_later_facilities_rearrival": true,
+  "ordinary_ITEM_hides_amrita": true,
+  "story_to_battle": true,
+  "physical_and_LEGEND_blocked": true,
+  "initial_hint_displayed": true,
+  "amrita_real_ITEM_action": true,
+  "retries": [
+    {
+      "attempt": 1,
+      "full_restore": true,
+      "has_amrita": true,
+      "barrier_active": true,
+      "potions_restored": true,
+      "exhausted_meteor_restored": true
+    },
+    {
+      "attempt": 2,
+      "full_restore": true,
+      "has_amrita": true,
+      "barrier_active": true,
+      "potions_restored": true,
+      "exhausted_meteor_restored": true
+    },
+    {
+      "attempt": 3,
+      "full_restore": true,
+      "has_amrita": true,
+      "barrier_active": true,
+      "potions_restored": true,
+      "exhausted_meteor_restored": true
+    },
+    {
+      "attempt": 4,
+      "full_restore": true,
+      "has_amrita": true,
+      "barrier_active": true,
+      "potions_restored": true,
+      "exhausted_meteor_restored": true
+    }
+  ],
+  "ending_reached": true,
+  "debug_4_5_6_7_gated": true,
+  "bounded_text_calls": 21294,
+  "preserved_files": {
+    "game.pyxres": true,
+    "area2.pyxres": true,
+    "area3.pyxres": true,
+    "game.pyxpal": true,
+    "area2.pyxpal": true,
+    "area3.pyxpal": true,
+    "data/finale.json": true,
+    "data/skills.json": true,
+    "data/items.json": true,
+    "data/exploration.json": true,
+    "data/quests.json": true,
+    "data/intro.json": true,
+    "data/party.json": true,
+    "assets/battle_music.pyxres": true
+  },
+  "existing_enemy_rows_preserved": true,
+  "B15_bounds_only": [
+    24,
+    32
+  ],
+  "screenshots": [
+    "verification\\screenshots\\phase6b_ordinary_items.png",
+    "verification\\screenshots\\phase6b_offer.png",
+    "verification\\screenshots\\phase6b_story_1.png",
+    "verification\\screenshots\\phase6b_story_2.png",
+    "verification\\screenshots\\phase6b_story_3.png",
+    "verification\\screenshots\\phase6b_barrier_command.png",
+    "verification\\screenshots\\phase6b_amrita_item.png",
+    "verification\\screenshots\\phase6b_barrier_released.png",
+    "verification\\screenshots\\phase6b_defeat_1.png",
+    "verification\\screenshots\\phase6b_retry_1.png",
+    "verification\\screenshots\\phase6b_amrita_item.png",
+    "verification\\screenshots\\phase6b_barrier_released.png",
+    "verification\\screenshots\\phase6b_defeat_2.png",
+    "verification\\screenshots\\phase6b_retry_2.png",
+    "verification\\screenshots\\phase6b_amrita_item.png",
+    "verification\\screenshots\\phase6b_barrier_released.png",
+    "verification\\screenshots\\phase6b_defeat_3.png",
+    "verification\\screenshots\\phase6b_retry_3.png",
+    "verification\\screenshots\\phase6b_amrita_item.png",
+    "verification\\screenshots\\phase6b_barrier_released.png",
+    "verification\\screenshots\\phase6b_defeat_4.png",
+    "verification\\screenshots\\phase6b_retry_4.png",
+    "verification\\screenshots\\phase6b_amrita_item.png",
+    "verification\\screenshots\\phase6b_barrier_released.png",
+    "verification\\screenshots\\phase6b_victory.png",
+    "verification\\screenshots\\phase6b_ending_1.png",
+    "verification\\screenshots\\phase6b_debug.png"
+  ],
+  "physical_smartphone_tested": false,
+  "limitations": [
+    "Prepared party; final boss balance provisional.",
+    "Desktop headless Pyxel and simulated gamepad; not a real browser or phone."
+  ]
+}

@@ -7,6 +7,8 @@ import pyxel
 
 from .app import App
 from .battle import Session
+from .final_battle import (FinalBattleCheckpoint, load_final_battle_data,
+                          make_final_enemy)
 from .content import ROOT
 from .dungeon import Dungeon, load_dungeon_settings
 from .exploration import Exploration
@@ -43,6 +45,7 @@ TRANSITION_INPUTS = (pyxel.KEY_UP, pyxel.KEY_DOWN, pyxel.KEY_LEFT, pyxel.KEY_RIG
                      pyxel.GAMEPAD1_BUTTON_DPAD_DOWN, pyxel.GAMEPAD1_BUTTON_DPAD_LEFT,
                      pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT, pyxel.GAMEPAD1_BUTTON_A,
                      pyxel.GAMEPAD1_BUTTON_B)
+FINAL_EVENT_STATES = ('amrita_offer', 'final_story', 'final_retry', 'ending')
 
 
 class DungeonApp(App):
@@ -85,6 +88,11 @@ class DungeonApp(App):
         self.battle_transition_frame = 0
         self.battle_transition_hold = 0
         self.battle_input_blocked = False
+        self.final_battle_data = load_final_battle_data()
+        self.final_checkpoint = None
+        self.final_choice = self.final_story_page = self.ending_page = 0
+        self.final_question_page = 0
+        self.camp_offer_pending = False
         self.explore_message = "入口へ戻ると全回復"
         self.enter_camp()
         if start_at_title:
@@ -108,6 +116,10 @@ class DungeonApp(App):
         self.battle_position = None
         self.battle_kind = 'normal'
         self.next_guardian_index = None
+        self.final_checkpoint = None
+        self.final_choice = self.final_story_page = self.ending_page = 0
+        self.final_question_page = 0
+        self.camp_offer_pending = False
         self.player_facing = "down"
         self.overlay = None
         self.notice = ""
@@ -228,10 +240,18 @@ class DungeonApp(App):
         self.facility_back = "camp"
         self.notice_timer = 0
         self.camp_message = "全滅・回復 / 調査はやり直し" if defeated else "全員のHPを回復しました"
+        # All ordinary external arrivals use returned/defeated. Facility exits
+        # only change state to camp and cannot re-open this confirmation.
+        self.camp_offer_pending = bool((returned or defeated) and self.dungeon.finale.can_offer_amrita)
+        self.final_choice = 0
+        self.final_question_page = 0
         if returned:
             self.state = "return_result"
         elif quest_failure:
-            self.show_field_event(quest_failure, return_state="camp")
+            self.show_field_event(quest_failure, return_state='amrita_offer' if self.camp_offer_pending else 'camp')
+            self.camp_offer_pending = False
+        elif self.camp_offer_pending:
+            self.show_amrita_offer()
 
     def enter_dungeon(self):
         if self.dungeon.cleared:
@@ -289,6 +309,16 @@ class DungeonApp(App):
         if self.session.pending_replacements or self.waiting_for_fanfare():
             return
         stop_battle_music()
+        if self.battle_kind == 'elysion':
+            if self.battle.outcome == 'VICTORY':
+                self.dungeon.finale.final_victory()
+                self.final_checkpoint = None
+                self.state, self.ending_page = 'ending', 0
+            else:
+                self.state, self.final_choice = 'final_retry', 0
+                self.final_question_page = 0
+            self.overlay, self.notice_timer = None, 0
+            return
         self.trace("RETURN MAP" if self.battle.outcome != "DEFEAT" else "RETURN CAMP")
         if self.battle.outcome == "DEFEAT":
             self.enter_camp(defeated=True)
@@ -319,6 +349,8 @@ class DungeonApp(App):
             self.notice_timer = 0
 
     def next_result_label(self):
+        if self.battle_kind == 'elysion':
+            return '旅の結末へ' if self.battle.outcome == 'VICTORY' else '再挑戦の確認へ'
         if self.battle.outcome == "DEFEAT":
             return "拠点へ"
         if self.battle_kind == 'guardian' and self.battle.outcome == 'VICTORY':
@@ -375,6 +407,9 @@ class DungeonApp(App):
         if self.state in ("title", "title_no_save", "title_fade", "intro",
                           "hub_preview", "hub_intro"):
             self.update_opening()
+            return
+        if self.state in FINAL_EVENT_STATES:
+            self.update_final_event()
             return
         if self.opening_input_blocked:
             if not any(pyxel.btn(button) for button in TRANSITION_INPUTS):
@@ -700,6 +735,8 @@ class DungeonApp(App):
             self.draw_camp()
         elif self.state == "hub_intro":
             self.draw_hub_intro()
+        elif self.state in FINAL_EVENT_STATES:
+            self.draw_final_event()
         elif self.state == "battle_transition":
             flash = self.battle_transition_frame in BATTLE_TRANSITION_FLASH_FRAMES
             if flash:
@@ -830,13 +867,14 @@ class DungeonApp(App):
 
     def draw_explore(self):
         d = self.dungeon
+        width, height = d.map_bounds(d.floor)
         self.title(f"B{d.floor + 1}F 薬{d.potions} 未確定宝{d.treasure.unbanked}" + (" DEBUG" if self.session.debug else ""))
         camera_x = d.x * TILE_SIZE + TILE_SIZE // 2 - MAP_WIDTH // 2
         camera_y = d.y * TILE_SIZE + TILE_SIZE // 2 - MAP_HEIGHT // 2
         source_x = max(0, camera_x)
         source_y = max(0, camera_y)
-        source_right = min(d.width * TILE_SIZE, camera_x + MAP_WIDTH)
-        source_bottom = min(d.height * TILE_SIZE, camera_y + MAP_HEIGHT)
+        source_right = min(width * TILE_SIZE, camera_x + MAP_WIDTH)
+        source_bottom = min(height * TILE_SIZE, camera_y + MAP_HEIGHT)
         draw_width = max(0, source_right - source_x)
         draw_height = max(0, source_bottom - source_y)
         pyxel.clip(MAP_X, MAP_Y, MAP_WIDTH, MAP_HEIGHT)
@@ -984,6 +1022,8 @@ class DungeonApp(App):
         if self.state == "return_result":
             if confirm:
                 self.state, self.notice_timer = "camp", 0
+                if self.camp_offer_pending and self.dungeon.finale.can_offer_amrita:
+                    self.show_amrita_offer()
         elif self.state == "field_return":
             if self.dungeon.finale.guardian_index is not None:
                 self.tell(self.dungeon.finale.data['return_locked'][0])
@@ -1339,7 +1379,160 @@ class DungeonApp(App):
                  'A:次の戦い' if self.state == 'guardian_between' else 'A:泉の先へ')
         self.footer('A:続きを読む' if more else label)
 
+    def show_amrita_offer(self):
+        self.state, self.overlay, self.notice_timer = 'amrita_offer', None, 0
+        self.final_choice = 0
+        self.final_question_page = 0
+        self.camp_offer_pending = False
+
+    def start_final_story(self):
+        self.dungeon.finale.start_final_event()
+        self.state, self.overlay = 'final_story', None
+        self.final_story_page = 0
+
+    def begin_final_battle(self):
+        f = self.dungeon.finale
+        if not f.final_event_started or not f.has_amrita or f.amrita_power_spent:
+            raise ValueError('アムリタを持って最終イベントへ進んでください。')
+        if self.final_checkpoint is None:
+            self.final_checkpoint = FinalBattleCheckpoint.capture(self.session, self.dungeon, self.exploration)
+        self.battle = self.session.next_battle([make_final_enemy(self.session.enemy_data)],
+            recover=False, boss=True, final_progress=f, final_data=self.final_battle_data)
+        self.battle_kind, self.battle_is_boss = 'elysion', True
+        self.battle_position = None
+        self.overlay, self.notice_timer, self.shake_timer = None, 0, 0
+        self.debug_return_state, self.debug_return_overlay = None, 'debug_skills'
+        self.fanfare_started_at = self.fanfare_start_frame = None
+        self.fanfare_timed_out = False
+        self.log = wrap_lines(self.final_battle_data['battle_start'], 37)[-3:]
+        self.pending = deque()
+        self.begin_input()
+        self.battle_input_blocked = True
+        start_battle_music()
+
+    def update_final_event(self):
+        if self.pressed(pyxel.KEY_Q):
+            pyxel.quit()
+            return
+        if self.pressed(pyxel.KEY_F9):
+            self.session.debug = not self.session.debug
+            return
+        confirm, cancel = self.confirm(), self.cancel()
+        if self.state in ('amrita_offer', 'final_retry'):
+            page = getattr(self, 'final_question_page', 0)
+            if page + 1 < len(self.final_question_pages()) and not cancel:
+                if confirm:
+                    self.final_question_page = page + 1
+                return
+            self.final_choice = (self.final_choice + self.direction()) % 2
+            if cancel:
+                self.final_choice = 1
+                confirm = True
+            if not confirm:
+                return
+            if self.state == 'amrita_offer':
+                if self.final_choice:
+                    self.state = 'camp'
+                else:
+                    self.start_final_story()
+            elif self.final_choice:
+                stop_battle_music()
+                self.state, self.title_cursor = 'title', 0
+                self.opening_input_blocked = True
+            else:
+                if self.final_checkpoint is None:
+                    raise ValueError('決戦前の記録がありません。')
+                stop_battle_music()
+                self.final_checkpoint.restore(self.session, self.dungeon, self.exploration)
+                self.begin_final_battle()
+        elif self.state == 'final_story' and confirm:
+            pages = self.final_story_pages()
+            if self.final_story_page + 1 < len(pages):
+                self.final_story_page += 1
+            else:
+                self.begin_final_battle()
+        elif self.state == 'ending' and confirm:
+            pages = self.final_ending_pages()
+            if self.ending_page + 1 < len(pages):
+                self.ending_page += 1
+            else:
+                self.state, self.title_cursor = 'title', 0
+                self.opening_input_blocked = True
+
+    def final_story_pages(self):
+        pages = []
+        for block in self.final_battle_data['story_pages']:
+            lines = wrap_lines(block, 36)
+            pages.extend(lines[i:i + 8] for i in range(0, len(lines), 8))
+        return pages
+
+    def final_question_pages(self):
+        key = 'offer_question' if self.state == 'amrita_offer' else 'retry_question'
+        lines = wrap_lines(self.final_battle_data[key], 36)
+        return [lines[i:i + 5] for i in range(0, len(lines), 5)]
+
+    def final_ending_pages(self):
+        lines = wrap_lines(self.final_battle_data['victory'] + [''] + self.final_battle_data['ending_lines'], 36)
+        return [lines[i:i + 8] for i in range(0, len(lines), 8)]
+
+    def draw_final_event(self):
+        pyxel.cls(0)
+        if self.state in ('amrita_offer', 'final_retry'):
+            self.title('王への献上' if self.state == 'amrita_offer' else '決戦 / 再挑戦')
+            pages = self.final_question_pages()
+            page = getattr(self, 'final_question_page', 0)
+            for i, line in enumerate(pages[page]):
+                text((pyxel.width - text_width(line)) // 2, 24 + i * 9, line, 3)
+            if page + 1 < len(pages):
+                self.footer('A:続きを読む B:戻る')
+                return
+            options = ('はい', '後で' if self.state == 'amrita_offer' else 'いいえ')
+            for i, label in enumerate(options):
+                display = ('> ' if self.final_choice == i else '  ') + label
+                text((pyxel.width - text_width(display)) // 2, 78 + i * 14,
+                     display, 3 if self.final_choice == i else 2)
+            self.footer('上下:選択 A:決定 B:タイトルへ' if self.state == 'final_retry' else
+                        '上下:選択 A:決定 B:戻る')
+        else:
+            ending = self.state == 'ending'
+            self.title('旅の結末' if ending else '王城')
+            pages = self.final_ending_pages() if ending else self.final_story_pages()
+            current = self.ending_page if ending else self.final_story_page
+            for i, line in enumerate(pages[current]):
+                text(7, 24 + i * 9, line, 3, 36)
+            last = current + 1 == len(pages)
+            self.footer('A:タイトルへ' if ending and last else 'A:決戦へ' if last else 'A:続きを読む')
+
+    def debug_final_stage(self, stage):
+        if not self.session.debug or stage not in ('key', 'offer', 'story', 'battle'):
+            return False
+        if self.session.pending_replacements:
+            self.tell('先に技の入替を終えてください。')
+            return False
+        f = self.dungeon.finale
+        f.abort_guardians()
+        f.guardians_defeated = f.demon_defeated = f.has_amrita = True
+        f.final_event_started = f.lord_of_elysion_defeated = f.amrita_power_spent = False
+        self.dungeon.defeated_bosses.add(14)
+        self.final_checkpoint = None
+        if stage == 'key':
+            self.tell('DEBUG: アムリタ所持ON')
+        else:
+            self.enter_camp()
+            if stage == 'offer':
+                self.show_amrita_offer()
+            else:
+                self.start_final_story()
+                if stage == 'battle':
+                    self.begin_final_battle()
+        return True
+
     def update_dungeon_debug(self):
+        for key, stage in ((pyxel.KEY_4, 'key'), (pyxel.KEY_5, 'offer'),
+                           (pyxel.KEY_6, 'story'), (pyxel.KEY_7, 'battle')):
+            if self.pressed(key):
+                self.debug_final_stage(stage)
+                return
         self.floor_cursor = (self.floor_cursor + self.direction()) % 15
         for key, floor in zip((pyxel.KEY_1, pyxel.KEY_2, pyxel.KEY_3), BOSS_FLOORS):
             if self.pressed(key):
@@ -1384,9 +1577,10 @@ class DungeonApp(App):
         text(5, 39, f"DEBUG中 {debug_rate:.1%} / 1人ごと", 2, 37)
         for i, floor in enumerate(BOSS_FLOORS):
             flag = "ON 撃破済" if floor in d.defeated_bosses else "OFF 未撃破"
-            text(5, 53 + i * 12, f"{i + 1}: B{floor + 1}F {flag}", 3, 37)
-        text(5, 88, 'G:B15守護者前 M:デーモン前', 2, 37)
-        text(5, 98, '上下:階 B:ボス前（守護者突破）', 2, 37)
+            text(5, 51 + i * 10, f"{i + 1}: B{floor + 1}F {flag}", 3, 37)
+        text(5, 82, 'G:守護者前 M:デーモン前', 2, 37)
+        text(5, 92, '4:秘宝 5:献上 6:会話 7:決戦', 2, 37)
+        text(5, 102, '上下:階 B:ボス前', 2, 37)
         self.footer("Z:移動 1/2/3:撃破切替 X:閉じる")
 
     def draw_effects(self):

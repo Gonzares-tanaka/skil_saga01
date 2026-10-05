@@ -227,6 +227,68 @@ with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), p
     else:
         raise AssertionError('Pad-only demon and story did not terminate')
 assert d.finale.demon_defeated and 'AMRITA' not in app.session.inventory.counts
-print("PASS: embedded resources/palette, pad input, silent guardians, demon/story and separate Amrita state")
+# The shipped payload must also contain the post-Amrita event and retry logic.
+with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), patch.object(pyxel, 'playm', side_effect=RuntimeError('audio interrupted')):
+    app.enter_camp(returned=True)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'amrita_offer'
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'camp' and d.finale.has_amrita
+    app.enter_dungeon()
+    app.handle_event('base', '')
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'final_story'
+    for _ in app.final_story_pages():
+        press(pyxel.GAMEPAD1_BUTTON_A)
+    press(None)
+    assert app.battle.is_elysion_battle and app.battle.elysion_barrier_active
+    saved_hp = [c.hp for c in app.session.party]
+    saved_uses = [dict(c.skill_uses) for c in app.session.party]
+    saved_items = dict(app.session.inventory.counts)
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'battle_item'
+    options = app.battle_items()
+    for _ in range(options.index('AMRITA')):
+        press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    for _ in range(3):
+        press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+        press(pyxel.GAMEPAD1_BUTTON_A)
+    for _ in range(300):
+        if app.state != 'resolve':
+            break
+        press(pyxel.GAMEPAD1_BUTTON_A)
+    assert not app.battle.elysion_barrier_active and d.finale.has_amrita
+    for c in app.session.party:
+        c.hp = 0
+        c.skill_uses = {sid: 1 for sid in c.skills}
+    app.session.inventory.counts['POTION'] = 0
+    app.battle.outcome = 'DEFEAT'
+    app.session.settle()
+    app.state = 'result'
+    app.finish_results()
+    assert app.state == 'final_retry'
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    press(None)
+    assert [c.hp for c in app.session.party] == saved_hp
+    assert [c.skill_uses for c in app.session.party] == saved_uses
+    assert app.session.inventory.counts == saved_items
+    assert d.finale.has_amrita and app.battle.elysion_barrier_active
+    # Use the embedded legal-action policy to finish the restored battle.
+    while not app.battle.outcome:
+        app.battle.begin_round(app.battle.auto_actions())
+        while app.battle.queue:
+            app.battle.step()
+    assert app.battle.outcome == 'VICTORY'
+    app.session.settle()
+    for index in list(app.session.pending_replacements):
+        app.session.resolve_replacement(index)
+    app.finish_results()
+    assert app.state == 'ending' and d.finale.amrita_power_spent
+    assert d.finale.lord_of_elysion_defeated and not d.finale.has_amrita
+print("PASS: embedded resources/palette, pad input, silent guardians, Amrita, final barrier/retry and ENDING")
 '''
     subprocess.run([sys.executable, "-c", check], cwd=Path(temp) / "spark_web", check=True)

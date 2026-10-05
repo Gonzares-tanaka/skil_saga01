@@ -148,6 +148,7 @@ class Enemy:
     defense: float = 0
     magic_defense: float = 0
     effects: dict[str, tuple[float, int]] = field(default_factory=dict)
+    id: str = ""
 
     def __post_init__(self):
         self.hp = self.max_hp

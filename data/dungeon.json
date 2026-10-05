@@ -21,6 +21,6 @@
     {"enemy_ids": ["assassin", "stone_beast", "mage"], "weights": [4, 3, 2], "count": [2, 3], "hp_scale": 1.35, "power_scale": 1.25},
     {"enemy_ids": ["stone_beast", "berserker", "iron_golem"], "weights": [4, 3, 2], "count": [2, 3], "hp_scale": 1.4, "power_scale": 1.3},
     {"enemy_ids": ["assassin", "berserker", "stone_beast"], "weights": [3, 3, 3], "count": [2, 3], "hp_scale": 1.45, "power_scale": 1.35},
-    {"boss_id": "depth_lord"}
+    {"boss_id": "depth_lord", "width": 24, "height": 32}
   ]
 }

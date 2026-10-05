@@ -186,6 +186,12 @@ def main():
         press(A)
         assert app.state == 'return_result'
         press(A)
+        if app.state == 'amrita_offer':
+            # Phase 6B intercepts the first external arrival with the key item.
+            # Keep this verifier focused on the completed Phase 6A route.
+            shot('amrita_offer_after_RETURN')
+            press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+            press(A)
         assert app.state == 'camp'
 
     def prepare_party():

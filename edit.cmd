@@ -6,6 +6,10 @@ set "rpg_resource=game.pyxres"
 if "%~1"=="2" set "rpg_resource=area2.pyxres"
 if "%~1"=="3" set "rpg_resource=area3.pyxres"
 if not exist "%rpg_resource%" goto fail
+if not "%rpg_resource%"=="game.pyxres" (
+    ".venv\Scripts\python.exe" tools\sync_map_chips.py "%rpg_resource%"
+    if errorlevel 1 goto fail
+)
 ".venv\Scripts\python.exe" -m pyxel edit "%rpg_resource%"
 if errorlevel 1 goto fail
 exit /b 0

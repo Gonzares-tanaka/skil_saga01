@@ -8,6 +8,7 @@ from .models import Action, Enemy, effect_factor, battle_agility
 from .labels import OUTCOMES, EFFECTS
 from .treasure import Treasure
 from .items import Inventory
+from .final_battle import AMRITA_ITEM_ID, LORD_OF_ELYSION_ID, load_final_battle_data
 
 
 GUARD_DAMAGE_MULTIPLIER = 0.5
@@ -17,7 +18,7 @@ COUNTER_DAMAGE_MULTIPLIER = 0.5
 class Battle:
     def __init__(self, party, enemies, skills, max_rounds=60, rng=None,
                  skill_slots=MAX_SKILLS, discovered_skills=None, mastered_skills=None,
-                 inventory=None, run_settings=None, boss=False):
+                 inventory=None, run_settings=None, boss=False, final_progress=None, final_data=None):
         self.party = party
         self.enemies = enemies
         self.skills = skills
@@ -36,6 +37,12 @@ class Battle:
         self.run_settings = run_settings or self.inventory.data["run"]
         self.boss = boss
         self.run_override = None
+        self.is_elysion_battle = boss and any(e.id == LORD_OF_ELYSION_ID for e in enemies)
+        self.final_progress = final_progress
+        self.final_data = (final_data or load_final_battle_data()) if self.is_elysion_battle else None
+        self.elysion_barrier_active = self.is_elysion_battle
+        self.elysion_barrier_hint_shown = False
+        self.elysion_barrier_hint_pending = False
         for actor in self.party:
             actor.mastered_skills = self.mastered_skills
 
@@ -45,6 +52,8 @@ class Battle:
         expected = {i for i, c in enumerate(self.party) if c.alive}
         if len(actions) != len(expected) or {a.actor for a in actions} != expected:
             raise ValueError("Exactly one action per living character is required.")
+        if sum(a.kind == 'ITEM' and a.item_id == AMRITA_ITEM_ID for a in actions) > 1:
+            raise ValueError('アムリタは1ターンに1人だけが使えます。')
         for action in actions:
             actor = self.party[action.actor]
             if action.kind not in ("SKILL", "ITEM", "GUARD", "DEFEND"):
@@ -59,6 +68,10 @@ class Battle:
                 if skill.effect == "revive" and not (0 <= action.target < len(self.party) and not self.party[action.target].alive):
                     raise ValueError("REVIVEは戦闘不能の味方だけに使えます。")
             if action.kind == "ITEM":
+                if action.item_id == AMRITA_ITEM_ID:
+                    if not self.can_use_amrita:
+                        raise ValueError('今はアムリタを使えません。')
+                    continue
                 if action.item_id not in ("POTION", "PHOENIX ASH") or self.inventory.counts[action.item_id] <= 0:
                     raise ValueError("使用できる道具がありません。")
                 if not 0 <= action.target < len(self.party):
@@ -90,6 +103,10 @@ class Battle:
         return next((c for c in group if c.alive), None)
 
     def _damage(self, target, amount, magic=False, power_bonus=1.0):
+        if self.elysion_barrier_active and getattr(target, 'id', '') == LORD_OF_ELYSION_ID:
+            if not self.elysion_barrier_hint_shown:
+                self.elysion_barrier_hint_shown = self.elysion_barrier_hint_pending = True
+            return 0
         guard_factor = (COUNTER_DAMAGE_MULTIPLIER if getattr(target, "counter", None)
                         else GUARD_DAMAGE_MULTIPLIER) if target.guarding else 1
         factor = guard_factor * (1.25 if target.berserk else 1) * effect_factor(target, "guard_up")
@@ -107,6 +124,12 @@ class Battle:
             actor.guarding = True
             return [f"{actor.name} はまもる"]
         if action.kind == "ITEM":
+            if action.item_id == AMRITA_ITEM_ID:
+                if not self.can_use_amrita:
+                    return list(self.final_data['amrita_unavailable']) if self.final_data else ['今はアムリタを使えない。']
+                self.elysion_barrier_active = False
+                self.sound_cue = 'skill'
+                return [f'{actor.name} アムリタ'] + self.final_data['amrita_release']
             used, message = self.inventory.use(action.item_id, self.party[action.target])
             if used:
                 self.sound_cue = "skill"
@@ -217,6 +240,9 @@ class Battle:
             return []
         side, action = self.queue.popleft()
         lines = self._party_action(action) if side == "party" else self._enemy_action(action)
+        if self.elysion_barrier_hint_pending:
+            lines.extend(self.final_data['barrier_hint'])
+            self.elysion_barrier_hint_pending = False
         if not any(c.alive for c in self.party):
             self.outcome = "DEFEAT"
         elif not any(e.alive for e in self.enemies):
@@ -283,6 +309,9 @@ class Battle:
         for i, actor in enumerate(self.party):
             if not actor.alive:
                 continue
+            if self.can_use_amrita and not any(a.item_id == AMRITA_ITEM_ID for a in actions):
+                actions.append(Action(i, 'ITEM', item_id=AMRITA_ITEM_ID))
+                continue
             available = [self.skills[s] for s in actor.skills if actor.skill_uses.get(s, 0) > 0 and not actor.cooldowns.get(s, 0)]
             injured = [(j, c) for j, c in enumerate(self.party) if c.alive and c.hp < c.max_hp * 0.5]
             heals = [s for s in available if s.effect == "heal"]
@@ -298,6 +327,12 @@ class Battle:
             else:
                 actions.append(Action(i, "GUARD"))
         return actions
+
+    @property
+    def can_use_amrita(self):
+        return bool(self.is_elysion_battle and self.elysion_barrier_active and
+                    self.final_progress is not None and self.final_progress.has_amrita and
+                    not self.final_progress.amrita_power_spent)
 
 
 class Session:
@@ -322,7 +357,8 @@ class Session:
         self.inventory = Inventory()
         self.pending_relearn = None
 
-    def next_battle(self, enemies=None, recover=True, spark_multiplier=1.0, boss=False):
+    def next_battle(self, enemies=None, recover=True, spark_multiplier=1.0, boss=False,
+                    final_progress=None, final_data=None):
         if self.pending_replacements:
             raise ValueError("先に技の入れ替えを決めてください。")
         if self.battle is not None and not self.settled:
@@ -354,7 +390,7 @@ class Session:
                              self.settings["max_rounds"], self.rng,
                              self.settings["skill_slots"],
                              self.discovered_skills, self.mastered_skills,
-                             self.inventory, boss=boss)
+                             self.inventory, boss=boss, final_progress=final_progress, final_data=final_data)
         self.settled = False
         self.results = []
         return self.battle
@@ -390,13 +426,19 @@ class Session:
         else:
             if outcome == "DEFEAT":
                 self.losses += 1
-                self.results.append(f"未確定の宝を{self.treasure.lose()}個失った")
+                if self.battle.is_elysion_battle:
+                    self.results.extend(self.battle.final_data['defeat'])
+                else:
+                    self.results.append(f"未確定の宝を{self.treasure.lose()}個失った")
             else:
                 self.draws += 1
             self.results.append("成長・閃きなし")
             for character in self.party:
                 character.history.append(f"B{self.completed} {OUTCOMES[outcome]}: 成長なし")
-        self.results.append("次戦でHP回復・技回数は持越" if self.auto_recover else "探索へ戻る・HPと技回数は持ち越し")
+        if self.battle.is_elysion_battle:
+            self.results.append('旅の結末へ' if outcome == 'VICTORY' else '決戦前からの再挑戦を選べる')
+        else:
+            self.results.append("次戦でHP回復・技回数は持越" if self.auto_recover else "探索へ戻る・HPと技回数は持ち越し")
         self.settled = True
         return self.results
 

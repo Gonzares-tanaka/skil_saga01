@@ -12,6 +12,7 @@ from .sound import init_sound, play_cue, start_battle_music, stop_battle_music, 
 from .growth import growth_bonus
 from .keyboard import GameKeyboard
 from .opening import GAME_TITLE
+from .final_battle import AMRITA_ITEM_ID
 
 
 # The official Web touch pad emits gamepad buttons, not keyboard keys.
@@ -161,7 +162,10 @@ class App:
     def battle_items(self):
         reserved = {item: sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
                     for item in ("POTION", "PHOENIX ASH")}
-        return [item for item in reserved if self.session.inventory.counts[item] > reserved[item]]
+        options = [item for item in reserved if self.session.inventory.counts[item] > reserved[item]]
+        if self.battle.can_use_amrita and not any(a.item_id == AMRITA_ITEM_ID for a in self.actions):
+            options.append(AMRITA_ITEM_ID)
+        return options
 
     def commit(self, action):
         self.actions.append(action)
@@ -313,7 +317,9 @@ class App:
                 self.item_cursor = (self.item_cursor + self.direction()) % len(options)
                 if confirm:
                     self.selected_item = options[self.item_cursor]
-                    if not self.targets():
+                    if self.selected_item == AMRITA_ITEM_ID:
+                        self.commit(Action(self.actor_index, 'ITEM', item_id=AMRITA_ITEM_ID))
+                    elif not self.targets():
                         self.tell("使える対象がいません")
                     else:
                         self.state, self.target_cursor = "target", 0
@@ -477,11 +483,19 @@ class App:
         if not options:
             text(8, 30, "使える道具がありません", 3, 35)
         for i, item in enumerate(options):
-            remaining = self.session.inventory.counts[item] - sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
+            if item == AMRITA_ITEM_ID:
+                label = 'アムリタ / KEY ITEM'
+            else:
+                remaining = self.session.inventory.counts[item] - sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
+                label = f'{item} x{remaining}'
             text(8, 24 + i * 14, (">" if i == self.item_cursor else " ") +
-                 f"{item} x{remaining}", 3 if i == self.item_cursor else 2, 36)
-        text(8, 78, "POTION: 生存者のHP回復", 2, 36)
-        text(8, 90, "ASH: 戦闘不能を25%で蘇生", 2, 36)
+                 label, 3 if i == self.item_cursor else 2, 36)
+        if AMRITA_ITEM_ID in options and self.item_cursor == options.index(AMRITA_ITEM_ID):
+            text(8, 78, '特殊な障壁を解除 / 1ターン', 2, 36)
+            text(8, 90, '道具数と技Usesは消費しない', 2, 36)
+        else:
+            text(8, 78, "POTION: 生存者のHP回復", 2, 36)
+            text(8, 90, "ASH: 戦闘不能を25%で蘇生", 2, 36)
         self.footer("上下:選択 A:使用 B:戻る")
 
     def draw_result(self):
