@@ -675,7 +675,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "探索から安全に帰還。宝を確定する。",
+    "description": "探索から安全に帰還。TRZを確定する。",
     "max_uses": 3,
     "skill_type": "support",
     "growth": {

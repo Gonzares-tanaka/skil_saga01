@@ -46,9 +46,8 @@
   ],
   "ending_reached": true,
   "debug_4_5_6_7_gated": true,
-  "bounded_text_calls": 21294,
+  "bounded_text_calls": 25824,
   "preserved_files": {
-    "game.pyxres": true,
     "area2.pyxres": true,
     "area3.pyxres": true,
     "game.pyxpal": true,

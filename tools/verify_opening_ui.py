@@ -56,8 +56,10 @@ with patch.object(pyxel, "text", side_effect=bounded_text), \
     assert app.state == "title"
     press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
     assert app.title_cursor == 1
+    app.session.treasure.banked, app.session.treasure.unbanked = 11, 2
     press(pyxel.GAMEPAD1_BUTTON_A)
     assert app.state == "title_no_save"
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (11, 2)
     drawn.clear()
     app.draw()
     assert "セーブデータがありません" in drawn
@@ -82,7 +84,8 @@ with patch.object(pyxel, "text", side_effect=bounded_text), \
     press(pyxel.GAMEPAD1_BUTTON_A)
     assert app.state == "title_fade" and app.title_fade_remaining == TITLE_FADE_FRAMES
     assert [(a.max_hp, a.strength, tuple(a.skills)) for a in app.session.party] == original_party
-    assert app.session.treasure.banked == 0 and not app.session.mastered_skills
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (3, 0)
+    assert not app.session.mastered_skills
     assert app.session.inventory.counts["POTION"] > 0
     assert not app.exploration.completed and not app.dungeon.defeated_bosses
     for _ in range(TITLE_FADE_FRAMES):
@@ -144,6 +147,32 @@ with patch.object(pyxel, "text", side_effect=bounded_text), \
     pyxel.screenshot(str(shots / "opening_hub.png"), scale=4)
     assert preview_pixels == tuple(pyxel.screen.pget(x, y)
                                    for y in range(pyxel.height) for x in range(pyxel.width))
+    # Spend the initial funds through actual SHOP and PUB INFORMATION screens.
+    app.camp_cursor = 3
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    potions = app.session.inventory.counts['POTION']
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.session.inventory.counts['POTION'] == potions + 1
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (2, 0)
+    press(pyxel.GAMEPAD1_BUTTON_B)
+    press(pyxel.GAMEPAD1_BUTTON_B)
+    app.camp_cursor = 2
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'field_event'
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (1, 0)
+    for _ in range(10):
+        if app.state != 'field_event':
+            break
+        press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == 'pub'
+    press(pyxel.GAMEPAD1_BUTTON_B)
+    press(pyxel.GAMEPAD1_BUTTON_B)
+    assert app.state == 'camp'
+    app.camp_cursor = 0
     for _ in range(4):
         press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
     assert app.camp_cursor == 4
@@ -155,13 +184,17 @@ with patch.object(pyxel, "text", side_effect=bounded_text), \
         press()
     assert app.state == "command"
     app.state = "explore"
+    app.session.treasure.unbanked = 5
     app.handle_event("base", "")
     assert app.state == "return_result" and app.hub_intro_shown
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (6, 0)
     app.enter_camp(defeated=True)
     assert app.state == "camp" and app.hub_intro_shown
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (6, 0)
     app.state = "title"
     press(pyxel.GAMEPAD1_BUTTON_A)
     assert app.state == "title_fade" and not app.hub_intro_shown
+    assert (app.session.treasure.banked, app.session.treasure.unbanked) == (3, 0)
     for _ in range(TITLE_FADE_FRAMES):
         press()
     press()  # Release the title confirmation before page turning.
@@ -204,4 +237,4 @@ with tempfile.TemporaryDirectory() as temp:
     assert all(abs(2 * x + text_width(value) - pyxel.width) <= 1
                for x, _, value, _ in positions)
 
-print(f"PASS: centered title/story, {HUB_PREVIEW_FRAMES}-frame input-free hub preview, guide input release, first-arrival only, resets and battle transition")
+print(f"PASS: NEW GAME 3/0 TRZ, SHOP/PUB spending, return banking, restart 3/0, CONTINUE placeholder preserves funds; centered title/story, {HUB_PREVIEW_FRAMES}-frame preview, first-arrival guide and battle transition")

@@ -54,7 +54,11 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     key(pyxel.GAMEPAD1_BUTTON_A)
     key(pyxel.GAMEPAD1_BUTTON_A)
     assert app.state == 'quest_board'
-    key(pyxel.KEY_Z)
+    key(pyxel.KEY_Z)  # Lv1 -> type selection
+    assert app.state == 'quest_type' and not e.active
+    key(pyxel.KEY_Z)  # Explore -> read the offer first
+    assert app.state == 'quest_preview' and not e.active
+    key(pyxel.KEY_Z)  # Accept
     assert e.active['id'] == 1
     capture('quest')
     app.quest_cursor = 1

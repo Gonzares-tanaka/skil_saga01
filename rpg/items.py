@@ -2,6 +2,7 @@
 import json
 
 from .content import ROOT
+from .labels import CURRENCY_NAME
 
 
 ITEMS = ("POTION", "PHOENIX ASH", "REMEDY")
@@ -72,7 +73,7 @@ class Inventory:
         if self.counts[item] >= 9:
             return False, f"{item} は9個で満杯です"
         if treasure.banked < price:
-            return False, "確定した宝が足りません"
+            return False, f"確定した{CURRENCY_NAME}が足りません"
         treasure.banked -= price
         self.add(item)
-        return True, f"{item} +1 / 宝 -{price}"
+        return True, f"{item} +1 / {CURRENCY_NAME} -{price}"

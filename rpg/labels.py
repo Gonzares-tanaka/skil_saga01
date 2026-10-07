@@ -1,4 +1,5 @@
 """Display labels; identifiers in JSON remain stable."""
+CURRENCY_NAME = "TRZ"
 TYPES = {"POWER": "力型", "SPEED": "速型", "MIND": "知型"}
 RARITIES = {"BASIC": "基本", "COMMON": "通常", "UNCOMMON": "上位", "RARE": "希少", "LEGEND": "伝説"}
 TARGETS = {"enemy": "敵", "ally": "味方", "self": "自分"}

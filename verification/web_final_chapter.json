@@ -1,0 +1,1203 @@
+{
+  "same_session_B10_to_ENDING": true,
+  "phase6a": {
+    "main_scenario": "Prepared HP900 STR70 AGI55 INT70 party at B10 arrival; no warps after setup",
+    "audio": "pyxel.play and pyxel.playm raise RuntimeError for entire test",
+    "B10_victory_to_B15_demon_and_RETURN": true,
+    "normal_DPAD_steps": 298,
+    "lore_read_ids": [
+      "B11_01",
+      "B12_01",
+      "B12_02",
+      "B13_01",
+      "B14_01",
+      "B14_02"
+    ],
+    "quest_Lv3_target": [
+      10,
+      15,
+      21
+    ],
+    "quest_Lv3_reported": true,
+    "debug_G_M_gated": true,
+    "warning_B_cancel_and_RETURN_before_chain": true,
+    "guardian_resources_carried_without_refill": true,
+    "guardian_battles": [
+      {
+        "kind": "guardian",
+        "enemies": [
+          "重装の守護者"
+        ],
+        "rounds": 1,
+        "hp_before": [
+          888,
+          888,
+          813,
+          866
+        ],
+        "hp_after": [
+          888,
+          888,
+          813,
+          866
+        ],
+        "guardian_index": 0,
+        "skill_charges_spent": 2,
+        "next_state": "guardian_between",
+        "resources_carried_at_exit": true
+      },
+      {
+        "kind": "guardian",
+        "enemies": [
+          "高速の守護者"
+        ],
+        "rounds": 1,
+        "hp_before": [
+          888,
+          888,
+          813,
+          866
+        ],
+        "hp_after": [
+          888,
+          888,
+          813,
+          866
+        ],
+        "guardian_index": 1,
+        "skill_charges_spent": 2,
+        "next_state": "guardian_between",
+        "resources_carried_at_exit": true
+      },
+      {
+        "kind": "guardian",
+        "enemies": [
+          "魔導の守護者"
+        ],
+        "rounds": 1,
+        "hp_before": [
+          888,
+          888,
+          813,
+          866
+        ],
+        "hp_after": [
+          888,
+          888,
+          813,
+          866
+        ],
+        "guardian_index": 2,
+        "skill_charges_spent": 2,
+        "next_state": "guardian_after",
+        "resources_carried_at_exit": true
+      }
+    ],
+    "full_slot_replacement_screens": 10,
+    "actual_skill_swap_during_guardian_results": true,
+    "spring_living_HP_only_once_Uses_items_KO_unchanged": true,
+    "demon_story_pages": 2,
+    "amrita_key_retained_at_hub": true,
+    "bounded_text_calls": 16530,
+    "battle_count": 19,
+    "screenshots": [
+      "verification\\screenshots\\phase6a_debug_demon.png",
+      "verification\\screenshots\\phase6a_guardian_warning_cancel.png",
+      "verification\\screenshots\\phase6a_battle_1_command.png",
+      "verification\\screenshots\\phase6a_battle_1_result.png",
+      "verification\\screenshots\\phase6a_B10_victory.png",
+      "verification\\screenshots\\phase6a_B11_arrival.png",
+      "verification\\screenshots\\phase6a_B11_tilemap.png",
+      "verification\\screenshots\\phase6a_B11_01.png",
+      "verification\\screenshots\\phase6a_battle_2_command.png",
+      "verification\\screenshots\\phase6a_battle_2_result.png",
+      "verification\\screenshots\\phase6a_battle_3_command.png",
+      "verification\\screenshots\\phase6a_battle_3_result.png",
+      "verification\\screenshots\\phase6a_B12_arrival.png",
+      "verification\\screenshots\\phase6a_B12_tilemap.png",
+      "verification\\screenshots\\phase6a_battle_4_command.png",
+      "verification\\screenshots\\phase6a_battle_4_result.png",
+      "verification\\screenshots\\phase6a_replacement_01.png",
+      "verification\\screenshots\\phase6a_battle_5_command.png",
+      "verification\\screenshots\\phase6a_battle_5_result.png",
+      "verification\\screenshots\\phase6a_battle_6_command.png",
+      "verification\\screenshots\\phase6a_battle_6_result.png",
+      "verification\\screenshots\\phase6a_battle_7_command.png",
+      "verification\\screenshots\\phase6a_battle_7_result.png",
+      "verification\\screenshots\\phase6a_B12_01.png",
+      "verification\\screenshots\\phase6a_battle_8_command.png",
+      "verification\\screenshots\\phase6a_battle_8_result.png",
+      "verification\\screenshots\\phase6a_B12_02.png",
+      "verification\\screenshots\\phase6a_battle_9_command.png",
+      "verification\\screenshots\\phase6a_battle_9_result.png",
+      "verification\\screenshots\\phase6a_B13_arrival.png",
+      "verification\\screenshots\\phase6a_B13_tilemap.png",
+      "verification\\screenshots\\phase6a_battle_10_command.png",
+      "verification\\screenshots\\phase6a_battle_10_result.png",
+      "verification\\screenshots\\phase6a_battle_11_command.png",
+      "verification\\screenshots\\phase6a_battle_11_result.png",
+      "verification\\screenshots\\phase6a_B13_01.png",
+      "verification\\screenshots\\phase6a_battle_12_command.png",
+      "verification\\screenshots\\phase6a_battle_12_result.png",
+      "verification\\screenshots\\phase6a_B14_arrival.png",
+      "verification\\screenshots\\phase6a_B14_tilemap.png",
+      "verification\\screenshots\\phase6a_B14_01.png",
+      "verification\\screenshots\\phase6a_battle_13_command.png",
+      "verification\\screenshots\\phase6a_battle_13_result.png",
+      "verification\\screenshots\\phase6a_battle_14_command.png",
+      "verification\\screenshots\\phase6a_battle_14_result.png",
+      "verification\\screenshots\\phase6a_replacement_02.png",
+      "verification\\screenshots\\phase6a_replacement_03.png",
+      "verification\\screenshots\\phase6a_battle_15_command.png",
+      "verification\\screenshots\\phase6a_battle_15_result.png",
+      "verification\\screenshots\\phase6a_B14_02.png",
+      "verification\\screenshots\\phase6a_B15_arrival.png",
+      "verification\\screenshots\\phase6a_B15_tilemap.png",
+      "verification\\screenshots\\phase6a_guardian_warning.png",
+      "verification\\screenshots\\phase6a_guardian_1_command.png",
+      "verification\\screenshots\\phase6a_guardian_1_result.png",
+      "verification\\screenshots\\phase6a_replacement_04.png",
+      "verification\\screenshots\\phase6a_replacement_05.png",
+      "verification\\screenshots\\phase6a_replacement_06.png",
+      "verification\\screenshots\\phase6a_guardian_between_1.png",
+      "verification\\screenshots\\phase6a_guardian_2_command.png",
+      "verification\\screenshots\\phase6a_guardian_2_result.png",
+      "verification\\screenshots\\phase6a_replacement_07.png",
+      "verification\\screenshots\\phase6a_replacement_08.png",
+      "verification\\screenshots\\phase6a_guardian_between_2.png",
+      "verification\\screenshots\\phase6a_guardian_3_command.png",
+      "verification\\screenshots\\phase6a_guardian_3_result.png",
+      "verification\\screenshots\\phase6a_guardian_after_3.png",
+      "verification\\screenshots\\phase6a_spring_first_use.png",
+      "verification\\screenshots\\phase6a_demon_command.png",
+      "verification\\screenshots\\phase6a_demon_result.png",
+      "verification\\screenshots\\phase6a_replacement_09.png",
+      "verification\\screenshots\\phase6a_replacement_10.png",
+      "verification\\screenshots\\phase6a_demon_story_1.png",
+      "verification\\screenshots\\phase6a_demon_story_2.png",
+      "verification\\screenshots\\phase6a_amrita_offer_after_RETURN.png",
+      "verification\\screenshots\\phase6a_hub_with_amrita.png"
+    ],
+    "physical_smartphone_tested": false,
+    "limitations": [
+      "Prepared strong party verifies flow rather than natural growth balance.",
+      "Headless desktop Pyxel with virtual gamepad inputs; no real Safari/Android run."
+    ]
+  },
+  "pre_demon_gates": [
+    "B10_START",
+    "BEFORE_DEMON"
+  ],
+  "facilities_after_later": [
+    "GUILD",
+    "TRAINING",
+    "PUB",
+    "SHOP",
+    "DUNGEON"
+  ],
+  "final_part_DPAD_A_B_only": true,
+  "final_pad_input_count": 2764,
+  "fully_silent_final_part": true,
+  "defeat_cases": [
+    {
+      "case": "A",
+      "outcome": "DEFEAT",
+      "strong_casts": 0,
+      "item_usage": {},
+      "complete_restore": true,
+      "key_retained": true,
+      "barrier_restored": true,
+      "same_checkpoint": true,
+      "shared_references": true
+    },
+    {
+      "case": "B",
+      "outcome": "DEFEAT",
+      "strong_casts": 28,
+      "item_usage": {},
+      "complete_restore": true,
+      "key_retained": true,
+      "barrier_restored": true,
+      "same_checkpoint": true,
+      "shared_references": true
+    },
+    {
+      "case": "C",
+      "outcome": "DEFEAT",
+      "strong_casts": 0,
+      "item_usage": {
+        "POTION": 7,
+        "PHOENIX_ASH": 3
+      },
+      "complete_restore": true,
+      "key_retained": true,
+      "barrier_restored": true,
+      "same_checkpoint": true,
+      "shared_references": true
+    },
+    {
+      "case": "D",
+      "outcome": "DEFEAT",
+      "strong_casts": 0,
+      "item_usage": {},
+      "complete_restore": true,
+      "key_retained": true,
+      "barrier_restored": true,
+      "same_checkpoint": true,
+      "shared_references": true
+    },
+    {
+      "case": "E",
+      "outcome": "DEFEAT",
+      "strong_casts": 28,
+      "item_usage": {
+        "POTION": 7,
+        "PHOENIX_ASH": 3
+      },
+      "complete_restore": true,
+      "key_retained": true,
+      "barrier_restored": true,
+      "same_checkpoint": true,
+      "shared_references": true
+    }
+  ],
+  "consecutive_actual_defeats": 5,
+  "ending_flags": {
+    "guardian_index": null,
+    "guardians_defeated": true,
+    "demon_defeated": true,
+    "has_amrita": false,
+    "final_event_started": true,
+    "lord_of_elysion_defeated": true,
+    "amrita_power_spent": true,
+    "read_lore": [
+      "B11_01",
+      "B12_01",
+      "B12_02",
+      "B13_01",
+      "B14_01",
+      "B14_02"
+    ]
+  },
+  "post_victory_reentry_blocked": true,
+  "new_game_flags_reset": true,
+  "ordinary_defeat": {
+    "stale_final_checkpoint_not_applied": true,
+    "spent_uses_not_restored": true,
+    "spent_items_not_restored": true,
+    "unbanked_lost": true,
+    "banked_kept": true,
+    "hp_recovered": true
+  },
+  "timeline": [
+    {
+      "stage": "B10_START",
+      "state": "explore",
+      "floor": 10,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": []
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B10_BATTLE",
+      "state": "command",
+      "floor": 10,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": []
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B10_VICTORY",
+      "state": "boss_after",
+      "floor": 10,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": []
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B11_ARRIVAL",
+      "state": "explore",
+      "floor": 11,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": []
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B12_ARRIVAL",
+      "state": "explore",
+      "floor": 12,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B13_ARRIVAL",
+      "state": "explore",
+      "floor": 13,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B14_ARRIVAL",
+      "state": "explore",
+      "floor": 14,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "B15_ARRIVAL",
+      "state": "explore",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "GUARDIAN_1_VICTORY",
+      "state": "guardian_between",
+      "floor": 15,
+      "flags": {
+        "guardian_index": 1,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "GUARDIAN_2_VICTORY",
+      "state": "guardian_between",
+      "floor": 15,
+      "flags": {
+        "guardian_index": 2,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "GUARDIAN_3_VICTORY",
+      "state": "guardian_after",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "SPRING_HP_ONLY",
+      "state": "explore",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "BEFORE_DEMON",
+      "state": "boss_message",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "DEMON_VICTORY_AMRITA",
+      "state": "boss_after",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "TRUTH_EVENT_FINISHED",
+      "state": "explore",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "FIRST_AMRITA_OFFER",
+      "state": "amrita_offer",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "HUB_AFTER_LATER",
+      "state": "camp",
+      "floor": 15,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "REENTRY_AMRITA_OFFER",
+      "state": "amrita_offer",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "YES_STORY_KEY_RETAINED",
+      "state": "final_story",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": null
+    },
+    {
+      "stage": "FINAL_BATTLE_START",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "CASE_A_DEFEAT",
+      "state": "result",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "CASE_A_RETRY",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "PHYSICAL_MAGIC_LEGEND_BLOCKED_HINT",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "CASE_B_DEFEAT",
+      "state": "result",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "CASE_B_RETRY",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "CASE_C_DEFEAT",
+      "state": "result",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "CASE_C_RETRY",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "AMRITA_RELEASED",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "CASE_D_DEFEAT",
+      "state": "result",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "CASE_D_RETRY",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "AMRITA_RELEASED",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "CASE_E_DEFEAT",
+      "state": "result",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "CASE_E_RETRY",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": true
+    },
+    {
+      "stage": "AMRITA_RELEASED",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "NORMAL_DAMAGE_AFTER_RELEASE",
+      "state": "command",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": true,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "ENDING",
+      "state": "ending",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": false,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": true,
+        "amrita_power_spent": true,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "POST_VICTORY_REENTRY_NO_OFFER",
+      "state": "camp",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": true,
+        "demon_defeated": true,
+        "has_amrita": false,
+        "final_event_started": true,
+        "lord_of_elysion_defeated": true,
+        "amrita_power_spent": true,
+        "read_lore": [
+          "B11_01",
+          "B12_01",
+          "B12_02",
+          "B13_01",
+          "B14_01",
+          "B14_02"
+        ]
+      },
+      "barrier": false
+    },
+    {
+      "stage": "NEW_GAME_FLAGS_RESET",
+      "state": "title_fade",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": []
+      },
+      "barrier": null
+    },
+    {
+      "stage": "ORDINARY_DEFEAT_CHECKPOINT_ISOLATED",
+      "state": "camp",
+      "floor": 1,
+      "flags": {
+        "guardian_index": null,
+        "guardians_defeated": false,
+        "demon_defeated": false,
+        "has_amrita": false,
+        "final_event_started": false,
+        "lord_of_elysion_defeated": false,
+        "amrita_power_spent": false,
+        "read_lore": []
+      },
+      "barrier": null
+    }
+  ],
+  "unchanged_files": {
+    "area2.pyxres": true,
+    "area3.pyxres": true,
+    "game.pyxres": true,
+    "area2.pyxpal": true,
+    "area3.pyxpal": true,
+    "game.pyxpal": true,
+    "data/dungeon.json": true,
+    "data/enemies.json": true,
+    "data/exploration.json": true,
+    "data/finale.json": true,
+    "data/final_battle.json": true,
+    "data/intro.json": true,
+    "data/items.json": true,
+    "data/party.json": true,
+    "data/pub_messages.json": true,
+    "data/quests.json": true,
+    "data/settings.json": true,
+    "data/skills.json": true,
+    "rpg/app.py": true,
+    "rpg/art.py": true,
+    "rpg/battle.py": true,
+    "rpg/battle_transition.py": true,
+    "rpg/content.py": true,
+    "rpg/dungeon.py": true,
+    "rpg/dungeon_app.py": true,
+    "rpg/exploration.py": true,
+    "rpg/finale.py": true,
+    "rpg/final_battle.py": true,
+    "rpg/final_presentation.py": true,
+    "rpg/growth.py": true,
+    "rpg/hub.py": true,
+    "rpg/items.py": true,
+    "rpg/keyboard.py": true,
+    "rpg/labels.py": true,
+    "rpg/map_resources.py": true,
+    "rpg/models.py": true,
+    "rpg/opening.py": true,
+    "rpg/quests.py": true,
+    "rpg/skill_resources.py": true,
+    "rpg/sound.py": true,
+    "rpg/text.py": true,
+    "rpg/tiles.py": true,
+    "rpg/treasure.py": true,
+    "rpg/__init__.py": true,
+    "assets/battle_music.pyxres": true,
+    "assets/sprites.pyxres": true
+  },
+  "bounded_final_text_calls": 46492,
+  "screenshots": [
+    "verification\\screenshots\\final_chapter_reentry_offer.png",
+    "verification\\screenshots\\final_chapter_case_A_defeat.png",
+    "verification\\screenshots\\final_chapter_case_B_defeat.png",
+    "verification\\screenshots\\final_chapter_case_C_defeat.png",
+    "verification\\screenshots\\final_chapter_case_D_defeat.png",
+    "verification\\screenshots\\final_chapter_case_E_defeat.png",
+    "verification\\screenshots\\final_chapter_ending.png"
+  ],
+  "physical_smartphone_tested": false,
+  "limitations": [
+    "Prepared B10 party and pre-checkpoint LEGEND/item fixture; not natural balance.",
+    "Party HP/damage injuries injected for actual defeats; enemy stats never changed.",
+    "Desktop headless Pyxel; real browser and phone handled separately."
+  ]
+}

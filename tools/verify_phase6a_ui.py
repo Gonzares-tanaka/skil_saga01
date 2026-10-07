@@ -29,7 +29,7 @@ DIRECTIONS = {(0, -1): pyxel.GAMEPAD1_BUTTON_DPAD_UP,
 OUTPUT = ROOT / 'verification' / 'screenshots'
 
 
-def main():
+def main(observer=None):
     OUTPUT.mkdir(parents=True, exist_ok=True)
     app = DungeonApp(Session(*load_content(), seed=51), run=False,
                      headless=True, start_at_title=False)
@@ -190,6 +190,8 @@ def main():
             # Phase 6B intercepts the first external arrival with the key item.
             # Keep this verifier focused on the completed Phase 6A route.
             shot('amrita_offer_after_RETURN')
+            if observer:
+                observer('FIRST_AMRITA_OFFER', app)
             press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
             press(A)
         assert app.state == 'camp'
@@ -245,12 +247,18 @@ def main():
         d.defeated_bosses.add(4)
         d.debug_floor(9)
         assert not s.debug
+        if observer:
+            observer('B10_START', app)
         walk(d.find(9, TILE_BOSS), stop_state='boss_message')
         assert app.state == 'boss_message'
         press(A)
+        if observer:
+            observer('B10_BATTLE', app)
         fight()
         assert app.state == 'boss_after' and 9 in d.defeated_bosses
         shot('B10_victory')
+        if observer:
+            observer('B10_VICTORY', app)
         press(A)
         assert app.state == 'explore'
         e.accept(3)
@@ -262,6 +270,8 @@ def main():
             progress_events()
             assert d.floor == floor and app.state == 'explore'
             shot(f'B{floor+1}_arrival')
+            if observer:
+                observer(f'B{floor+1}_ARRIVAL', app)
             preview = pyxel.Image(d.width * 8, d.height * 8)
             preview.bltm(0, 0, d.maps[floor], 0, 0, d.width * 8, d.height * 8)
             preview_path = OUTPUT / f'phase6a_B{floor+1}_tilemap'
@@ -303,6 +313,8 @@ def main():
             expected = 'guardian_after' if index == 2 else 'guardian_between'
             assert app.state == expected
             shot(expected + '_' + str(index + 1))
+            if observer:
+                observer(f'GUARDIAN_{index+1}_VICTORY', app)
             carried = resources()
             press(B)
             assert app.state == expected  # B cannot escape a chain that has begun.
@@ -324,6 +336,8 @@ def main():
         assert [actor.hp for actor in s.party] == [actor.max_hp for actor in s.party[:3]] + [0]
         assert spring_before['uses'] == resources()['uses']
         assert spring_before['items'] == resources()['items']
+        if observer:
+            observer('SPRING_HP_ONLY', app)
         s.party[0].hp -= 1
         once = resources()
         press(A)
@@ -332,10 +346,14 @@ def main():
 
         walk(d.find(14, TILE_BOSS), stop_state='boss_message')
         assert app.state == 'boss_message'
+        if observer:
+            observer('BEFORE_DEMON', app)
         press(A)
         fight()
         assert app.state == 'boss_after'
         assert d.finale.demon_defeated and d.finale.has_amrita
+        if observer:
+            observer('DEMON_VICTORY_AMRITA', app)
         story_pages = []
         while app.state == 'boss_after':
             story_pages.append(app.message_page)
@@ -344,12 +362,16 @@ def main():
         assert story_pages == [0, 1]
         assert all(line in draws for line in app.message_lines)
         assert app.state == 'explore' and d.cleared
+        if observer:
+            observer('TRUTH_EVENT_FINISHED', app)
         assert e.surveyed
         item_stock = dict(s.inventory.counts)
         return_menu()
         assert d.finale.has_amrita and d.finale.demon_defeated
         assert 3 in e.completed and s.inventory.counts == item_stock
         shot('hub_with_amrita')
+        if observer:
+            observer('HUB_AFTER_LATER', app)
 
     result = {
         'main_scenario': 'Prepared HP900 STR70 AGI55 INT70 party at B10 arrival; no warps after setup',
@@ -379,6 +401,7 @@ def main():
     path.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f'PASS: Phase 6A D-pad/A/B story flow, {len(steps)} normal steps, '
           f'{len(battle_rows)} battles, {len(draws)} bounded text calls')
+    return app, result
 
 
 if __name__ == '__main__':

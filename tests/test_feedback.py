@@ -181,8 +181,8 @@ class FeedbackTests(unittest.TestCase):
         self.assertEqual(self.s.treasure.banked, 2)
         self.assertFalse(e.return_to_camp(True))
         self.assertEqual(self.s.treasure.banked, 2)
-        with self.assertRaises(ValueError):
-            e.accept(1)
+        e.accept(1)  # Phase 6D: completed contracts can be accepted again.
+        self.assertTrue(e.active)
 
     def test_chest_spark_full_slots_replace_before_any_battle(self):
         s = self.s

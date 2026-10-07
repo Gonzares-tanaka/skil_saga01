@@ -9,6 +9,8 @@ TITLE_MAIN = "Skill Seekers!!"
 TITLE_SUBTITLE = "~深淵のアムリタ~"
 TITLE_OPTIONS = ("はじめから", "つづきから")
 TITLE_FADE_FRAMES = 4
+# Initial funds for NEW GAME only. Future LOAD must restore saved balances.
+NEW_GAME_BANKED_TRZ = 3
 # The game window runs at 30 FPS, so this shows the town for about three seconds.
 HUB_PREVIEW_FRAMES = 90
 INTRO_MARGIN = 12

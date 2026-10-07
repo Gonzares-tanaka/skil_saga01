@@ -3,6 +3,7 @@ import base64
 import io
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -70,6 +71,7 @@ assert app.state == "title"
 press(pyxel.GAMEPAD1_BUTTON_DPAD_UP)
 press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "title_fade"
+assert (app.session.treasure.banked, app.session.treasure.unbanked) == (3, 0)
 for _ in range(TITLE_FADE_FRAMES):
     press(pyxel.GAMEPAD1_BUTTON_A, held=True)
 assert app.state == "intro" and app.intro_page == 0
@@ -258,10 +260,12 @@ with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), p
         press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
         press(pyxel.GAMEPAD1_BUTTON_A)
     for _ in range(300):
-        if app.state != 'resolve':
+        if app.state not in ('resolve', 'amrita_effect'):
             break
         press(pyxel.GAMEPAD1_BUTTON_A)
-    assert not app.battle.elysion_barrier_active and d.finale.has_amrita
+    assert app.state == 'command' and not app.battle.elysion_barrier_active and d.finale.has_amrita
+    assert app.final_visual().sprite['width'] == app.final_visual().sprite['height'] == 48
+    assert not app.final_visual().active
     for c in app.session.party:
         c.hp = 0
         c.skill_uses = {sid: 1 for sid in c.skills}
@@ -292,3 +296,23 @@ with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), p
 print("PASS: embedded resources/palette, pad input, silent guardians, Amrita, final barrier/retry and ENDING")
 '''
     subprocess.run([sys.executable, "-c", check], cwd=Path(temp) / "spark_web", check=True)
+    if '--phase6d' in sys.argv:
+        embedded_root = Path(temp) / 'spark_web'
+        helpers = embedded_root / 'tools'
+        helpers.mkdir(exist_ok=True)
+        shutil.copy2(ROOT / 'tools/verify_phase6d_ui.py', helpers / 'verify_phase6d_ui.py')
+        subprocess.run([sys.executable, 'tools/verify_phase6d_ui.py'], cwd=embedded_root, check=True)
+        shutil.copy2(embedded_root / 'verification/phase6d_ui.json', ROOT / 'verification/web_phase6d_ui.json')
+        print('PASS: shipped Web payload Phase 6D nine quests/TRZ/pad/silent play')
+    if '--final-chapter' in sys.argv:
+        # Execute the same-session integration test against the shipped payload,
+        # with verification helpers outside the production package.
+        embedded_root = Path(temp) / 'spark_web'
+        helpers = embedded_root / 'tools'
+        helpers.mkdir(exist_ok=True)
+        for name in ('verify_final_chapter.py', 'verify_phase6a_ui.py', 'verify_expedition.py'):
+            shutil.copy2(ROOT / 'tools' / name, helpers / name)
+        subprocess.run([sys.executable, 'tools/verify_final_chapter.py'], cwd=embedded_root, check=True)
+        shutil.copy2(embedded_root / 'verification/final_chapter.json',
+                     ROOT / 'verification/web_final_chapter.json')
+        print('PASS: shipped Web payload B10 -> ENDING, real defeat/retry cases A-E')

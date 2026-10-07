@@ -5,6 +5,7 @@ import math
 
 from .content import ROOT
 from .models import Enemy
+from .labels import CURRENCY_NAME
 from .treasure import Treasure
 from .exploration import load_exploration_settings
 from .items import Inventory
@@ -227,7 +228,7 @@ class Dungeon:
         self.last_reward = reward
         if kind == "TREASURE":
             self.treasure.unbanked += amount
-            message = f"未確定の宝 +{amount} / 帰還で確定"
+            message = f"{amount} {CURRENCY_NAME}を手に入れた。未確定 / 帰還で確定"
         elif kind in ("POTION", "PHOENIX ASH", "REMEDY"):
             self.inventory.add(kind, amount)
             message = f"{kind} を{amount}個入手"

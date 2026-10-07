@@ -5,7 +5,7 @@ import random
 from .growth import grow_and_spark, spark, growth_bonus
 from .skill_resources import ensure_attack, MAX_SKILLS
 from .models import Action, Enemy, effect_factor, battle_agility
-from .labels import OUTCOMES, EFFECTS
+from .labels import OUTCOMES, EFFECTS, CURRENCY_NAME
 from .treasure import Treasure
 from .items import Inventory
 from .final_battle import AMRITA_ITEM_ID, LORD_OF_ELYSION_ID, load_final_battle_data
@@ -429,7 +429,7 @@ class Session:
                 if self.battle.is_elysion_battle:
                     self.results.extend(self.battle.final_data['defeat'])
                 else:
-                    self.results.append(f"未確定の宝を{self.treasure.lose()}個失った")
+                    self.results.append(f"未確定{CURRENCY_NAME}を{self.treasure.lose()}失った")
             else:
                 self.draws += 1
             self.results.append("成長・閃きなし")
@@ -463,7 +463,7 @@ class Session:
             if type(slot) is not int or not 0 <= slot < len(actor.skills):
                 raise ValueError("無効な入れ替え枠です。")
             if relearn and self.treasure.banked < new.relearn_cost:
-                raise ValueError("確定した宝が足りません。")
+                raise ValueError(f"確定した{CURRENCY_NAME}が足りません。")
             old = self.skills[actor.skills[slot]]
             if relearn and new.effect not in ("damage", "drain") and not any(
                 self.skills[s].effect in ("damage", "drain") for s in actor.skills if s != old.id
@@ -506,15 +506,15 @@ class Session:
         if skill_id in actor.skills:
             raise ValueError("すでに所持しています。残数の補充はできません。")
         if self.treasure.banked < skill.relearn_cost:
-            raise ValueError("確定した宝が足りません。")
+            raise ValueError(f"確定した{CURRENCY_NAME}が足りません。")
         if len(actor.skills) >= self.settings['skill_slots']:
             actor.pending_skill = skill_id
             self.pending_relearn = (actor_index, skill_id)
-            return "入れ替え確定時に宝を消費します"
+            return f"入れ替え確定時に{CURRENCY_NAME}を消費します"
         actor.learn(skill)
         actor.skill_uses[skill_id] = actor.relearn_uses(skill)
         self.treasure.banked -= skill.relearn_cost
-        message = f"{actor.name} {skill.name} 再習得{actor.skill_uses[skill_id]}回 / 宝-{skill.relearn_cost}"
+        message = f"{actor.name} {skill.name} 再習得{actor.skill_uses[skill_id]}回 / {CURRENCY_NAME}-{skill.relearn_cost}"
         actor.history.append(message)
         return message
 

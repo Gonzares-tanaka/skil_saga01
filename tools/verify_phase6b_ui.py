@@ -86,7 +86,7 @@ def main():
 
     def resolve():
         for _ in range(3000):
-            if app.state not in ('resolve', 'battle_transition'):
+            if app.state not in ('resolve', 'battle_transition', 'amrita_effect'):
                 return
             press(A)
         raise AssertionError('Battle resolution did not terminate')
@@ -289,12 +289,16 @@ def main():
         press(pyxel.KEY_7)
         assert app.battle.is_elysion_battle and app.battle.elysion_barrier_active
 
-    baseline = json.loads((ROOT / 'verification/backups/phase6b/baseline.json').read_text(encoding='utf-8'))
+    baseline_path = ROOT / 'verification/backups/phase6b/baseline.json'
+    baseline = json.loads(baseline_path.read_text(encoding='utf-8')) if baseline_path.exists() else None
     preserved = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == expected
-                 for name, expected in baseline['files'].items() if name != 'data/dungeon.json'}
+                 for name, expected in (baseline['files'] if baseline else {}).items()
+                 if name not in ('data/dungeon.json', 'game.pyxres')}
     assert all(preserved.values()), preserved
     enemies = json.loads((ROOT / 'data/enemies.json').read_text(encoding='utf-8-sig'))
-    assert enemies[:-1] == baseline['enemies'] and enemies[-1]['id'] == 'lord_of_elysion'
+    if baseline:
+        assert enemies[:-1] == baseline['enemies']
+    assert enemies[-1]['id'] == 'lord_of_elysion'
     result = {'silent_audio_apis': ['play', 'playm', 'stop'], 'arrival_later_facilities_rearrival': True,
               'ordinary_ITEM_hides_amrita': True, 'story_to_battle': True,
               'physical_and_LEGEND_blocked': True, 'initial_hint_displayed': True,

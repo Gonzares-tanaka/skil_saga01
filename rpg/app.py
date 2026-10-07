@@ -6,13 +6,14 @@ import pyxel
 
 from .art import load_art
 from .models import Action
-from .labels import TYPES, RARITIES, TARGETS, OUTCOMES, EFFECTS
+from .labels import TYPES, RARITIES, TARGETS, OUTCOMES, EFFECTS, CURRENCY_NAME
 from .text import text, wrap_lines, font
 from .sound import init_sound, play_cue, start_battle_music, stop_battle_music, play_victory_music, music_is_playing
 from .growth import growth_bonus
 from .keyboard import GameKeyboard
 from .opening import GAME_TITLE
-from .final_battle import AMRITA_ITEM_ID
+from .final_battle import AMRITA_ITEM_ID, LORD_OF_ELYSION_ID
+from .final_presentation import FinalPresentation, AMRITA_MESSAGE_FRAME
 
 
 # The official Web touch pad emits gamepad buttons, not keyboard keys.
@@ -54,12 +55,14 @@ class App:
         self.fanfare_start_frame = None
         self.fanfare_timed_out = False
         self.debug_events = []
+        self.final_presentation = None
         if battle_on_start:
             self.start_battle()
         if run:
             pyxel.run(self.update, self.draw)
 
     def start_battle(self):
+        self.final_presentation = None
         self.notice_timer = 0
         self.fanfare_started_at = None
         self.fanfare_start_frame = None
@@ -182,6 +185,9 @@ class App:
 
     def update(self):
         self.keyboard.update()
+        if self.state == 'amrita_effect':
+            self.update_amrita_effect()
+            return
         self.shake_timer = max(0, self.shake_timer - 1)
         if self.pressed(pyxel.KEY_Q):
             pyxel.quit()
@@ -270,10 +276,13 @@ class App:
                         self.fanfare_started_at = None
                         self.trace("FANFARE UNAVAILABLE")
             elif self.battle.queue:
+                barrier_before = self.battle.elysion_barrier_active
                 self.pending.extend(wrap_lines(self.battle.step()))
                 play_cue(self.battle.sound_cue)
                 if self.battle.player_hit:
                     self.shake_timer = 6
+                if barrier_before and not self.battle.elysion_barrier_active:
+                    self.start_amrita_effect()
             else:
                 self.begin_input()
             return
@@ -378,7 +387,18 @@ class App:
 
     def draw(self):
         pyxel.cls(0)
-        if self.overlay == "debug_skills":
+        if self.state == 'amrita_effect':
+            try:
+                self.draw_battle()
+                self.final_visual().draw_light(pyxel)
+            except Exception as error:
+                # A presentation fault must never hold a resolved ITEM action.
+                self.trace('AMRITA VISUAL UNAVAILABLE: ' + type(error).__name__)
+                self.finish_amrita_effect()
+            finally:
+                pyxel.pal()
+                pyxel.camera()
+        elif self.overlay == "debug_skills":
             self.draw_debug_skills()
         elif self.overlay == "help":
             self.draw_help()
@@ -402,14 +422,17 @@ class App:
 
     def draw_battle(self):
         flag = " DEBUG" if self.session.debug else ""
-        self.title(f"第{self.session.completed + 1}戦 {self.battle.round + (self.state != 'resolve')}ターン{flag}")
+        self.title(f"第{self.session.completed + 1}戦 {self.battle.round + (self.state not in ('resolve', 'amrita_effect'))}ターン{flag}")
         # Sparse dithered battlefield, behind the enemy rows.
         for x in range(5, 91, 8):
             pyxel.pset(x, 75, 1)
         for i, enemy in enumerate(self.battle.enemies):
             y = 16 + i * 20
             if enemy.alive:
-                pyxel.blt(38, y, 0, *enemy.sprite, 16, 16, 0)
+                if self.battle.is_elysion_battle and enemy.id == LORD_OF_ELYSION_ID:
+                    self.draw_lord_of_elysion(enemy)
+                else:
+                    pyxel.blt(38, y, 0, *enemy.sprite, 16, 16, 0)
         for i, actor in enumerate(self.session.party):
             y = 13 + i * 16
             active = self.state in ("command", "target", "battle_transition") and self.actor_index == i
@@ -432,7 +455,11 @@ class App:
             if ally:
                 pyxel.rectb(97, 13 + target_index * 16, 62, 16, 3)
             else:
-                text(28, 20 + target_index * 20, ">", 3)
+                if self.battle.is_elysion_battle:
+                    x, y, _, h = self.final_visual().bounds()
+                    text(x - 8, y + h // 2 - 4, ">", 3)
+                else:
+                    text(28, 20 + target_index * 20, ">", 3)
             label = self.selected_item or f"{self.selected_skill.name} 残{self.actor.skill_uses[self.selected_skill.id]}"
             text(5, 84, label, 2, 37)
             target_line = f"> {target.name} HP {target.hp}/{target.max_hp}" if ally else f"> {target.name}"
@@ -442,7 +469,52 @@ class App:
         else:
             for i, line in enumerate(self.log[-3:]):
                 text(5, 84 + i * 8, line, 3 if i == len(self.log[-3:]) - 1 else 2, 37)
-            self.footer("A:メッセージ送り / 長押しで高速")
+            self.footer("" if self.state == 'amrita_effect' else "A:メッセージ送り / 長押しで高速")
+
+    def final_visual(self):
+        if getattr(self, 'final_presentation', None) is None:
+            self.final_presentation = FinalPresentation(getattr(self, 'final_battle_data', None))
+        return self.final_presentation
+
+    def draw_lord_of_elysion(self, enemy):
+        self.final_visual().draw_boss(pyxel, enemy, self.battle.elysion_barrier_active)
+
+    def start_amrita_effect(self):
+        # The model has already applied the legal ITEM action and released the barrier.
+        # Only presentation pauses here, never sound or the game rule itself.
+        self.overlay, self.notice_timer, self.shake_timer = None, 0, 0
+        self.pending.clear()
+        self.log = wrap_lines(self.battle.final_data['amrita_release'][:1], 37)[-3:]
+        try:
+            self.final_visual().start()
+            self.state = 'amrita_effect'
+        except Exception:
+            self.finish_amrita_effect()
+
+    def finish_amrita_effect(self):
+        if getattr(self, 'final_presentation', None) is not None:
+            self.final_presentation.reset()
+        self.log = wrap_lines(self.battle.final_data['amrita_release'][1:] or
+                              self.battle.final_data['amrita_release'], 37)[-3:]
+        self.state, self.delay = 'resolve', 14
+        # DungeonApp consumes a released frame before accepting subsequent input.
+        self.battle_input_blocked = True
+
+    def update_amrita_effect(self):
+        if self.pressed(pyxel.KEY_Q):
+            pyxel.quit()
+            return
+        try:
+            visual = self.final_visual()
+            finished = visual.advance()
+        except Exception:
+            self.finish_amrita_effect()
+            return
+        if finished:
+            self.finish_amrita_effect()
+        elif visual.frame >= AMRITA_MESSAGE_FRAME:
+            self.log = wrap_lines(self.battle.final_data['amrita_release'][1:] or
+                                  self.battle.final_data['amrita_release'], 37)[-3:]
 
     def skill_details(self, actor, skill, y=76):
         pyxel.line(4, y - 3, 155, y - 3, 1)
@@ -456,7 +528,7 @@ class App:
         elif skill.effect in EFFECTS:
             detail = EFFECTS[skill.effect] + " / 重複せず更新"
         elif skill.effect == "return":
-            detail = "未確定の宝を持ち帰る"
+            detail = f"未確定{CURRENCY_NAME}を持ち帰る"
         elif skill.effect == "revive":
             detail = "戦闘不能の味方1人 / 残数制"
         text(5, y + 16, detail, 2, 37)
@@ -605,7 +677,7 @@ class App:
         bonus = " / POWER x1.2" if actor.next_power_multiplier(new) > 1 else ""
         self.title(f"{actor.name} / 技の入れ替え{bonus}")
         text(4, 14, f"新: {new.name}", 3, 38)
-        text(4, 23, f"宝{new.relearn_cost}消費 / 再習得{uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{new.power(actor)} {uses}/{actor.next_max_uses(new)}回", 2, 38)
+        text(4, 23, f"{new.relearn_cost} {CURRENCY_NAME}消費 / 再習得{uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{new.power(actor)} {uses}/{actor.next_max_uses(new)}回", 2, 38)
         if self.replacement_confirm:
             if self.replacement_cursor < len(actor.skills):
                 old = self.session.skills[actor.skills[self.replacement_cursor]]

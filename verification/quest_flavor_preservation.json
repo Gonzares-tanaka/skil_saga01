@@ -1,0 +1,11 @@
+{
+  "checked_existing_files": 46,
+  "unchanged_count": 42,
+  "changed": [
+    "data/quests.json",
+    "rpg/dungeon_app.py",
+    "rpg/exploration.py",
+    "rpg/quests.py"
+  ],
+  "all_maps_images_palettes_and_audio_unchanged": true
+}
