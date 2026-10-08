@@ -100,7 +100,7 @@ def main():
             shutil.copy2(ROOT / filename, app_dir / filename)
         for dirname in INCLUDE_DIRS:
             shutil.copytree(ROOT / dirname, app_dir / dirname,
-                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+                            ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "save"))
 
         subprocess.run([python, "-m", "pyxel", "package", str(app_dir),
                         str(app_dir / "main.py")], cwd=temp_root, check=True)

@@ -1,0 +1,10 @@
+{
+  "baseline_files": 52,
+  "changed": [
+    "rpg/app.py",
+    "rpg/battle.py",
+    "rpg/dungeon_app.py"
+  ],
+  "resources_data_unchanged": true,
+  "checkpoint_unchanged": true
+}

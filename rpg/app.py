@@ -597,7 +597,7 @@ class App:
         actor = self.session.party[self.info_character]
         tab = ("能力", "習得技", "履歴")[self.info_tab]
         self.title(f"< {actor.name}/{TYPES.get(actor.growth_type, actor.growth_type)} > {tab}")
-        text(5, 15, f"{self.session.completed}戦 {self.session.wins}勝 {self.session.losses}敗 {self.session.draws}分", 2, 37)
+        text(5, 15, f"BATTLES {self.session.total_battles}  {self.session.wins}勝 {self.session.losses}敗 {self.session.draws}分", 2, 37)
         if self.info_tab == 0:
             pyxel.blt(10, 30, 0, *actor.sprite, 16, 16, 0)
             text(34, 29, f"HP {actor.hp}/{actor.max_hp}", 3, 30)

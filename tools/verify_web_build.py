@@ -31,6 +31,7 @@ assert '_virtualGamepadStates[index] = true' in html
 payload = base64.b64decode(re.search(r'base64: "([^"]+)"', html)[1])
 with tempfile.TemporaryDirectory(prefix="verify_pyxel_web_") as temp:
     with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+        assert not any('/save/' in name for name in archive.namelist())
         for name in ("game", "area2", "area3"):
             for suffix in (".pyxpal", ".pyxres"):
                 filename = name + suffix
@@ -304,6 +305,38 @@ print("PASS: embedded resources/palette, pad input, silent guardians, Amrita, fi
         subprocess.run([sys.executable, 'tools/verify_phase6d_ui.py'], cwd=embedded_root, check=True)
         shutil.copy2(embedded_root / 'verification/phase6d_ui.json', ROOT / 'verification/web_phase6d_ui.json')
         print('PASS: shipped Web payload Phase 6D nine quests/TRZ/pad/silent play')
+    if '--save-ui' in sys.argv:
+        embedded_root = Path(temp) / 'spark_web'
+        helpers = embedded_root / 'tools'
+        helpers.mkdir(exist_ok=True)
+        shutil.copy2(ROOT / 'tools/verify_save_ui.py', helpers / 'verify_save_ui.py')
+        subprocess.run([sys.executable, 'tools/verify_save_ui.py'], cwd=embedded_root, check=True)
+        shutil.copy2(embedded_root / 'verification/save_ui.json', ROOT / 'verification/web_payload_save_ui.json')
+        print('PASS: embedded SaveData/file backend under PC Python; browser storage failure handled safely')
+    if '--play-stats' in sys.argv:
+        embedded_root = Path(temp) / 'spark_web'
+        helpers = embedded_root / 'tools'
+        helpers.mkdir(exist_ok=True)
+        shutil.copy2(ROOT / 'tools/verify_play_stats_ui.py', helpers / 'verify_play_stats_ui.py')
+        subprocess.run([sys.executable, 'tools/verify_play_stats_ui.py'], cwd=embedded_root, check=True)
+        shutil.copy2(embedded_root / 'verification/play_stats_ui.json', ROOT / 'verification/web_play_stats_ui.json')
+        print('PASS: shipped Web payload shared TRZ and durable TOTAL BATTLES')
+    if '--pre-save-ui' in sys.argv:
+        embedded_root = Path(temp) / 'spark_web'
+        helpers = embedded_root / 'tools'
+        helpers.mkdir(exist_ok=True)
+        shutil.copy2(ROOT / 'tools/verify_pre_save_ui.py', helpers / 'verify_pre_save_ui.py')
+        subprocess.run([sys.executable, 'tools/verify_pre_save_ui.py'], cwd=embedded_root, check=True)
+        shutil.copy2(embedded_root / 'verification/pre_save_ui.json', ROOT / 'verification/web_pre_save_ui.json')
+        print('PASS: shipped Web payload GUILD layout and shared RETURN skill routes')
+    if '--quest-records' in sys.argv:
+        embedded_root = Path(temp) / 'spark_web'
+        helpers = embedded_root / 'tools'
+        helpers.mkdir(exist_ok=True)
+        shutil.copy2(ROOT / 'tools/verify_quest_records_ui.py', helpers / 'verify_quest_records_ui.py')
+        subprocess.run([sys.executable, 'tools/verify_quest_records_ui.py'], cwd=embedded_root, check=True)
+        shutil.copy2(embedded_root / 'verification/quest_records_ui.json', ROOT / 'verification/web_quest_records_ui.json')
+        print('PASS: shipped Web payload QUEST thanks/records/27 completion/pad/silence')
     if '--final-chapter' in sys.argv:
         # Execute the same-session integration test against the shipped payload,
         # with verification helpers outside the production package.

@@ -3,7 +3,8 @@ import json
 from random import Random
 from .content import ROOT
 from .growth import spark
-from .quests import (QUEST_TYPES, QUEST_NAMES, load_quest_settings,
+from .quests import (QUEST_TYPES, QUEST_NAMES, QUEST_COMPLETION_IDS,
+                     QUEST_COMPLETION_TOTAL, load_quest_settings,
                      load_quest_flavors, spawn_candidates)
 from .labels import CURRENCY_NAME
 from .models import Enemy
@@ -36,6 +37,9 @@ class Exploration:
         self.pending_quest = None
         self.pending_quest_rng_state = None
         self.completed = set()
+        self.quest_clear_counts = dict.fromkeys(QUEST_TYPES, 0)
+        self.completed_quest_ids = []
+        self.completion_ready = False
         self.springs = set()
 
     def unlocked(self, quest):
@@ -76,6 +80,7 @@ class Exploration:
             q['investigated_points'] = [list(p) for p in q['points']] if value else []
 
     def reset_progress(self):
+        self.completion_ready = False
         if self.active_quest:
             self.active_quest.update(completed=False, progress=0, investigated_points=[])
 
@@ -94,7 +99,10 @@ class Exploration:
 
     def choose_flavor(self, kind, level):
         pool = self.flavor_data['texts'].get(kind, {}).get(str(level), [])
-        choices = [row for row in pool if row['id'] != self.last_flavor_id] or pool
+        unseen = [row for row in pool if row['id'] in QUEST_COMPLETION_IDS[kind]
+                  and row['id'] not in self.completed_quest_ids]
+        candidates = unseen or pool
+        choices = [row for row in candidates if row['id'] != self.last_flavor_id] or candidates
         row = (self.flavor_rng.choice(choices) if choices else
                self.flavor_data['fallbacks'][kind][str(level)])
         return row['id']
@@ -142,6 +150,7 @@ class Exploration:
         if self.active_quest:
             raise ValueError(self.message('already_active'))
         self.active_quest = quest
+        self.completion_ready = False
         self.last_flavor_id = quest['flavor_id']
         self.decline_preview()
         return self.message('accepted')
@@ -212,19 +221,48 @@ class Exploration:
         self.surveyed = True
         return [self.message('hunt'), self.message('objective')]
 
-    def return_to_camp(self, survived):
+    def return_to_camp(self, survived, defer_completion=False):
         if not survived:
             was_surveyed = bool(self.active and self.active['progress'])
             self.reset_progress()
             return [self.message('death')] if was_surveyed else []
         if not self.active or not self.surveyed:
+            self.completion_ready = False
             return []
+        self.completion_ready = True
+        return [] if defer_completion else self.finalize_quest_completion()
+
+    def finalize_quest_completion(self):
+        """Pay and record one safely returned contract, once, after its thanks."""
+        if not self.completion_ready or not self.active or not self.surveyed:
+            return []
+        q = self.active_quest
+        message = self.message('complete')
         reward = self.active["reward"]
         self.session.treasure.banked += reward
+        self.quest_clear_counts[q['type']] += 1
+        flavor_id = q.get('flavor_id')
+        if (flavor_id in QUEST_COMPLETION_IDS[q['type']] and
+            self.quest_flavor()['id'] == flavor_id and
+            flavor_id not in self.completed_quest_ids):
+            self.completed_quest_ids.append(flavor_id)
         self.completed.add(self.active["id"])
-        message = self.message('complete')
         self.active_quest = None
+        self.completion_ready = False
         return [message]
+
+    def quest_record(self):
+        """Fixed denominators; ignore stale/default IDs in future loaded records."""
+        done = set(self.completed_quest_ids)
+        rows = {}
+        for kind, ids in QUEST_COMPLETION_IDS.items():
+            count = len(done.intersection(ids))
+            rows[kind] = dict(clears=self.quest_clear_counts[kind], completed=count,
+                              total=len(ids), percent=count * 100 // len(ids))
+        count = sum(row['completed'] for row in rows.values())
+        rows['total'] = dict(completed=count, total=QUEST_COMPLETION_TOTAL,
+                             percent=count * 100 // QUEST_COMPLETION_TOTAL)
+        return rows
 
     def damage(self, amount):
         for actor in self.session.party:

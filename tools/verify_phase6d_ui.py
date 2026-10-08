@@ -218,7 +218,13 @@ def main():
                 for _ in range(3):
                     press(DOWN)
                 press(A); press(A)
-                assert app.state=='return_result' and not e.active_quest
+                assert app.state=='quest_thanks' and e.active_quest
+                assert e.quest_clear_counts==dict.fromkeys(QUEST_TYPES,0) and not e.completed_quest_ids
+                assert s.treasure.banked==initial_bank+3
+                shot(kind+str(level)+'_thanks')
+                press(A)
+                assert app.state=='quest_reward' and not e.active_quest
+                assert e.quest_clear_counts[kind]==1 and e.completed_quest_ids==[q['flavor_id']]
                 assert s.treasure.banked==initial_bank+q['reward']+3 and s.treasure.unbanked==0
                 shot(kind+str(level)+'_return')
                 press(A)
@@ -385,7 +391,8 @@ def main():
                 rendered_flavor_ids=rendered_flavors,flavor_fallback_all_nine=True,
                 long_japanese_flavor_paging=True,flavor_reopen_and_progress_stable=True,
                 actual_normal_defeat_keeps_contract_resets_progress=True,
-                actual_hunt_RUN_keeps_target=True,all_currency_screens_TRZ=True,
+                 actual_hunt_RUN_keeps_target=True,all_currency_screens_TRZ=True,
+                 thanks_then_reward_and_records_all_nine=True,
                 symbols=QUEST_SYMBOLS,sprite_edit_save_reload=True,existing_resource_content_preserved=preserved,
                 safe_candidates_per_floor=[len(spawn_candidates(d,f)) for f in range(15)],
                 bounded_text_calls=len(texts),physical_smartphone_tested=False,

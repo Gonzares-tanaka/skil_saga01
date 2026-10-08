@@ -9,6 +9,13 @@ from .tiles import (PASSABLE, PIT_TILES, TILE_ENTRANCE, TILE_STAIRS_UP,
 
 QUEST_TYPES = ('explore', 'investigate', 'hunt')
 QUEST_NAMES = dict(zip(QUEST_TYPES, ('探索', '調査', '討伐')))
+# Save-compatible fixed catalog: defaults and future incidental rows are excluded.
+QUEST_COMPLETION_IDS = {
+    kind: tuple(f'{kind}_l{level}_{index:02d}'
+                for level in (1, 2, 3) for index in (1, 2, 3))
+    for kind in QUEST_TYPES
+}
+QUEST_COMPLETION_TOTAL = 27
 # Image Bank, pixel X, pixel Y. All sprites are 8x8, color 0 transparent.
 QUEST_SYMBOL_EXPLORE = (1, 232, 0)
 QUEST_SYMBOL_INVESTIGATE = (1, 240, 0)
@@ -43,6 +50,11 @@ def load_quest_flavors(path=None):
                     raise ValueError('quest_flavors.json: id・requester・linesと各Lvの汎用文が必要です。')
                 if row['id'] in ids:
                     raise ValueError('quest_flavors.json: idは重複させないでください。')
+                complete = row.get('complete_lines')
+                if (not isinstance(complete, list) or not complete or
+                    any(not isinstance(line, str) for line in complete) or
+                    not any(line.strip() for line in complete)):
+                    raise ValueError('quest_flavors.json: complete_linesのお礼文が必要です。')
                 ids.add(row['id'])
     return data
 

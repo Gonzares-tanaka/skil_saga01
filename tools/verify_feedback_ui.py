@@ -93,7 +93,10 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     app.menu_cursor = 3
     key(pyxel.KEY_Z)
     key(pyxel.KEY_Z)
-    assert app.state == 'return_result'
+    assert app.state == 'quest_thanks' and e.active
+    assert s.treasure.banked == 3 and not e.completed_quest_ids
+    key(pyxel.KEY_Z)
+    assert app.state == 'quest_reward'
     assert s.treasure.banked == 5 and s.treasure.unbanked == 0
     assert 1 in e.completed and not e.active
     assert 'return' in s.mastered_skills
@@ -105,6 +108,9 @@ with patch.object(pyxel, 'text', side_effect=bounded), patch.object(pyxel, 'play
     e.accept(2)
     e.surveyed = True
     app.handle_event('base', '帰還')
+    assert app.state == 'quest_thanks' and s.treasure.banked == 5
+    key(pyxel.KEY_Z)
+    assert app.state == 'quest_reward'
     assert s.treasure.banked == 9 and 2 in e.completed
     key(pyxel.KEY_Z)
     app.enter_dungeon()

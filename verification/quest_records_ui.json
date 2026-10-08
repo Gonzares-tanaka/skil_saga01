@@ -1,0 +1,30 @@
+{
+  "normal_flavors_rendered": 27,
+  "fallback_pages_rendered": 9,
+  "fixed_total": 27,
+  "all_complete_percent": 100,
+  "clears_before_new_game": {
+    "explore": 13,
+    "investigate": 12,
+    "hunt": 12
+  },
+  "thanks_before_reward": true,
+  "repeat_clear_without_duplicate": true,
+  "safe_return_no_double_payment": true,
+  "defeat_no_records": true,
+  "new_game_reset": true,
+  "pad_only": true,
+  "audio_apis_unavailable": true,
+  "objective_fixture": true,
+  "text_bounds_calls": 9264,
+  "screenshots": [
+    "verification/screenshots/quest_record_initial.png",
+    "verification/screenshots/quest_record_first.png",
+    "verification/screenshots/quest_record_explore_complete.png",
+    "verification/screenshots/quest_record_investigate_l2_01_thanks.png",
+    "verification/screenshots/quest_record_investigate_l2_01_reward.png",
+    "verification/screenshots/quest_record_investigate_complete.png",
+    "verification/screenshots/quest_record_hunt_complete.png",
+    "verification/screenshots/quest_record_all_complete.png"
+  ]
+}

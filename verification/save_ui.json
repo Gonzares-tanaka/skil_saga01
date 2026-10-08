@@ -1,0 +1,28 @@
+{
+  "real_json_file": true,
+  "fresh_python_process_continue": true,
+  "save_confirm_cancel_and_no": true,
+  "success_message": true,
+  "failure_returns_to_guild": true,
+  "forbidden_states_rejected": true,
+  "invalid_load_preserves_file_and_game": true,
+  "no_intro_after_load": true,
+  "amrita_offer_deferred_until_reentry": true,
+  "resave_overwrites": true,
+  "trz_not_added": true,
+  "pad_only": true,
+  "bounded_text_calls": 252,
+  "screenshots": [
+    "verification/screenshots/save_confirm.png",
+    "verification/screenshots/save_success.png",
+    "verification/screenshots/save_write_failure.png",
+    "verification/screenshots/save_load_failure.png",
+    "verification/screenshots/save_load_failure.png",
+    "verification/screenshots/save_load_failure.png",
+    "verification/screenshots/save_load_failure.png",
+    "verification/screenshots/save_loaded_hub.png"
+  ],
+  "browser_save_explicitly_unavailable": true,
+  "physical_browser_tested": false,
+  "physical_smartphone_tested": false
+}

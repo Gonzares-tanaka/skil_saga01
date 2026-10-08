@@ -1,0 +1,71 @@
+{
+  "shared_five_headers": true,
+  "old_hub_currency_removed": true,
+  "header_changes_after_purchase_and_return": true,
+  "counted_starts": [
+    {
+      "kind": "normal",
+      "total": 1
+    },
+    {
+      "kind": "B5",
+      "total": 2
+    },
+    {
+      "kind": "B10",
+      "total": 3
+    },
+    {
+      "kind": "guardian1",
+      "total": 4
+    },
+    {
+      "kind": "guardian2",
+      "total": 5
+    },
+    {
+      "kind": "guardian3",
+      "total": 6
+    },
+    {
+      "kind": "demon",
+      "total": 7
+    },
+    {
+      "kind": "quest_hunt",
+      "total": 8
+    },
+    {
+      "kind": "elysion",
+      "total": 9
+    },
+    {
+      "kind": "retry1",
+      "total": 10
+    },
+    {
+      "kind": "retry2",
+      "total": 11
+    },
+    {
+      "kind": "retry3",
+      "total": 12
+    }
+  ],
+  "total_before_new_game": 12,
+  "new_game_zero": true,
+  "checkpoint_does_not_rewind": true,
+  "party_status_displays_total": true,
+  "pad_only": true,
+  "audio_unavailable": true,
+  "physical_browser_tested": false,
+  "physical_smartphone_tested": false,
+  "screenshots": [
+    "verification/screenshots/play_stats_hub.png",
+    "verification/screenshots/play_stats_guild.png",
+    "verification/screenshots/play_stats_training.png",
+    "verification/screenshots/play_stats_pub.png",
+    "verification/screenshots/play_stats_shop.png",
+    "verification/screenshots/play_stats_party_status.png"
+  ]
+}

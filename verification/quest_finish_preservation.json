@@ -1,0 +1,44 @@
+{
+  "baseline_files": 52,
+  "changed": [
+    "rpg/dungeon_app.py",
+    "rpg/exploration.py",
+    "rpg/hub.py",
+    "rpg/quests.py",
+    "data/quest_flavors.json"
+  ],
+  "fieldChanges": [
+    {
+      "id": "hunt_l1_03",
+      "field": "lines",
+      "before": [
+        "入口近くをうろつく魔物が",
+        "人を狙い始めている。",
+        "地下で討ち取ってほしい。"
+      ],
+      "after": [
+        "浅い階層をうろつく魔物が",
+        "人を狙い始めている。",
+        "地下で討ち取ってほしい。"
+      ]
+    },
+    {
+      "id": "hunt_l2_03",
+      "field": "lines",
+      "before": [
+        "魔力の強い魔物が現れた。",
+        "調査を続けるためにも",
+        "討伐を頼みたい。"
+      ],
+      "after": [
+        "危険な魔物が現れた。",
+        "調査を続けるためにも",
+        "討伐を頼みたい。"
+      ]
+    }
+  ],
+  "ids_unchanged": true,
+  "resources_unchanged": true,
+  "quest_economy_unchanged": true,
+  "protected_battle_finale_unchanged": true
+}

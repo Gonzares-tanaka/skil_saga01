@@ -87,6 +87,13 @@ with patch.object(pyxel, "text", side_effect=bounded_text), \
     press(pyxel.GAMEPAD1_BUTTON_B)
     press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
     press(pyxel.GAMEPAD1_BUTTON_A)
+    assert app.state == "quest_record"
+    screenshot("quest_record")
+    press(pyxel.GAMEPAD1_BUTTON_B)
+    assert app.state == "facility"
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+    press(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN)
+    press(pyxel.GAMEPAD1_BUTTON_A)
     assert app.overlay == "help"
     press(pyxel.GAMEPAD1_BUTTON_B)
     press(pyxel.GAMEPAD1_BUTTON_B)

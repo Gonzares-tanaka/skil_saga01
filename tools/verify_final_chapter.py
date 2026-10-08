@@ -34,6 +34,7 @@ def main():
     def observe(stage, app):
         f = app.dungeon.finale
         timeline.append(dict(stage=stage, state=app.state, floor=app.dungeon.floor+1,
+                             total_battles=app.session.total_battles,
                              flags=f.snapshot(), barrier=(app.battle.elysion_barrier_active
                                  if app.battle and app.battle.is_elysion_battle else None)))
         if stage in ('B10_START', 'BEFORE_DEMON'):
@@ -185,6 +186,7 @@ def main():
         return dict(POTION=7,PHOENIX_ASH=3)
 
     def fail_and_retry(case,casts=0,item_usage=None):
+        starts_before_retry = s.total_battles
         # Enemy stats/policy stay original. One-HP party makes its real attacks
         # produce an all-KO outcome in a few turns rather than a 60-turn draw.
         for c in s.party:
@@ -201,6 +203,7 @@ def main():
         assert app.state=='final_retry'
         press(A); press()
         assert app.final_checkpoint is checkpoint
+        assert s.total_battles == starts_before_retry + 1
         assert checkpoint_state()==initial,case+' checkpoint mismatch'
         assert app.battle.elysion_barrier_active and d.finale.has_amrita
         assert not app.final_visual().active and app.final_visual().frame==0
@@ -209,7 +212,8 @@ def main():
         assert app.exploration.session is s and app.exploration.dungeon is d
         row=dict(case=case,outcome='DEFEAT',strong_casts=casts,item_usage=item_usage or {},
                  complete_restore=True,key_retained=True,barrier_restored=True,
-                 same_checkpoint=True,shared_references=True)
+                 same_checkpoint=True,shared_references=True,
+                 total_battles_before=starts_before_retry,total_battles_after=s.total_battles)
         failures.append(row)
         observe('CASE_'+case+'_RETRY',app)
 

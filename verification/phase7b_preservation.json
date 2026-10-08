@@ -1,0 +1,20 @@
+{
+  "checked_files": 54,
+  "allowed_changes": [
+    "rpg/dungeon_app.py",
+    "rpg/save.py"
+  ],
+  "protected_game_files_unchanged": true,
+  "save_schema_and_file_backend_ast_unchanged": {
+    "FileSaveBackend": true,
+    "migrate_save_data": true,
+    "make_save_data": true,
+    "prepare_saved_game": true,
+    "apply_save_data": true,
+    "SaveManager": true
+  },
+  "save_version": 1,
+  "player_file_sha256": {
+    "C:/temp/mypyxel/RPG_saga_1/rpg/save/save.json": "1345bae3e263d2322c591212978525c7a79e1dd4cb49098e7bb70282363a7f9d"
+  }
+}

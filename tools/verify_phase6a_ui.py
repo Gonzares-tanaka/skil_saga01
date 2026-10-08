@@ -184,7 +184,16 @@ def main(observer=None):
         press(A)
         assert app.state == 'field_return'
         press(A)
-        assert app.state == 'return_result'
+        if app.exploration.completion_ready:
+            assert app.state == 'quest_thanks'
+            quest_type = app.exploration.active['type']
+            clears = app.exploration.quest_clear_counts[quest_type]
+            for _ in app.quest_thanks_pages():
+                press(A)
+            assert app.state == 'quest_reward'
+            assert app.exploration.quest_clear_counts[quest_type] == clears + 1
+        else:
+            assert app.state == 'return_result'
         press(A)
         if app.state == 'amrita_offer':
             # Phase 6B intercepts the first external arrival with the key item.

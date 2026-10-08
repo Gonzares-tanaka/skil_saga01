@@ -1,0 +1,171 @@
+{
+  "guild_no_text_overlap": true,
+  "four_row_fixture_fits": true,
+  "guild_save_present": true,
+  "banked_header_shared": true,
+  "shortcut_and_skills_same_handler": true,
+  "identical_return_results": true,
+  "both_routes_charge_once": true,
+  "last_use_forgets_and_masters": true,
+  "missing_zero_dead_guardian_boss_rejected": true,
+  "cancel_to_skills_and_multiple_casters": true,
+  "safe_return_quest_and_trz_once": true,
+  "pad_only": true,
+  "audio_unavailable": true,
+  "physical_browser_tested": false,
+  "physical_smartphone_tested": false,
+  "snapshots": [
+    {
+      "route": "shortcut",
+      "initial_uses": 3,
+      "remaining": 2,
+      "mastered": false,
+      "skills": [
+        "punch",
+        "return"
+      ],
+      "bank": 10,
+      "records": {
+        "explore": {
+          "clears": 1,
+          "completed": 1,
+          "total": 9,
+          "percent": 11
+        },
+        "investigate": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "hunt": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "total": {
+          "completed": 1,
+          "total": 27,
+          "percent": 3
+        }
+      }
+    },
+    {
+      "route": "shortcut",
+      "initial_uses": 1,
+      "remaining": 0,
+      "mastered": true,
+      "skills": [
+        "punch"
+      ],
+      "bank": 10,
+      "records": {
+        "explore": {
+          "clears": 1,
+          "completed": 1,
+          "total": 9,
+          "percent": 11
+        },
+        "investigate": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "hunt": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "total": {
+          "completed": 1,
+          "total": 27,
+          "percent": 3
+        }
+      }
+    },
+    {
+      "route": "skills",
+      "initial_uses": 3,
+      "remaining": 2,
+      "mastered": false,
+      "skills": [
+        "punch",
+        "return"
+      ],
+      "bank": 10,
+      "records": {
+        "explore": {
+          "clears": 1,
+          "completed": 1,
+          "total": 9,
+          "percent": 11
+        },
+        "investigate": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "hunt": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "total": {
+          "completed": 1,
+          "total": 27,
+          "percent": 3
+        }
+      }
+    },
+    {
+      "route": "skills",
+      "initial_uses": 1,
+      "remaining": 0,
+      "mastered": true,
+      "skills": [
+        "punch"
+      ],
+      "bank": 10,
+      "records": {
+        "explore": {
+          "clears": 1,
+          "completed": 1,
+          "total": 9,
+          "percent": 11
+        },
+        "investigate": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "hunt": {
+          "clears": 0,
+          "completed": 0,
+          "total": 9,
+          "percent": 0
+        },
+        "total": {
+          "completed": 1,
+          "total": 27,
+          "percent": 3
+        }
+      }
+    }
+  ],
+  "screenshots": [
+    "verification/screenshots/pre_save_guild.png",
+    "verification/screenshots/pre_save_guild_future_four_rows_fixture.png",
+    "verification/screenshots/pre_save_shortcut_uses_3.png",
+    "verification/screenshots/pre_save_shortcut_uses_1.png",
+    "verification/screenshots/pre_save_skills_uses_3.png",
+    "verification/screenshots/pre_save_skills_uses_1.png",
+    "verification/screenshots/pre_save_exploration_menu.png",
+    "verification/screenshots/pre_save_help.png"
+  ]
+}

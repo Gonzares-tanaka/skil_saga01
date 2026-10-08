@@ -98,7 +98,7 @@
     "spring_living_HP_only_once_Uses_items_KO_unchanged": true,
     "demon_story_pages": 2,
     "amrita_key_retained_at_hub": true,
-    "bounded_text_calls": 16530,
+    "bounded_text_calls": 16535,
     "battle_count": 19,
     "screenshots": [
       "verification\\screenshots\\phase6a_debug_demon.png",
@@ -208,7 +208,9 @@
       "key_retained": true,
       "barrier_restored": true,
       "same_checkpoint": true,
-      "shared_references": true
+      "shared_references": true,
+      "total_battles_before": 20,
+      "total_battles_after": 21
     },
     {
       "case": "B",
@@ -219,7 +221,9 @@
       "key_retained": true,
       "barrier_restored": true,
       "same_checkpoint": true,
-      "shared_references": true
+      "shared_references": true,
+      "total_battles_before": 21,
+      "total_battles_after": 22
     },
     {
       "case": "C",
@@ -233,7 +237,9 @@
       "key_retained": true,
       "barrier_restored": true,
       "same_checkpoint": true,
-      "shared_references": true
+      "shared_references": true,
+      "total_battles_before": 22,
+      "total_battles_after": 23
     },
     {
       "case": "D",
@@ -244,7 +250,9 @@
       "key_retained": true,
       "barrier_restored": true,
       "same_checkpoint": true,
-      "shared_references": true
+      "shared_references": true,
+      "total_battles_before": 23,
+      "total_battles_after": 24
     },
     {
       "case": "E",
@@ -258,7 +266,9 @@
       "key_retained": true,
       "barrier_restored": true,
       "same_checkpoint": true,
-      "shared_references": true
+      "shared_references": true,
+      "total_battles_before": 24,
+      "total_battles_after": 25
     }
   ],
   "consecutive_actual_defeats": 5,
@@ -294,6 +304,7 @@
       "stage": "B10_START",
       "state": "explore",
       "floor": 10,
+      "total_battles": 0,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -310,6 +321,7 @@
       "stage": "B10_BATTLE",
       "state": "command",
       "floor": 10,
+      "total_battles": 1,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -326,6 +338,7 @@
       "stage": "B10_VICTORY",
       "state": "boss_after",
       "floor": 10,
+      "total_battles": 1,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -342,6 +355,7 @@
       "stage": "B11_ARRIVAL",
       "state": "explore",
       "floor": 11,
+      "total_battles": 1,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -358,6 +372,7 @@
       "stage": "B12_ARRIVAL",
       "state": "explore",
       "floor": 12,
+      "total_battles": 3,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -376,6 +391,7 @@
       "stage": "B13_ARRIVAL",
       "state": "explore",
       "floor": 13,
+      "total_battles": 9,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -396,6 +412,7 @@
       "stage": "B14_ARRIVAL",
       "state": "explore",
       "floor": 14,
+      "total_battles": 12,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -417,6 +434,7 @@
       "stage": "B15_ARRIVAL",
       "state": "explore",
       "floor": 15,
+      "total_battles": 15,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -440,6 +458,7 @@
       "stage": "GUARDIAN_1_VICTORY",
       "state": "guardian_between",
       "floor": 15,
+      "total_battles": 16,
       "flags": {
         "guardian_index": 1,
         "guardians_defeated": false,
@@ -463,6 +482,7 @@
       "stage": "GUARDIAN_2_VICTORY",
       "state": "guardian_between",
       "floor": 15,
+      "total_battles": 17,
       "flags": {
         "guardian_index": 2,
         "guardians_defeated": false,
@@ -486,6 +506,7 @@
       "stage": "GUARDIAN_3_VICTORY",
       "state": "guardian_after",
       "floor": 15,
+      "total_battles": 18,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -509,6 +530,7 @@
       "stage": "SPRING_HP_ONLY",
       "state": "explore",
       "floor": 15,
+      "total_battles": 18,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -532,6 +554,7 @@
       "stage": "BEFORE_DEMON",
       "state": "boss_message",
       "floor": 15,
+      "total_battles": 18,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -555,6 +578,7 @@
       "stage": "DEMON_VICTORY_AMRITA",
       "state": "boss_after",
       "floor": 15,
+      "total_battles": 19,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -578,6 +602,7 @@
       "stage": "TRUTH_EVENT_FINISHED",
       "state": "explore",
       "floor": 15,
+      "total_battles": 19,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -601,6 +626,7 @@
       "stage": "FIRST_AMRITA_OFFER",
       "state": "amrita_offer",
       "floor": 15,
+      "total_battles": 19,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -624,6 +650,7 @@
       "stage": "HUB_AFTER_LATER",
       "state": "camp",
       "floor": 15,
+      "total_battles": 19,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -647,6 +674,7 @@
       "stage": "REENTRY_AMRITA_OFFER",
       "state": "amrita_offer",
       "floor": 1,
+      "total_battles": 19,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -670,6 +698,7 @@
       "stage": "YES_STORY_KEY_RETAINED",
       "state": "final_story",
       "floor": 1,
+      "total_battles": 19,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -693,6 +722,7 @@
       "stage": "FINAL_BATTLE_START",
       "state": "command",
       "floor": 1,
+      "total_battles": 20,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -716,6 +746,7 @@
       "stage": "CASE_A_DEFEAT",
       "state": "result",
       "floor": 1,
+      "total_battles": 20,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -739,6 +770,7 @@
       "stage": "CASE_A_RETRY",
       "state": "command",
       "floor": 1,
+      "total_battles": 21,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -762,6 +794,7 @@
       "stage": "PHYSICAL_MAGIC_LEGEND_BLOCKED_HINT",
       "state": "command",
       "floor": 1,
+      "total_battles": 21,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -785,6 +818,7 @@
       "stage": "CASE_B_DEFEAT",
       "state": "result",
       "floor": 1,
+      "total_battles": 21,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -808,6 +842,7 @@
       "stage": "CASE_B_RETRY",
       "state": "command",
       "floor": 1,
+      "total_battles": 22,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -831,6 +866,7 @@
       "stage": "CASE_C_DEFEAT",
       "state": "result",
       "floor": 1,
+      "total_battles": 22,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -854,6 +890,7 @@
       "stage": "CASE_C_RETRY",
       "state": "command",
       "floor": 1,
+      "total_battles": 23,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -877,6 +914,7 @@
       "stage": "AMRITA_RELEASED",
       "state": "command",
       "floor": 1,
+      "total_battles": 23,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -900,6 +938,7 @@
       "stage": "CASE_D_DEFEAT",
       "state": "result",
       "floor": 1,
+      "total_battles": 23,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -923,6 +962,7 @@
       "stage": "CASE_D_RETRY",
       "state": "command",
       "floor": 1,
+      "total_battles": 24,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -946,6 +986,7 @@
       "stage": "AMRITA_RELEASED",
       "state": "command",
       "floor": 1,
+      "total_battles": 24,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -969,6 +1010,7 @@
       "stage": "CASE_E_DEFEAT",
       "state": "result",
       "floor": 1,
+      "total_battles": 24,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -992,6 +1034,7 @@
       "stage": "CASE_E_RETRY",
       "state": "command",
       "floor": 1,
+      "total_battles": 25,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -1015,6 +1058,7 @@
       "stage": "AMRITA_RELEASED",
       "state": "command",
       "floor": 1,
+      "total_battles": 25,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -1038,6 +1082,7 @@
       "stage": "NORMAL_DAMAGE_AFTER_RELEASE",
       "state": "command",
       "floor": 1,
+      "total_battles": 25,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -1061,6 +1106,7 @@
       "stage": "ENDING",
       "state": "ending",
       "floor": 1,
+      "total_battles": 25,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -1084,6 +1130,7 @@
       "stage": "POST_VICTORY_REENTRY_NO_OFFER",
       "state": "camp",
       "floor": 1,
+      "total_battles": 25,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": true,
@@ -1107,6 +1154,7 @@
       "stage": "NEW_GAME_FLAGS_RESET",
       "state": "title_fade",
       "floor": 1,
+      "total_battles": 0,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -1123,6 +1171,7 @@
       "stage": "ORDINARY_DEFEAT_CHECKPOINT_ISOLATED",
       "state": "camp",
       "floor": 1,
+      "total_battles": 1,
       "flags": {
         "guardian_index": null,
         "guardians_defeated": false,
@@ -1153,6 +1202,7 @@
     "data/party.json": true,
     "data/pub_messages.json": true,
     "data/quests.json": true,
+    "data/quest_flavors.json": true,
     "data/settings.json": true,
     "data/skills.json": true,
     "rpg/app.py": true,
@@ -1175,6 +1225,7 @@
     "rpg/models.py": true,
     "rpg/opening.py": true,
     "rpg/quests.py": true,
+    "rpg/save.py": true,
     "rpg/skill_resources.py": true,
     "rpg/sound.py": true,
     "rpg/text.py": true,
@@ -1184,7 +1235,7 @@
     "assets/battle_music.pyxres": true,
     "assets/sprites.pyxres": true
   },
-  "bounded_final_text_calls": 46492,
+  "bounded_final_text_calls": 46483,
   "screenshots": [
     "verification\\screenshots\\final_chapter_reentry_offer.png",
     "verification\\screenshots\\final_chapter_case_A_defeat.png",

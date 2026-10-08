@@ -342,6 +342,7 @@ class Session:
         self.rng = random.Random(seed)
         self.debug = False
         self.completed = self.wins = self.losses = self.draws = 0
+        self.total_battles = 0  # Lifetime starts; excluded from final retry snapshots.
         self.battle = None
         self.settled = False
         self.results = []
@@ -393,6 +394,7 @@ class Session:
                              self.inventory, boss=boss, final_progress=final_progress, final_data=final_data)
         self.settled = False
         self.results = []
+        self.total_battles += 1
         return self.battle
 
     def settle(self):
