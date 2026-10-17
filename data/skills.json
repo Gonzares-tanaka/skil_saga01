@@ -20,7 +20,8 @@
       "INT": 0
     },
     "relearn_cost": 1,
-    "relearn_uses": 15
+    "relearn_uses": 15,
+    "effect_id": "blunt"
   },
   {
     "id": "quick_hit",
@@ -43,7 +44,8 @@
       "INT": 0
     },
     "relearn_cost": 1,
-    "relearn_uses": 15
+    "relearn_uses": 15,
+    "effect_id": "blunt"
   },
   {
     "id": "spark",
@@ -66,7 +68,8 @@
       "INT": 2
     },
     "relearn_cost": 1,
-    "relearn_uses": 14
+    "relearn_uses": 14,
+    "effect_id": "magic"
   },
   {
     "id": "power_strike",
@@ -89,7 +92,8 @@
       "INT": 0
     },
     "relearn_cost": 2,
-    "relearn_uses": 10
+    "relearn_uses": 10,
+    "effect_id": "blunt"
   },
   {
     "id": "double_slash",
@@ -112,7 +116,8 @@
       "INT": 0
     },
     "relearn_cost": 2,
-    "relearn_uses": 8
+    "relearn_uses": 8,
+    "effect_id": "slash"
   },
   {
     "id": "quick_stab",
@@ -135,7 +140,8 @@
       "INT": 0
     },
     "relearn_cost": 2,
-    "relearn_uses": 13
+    "relearn_uses": 13,
+    "effect_id": "pierce"
   },
   {
     "id": "fire",
@@ -158,7 +164,8 @@
       "INT": 2
     },
     "relearn_cost": 2,
-    "relearn_uses": 8
+    "relearn_uses": 8,
+    "effect_id": "fire"
   },
   {
     "id": "ice",
@@ -181,7 +188,8 @@
       "INT": 2
     },
     "relearn_cost": 2,
-    "relearn_uses": 10
+    "relearn_uses": 10,
+    "effect_id": "ice"
   },
   {
     "id": "heal",
@@ -202,7 +210,9 @@
       "STR": 0,
       "AGI": 0,
       "INT": 2
-    }
+    },
+    "effect_id": "heal",
+    "presentation_id": "rare_heal"
   },
   {
     "id": "triple_slash",
@@ -223,7 +233,9 @@
       "STR": 2,
       "AGI": 0,
       "INT": 0
-    }
+    },
+    "effect_id": "slash",
+    "presentation_id": "rare_slash"
   },
   {
     "id": "thunder",
@@ -244,7 +256,8 @@
       "STR": 0,
       "AGI": 0,
       "INT": 2
-    }
+    },
+    "effect_id": "lightning"
   },
   {
     "id": "counter",
@@ -265,7 +278,8 @@
       "STR": 2,
       "AGI": 0,
       "INT": 0
-    }
+    },
+    "effect_id": "buff"
   },
   {
     "id": "drain",
@@ -286,7 +300,9 @@
       "STR": 0,
       "AGI": 0,
       "INT": 2
-    }
+    },
+    "effect_id": "dark",
+    "presentation_id": "rare_dark"
   },
   {
     "id": "berserk",
@@ -307,7 +323,8 @@
       "STR": 2,
       "AGI": 0,
       "INT": 0
-    }
+    },
+    "effect_id": "buff"
   },
   {
     "id": "wind_blade",
@@ -328,7 +345,8 @@
       "STR": 2,
       "AGI": 2,
       "INT": 2
-    }
+    },
+    "effect_id": "slash"
   },
   {
     "id": "heavy_break",
@@ -349,7 +367,9 @@
       "STR": 2,
       "AGI": 0,
       "INT": 0
-    }
+    },
+    "effect_id": "blunt",
+    "presentation_id": "rare_impact"
   },
   {
     "id": "flare",
@@ -370,7 +390,9 @@
       "STR": 0,
       "AGI": 0,
       "INT": 2
-    }
+    },
+    "effect_id": "fire",
+    "presentation_id": "rare_magic"
   },
   {
     "id": "rapid_edge",
@@ -391,7 +413,9 @@
       "STR": 2,
       "AGI": 2,
       "INT": 0
-    }
+    },
+    "effect_id": "slash",
+    "presentation_id": "rare_slash"
   },
   {
     "id": "renew",
@@ -412,7 +436,9 @@
       "STR": 0,
       "AGI": 0,
       "INT": 2
-    }
+    },
+    "effect_id": "heal",
+    "presentation_id": "rare_heal"
   },
   {
     "id": "seven_slash",
@@ -433,7 +459,9 @@
       "STR": 2,
       "AGI": 2,
       "INT": 0
-    }
+    },
+    "effect_id": "legend",
+    "presentation_id":"legend_seven_slash"
   },
   {
     "id": "meteor",
@@ -454,7 +482,9 @@
       "STR": 0,
       "AGI": 0,
       "INT": 5
-    }
+    },
+    "effect_id": "legend",
+    "presentation_id":"legend_meteor"
   },
   {
     "id": "first_aid",
@@ -477,7 +507,8 @@
       "INT": 1
     },
     "relearn_cost": 2,
-    "relearn_uses": 6
+    "relearn_uses": 6,
+    "effect_id": "heal"
   },
   {
     "id": "full_heal",
@@ -498,7 +529,9 @@
       "STR": 0,
       "AGI": 0,
       "INT": 4
-    }
+    },
+    "effect_id": "heal",
+    "presentation_id":"legend_full_heal"
   },
   {
     "effect": "armor_break",
@@ -523,7 +556,9 @@
     "rarity": "RARE",
     "max_uses": 6,
     "modifier": 0.7,
-    "description": "敵DEFを30%下げる。3ターン。"
+    "description": "敵DEFを30%下げる。3ターン。",
+    "effect_id": "debuff",
+    "presentation_id": "rare_support"
   },
   {
     "effect": "weaken",
@@ -548,7 +583,8 @@
     "modifier": 0.8,
     "description": "敵の攻撃・魔法威力を20%下げる。",
     "relearn_cost": 2,
-    "relearn_uses": 4
+    "relearn_uses": 4,
+    "effect_id": "debuff"
   },
   {
     "effect": "slow",
@@ -573,7 +609,8 @@
     "modifier": 0.5,
     "description": "敵AGI半減。行動順は次ターンから。",
     "relearn_cost": 2,
-    "relearn_uses": 4
+    "relearn_uses": 4,
+    "effect_id": "debuff"
   },
   {
     "effect": "power_up",
@@ -598,7 +635,8 @@
     "modifier": 1.4,
     "description": "味方STRを40%上げる。3ターン。",
     "relearn_cost": 2,
-    "relearn_uses": 4
+    "relearn_uses": 4,
+    "effect_id": "buff"
   },
   {
     "effect": "focus",
@@ -623,7 +661,9 @@
     "rarity": "RARE",
     "max_uses": 6,
     "modifier": 1.5,
-    "description": "味方INTを50%上げる。3ターン。"
+    "description": "味方INTを50%上げる。3ターン。",
+    "effect_id": "buff",
+    "presentation_id": "rare_support"
   },
   {
     "effect": "guard_up",
@@ -646,7 +686,8 @@
     "rarity": "UNCOMMON",
     "max_uses": 8,
     "modifier": 0.7,
-    "description": "味方の被ダメージ30%軽減。3ターン。"
+    "description": "味方の被ダメージ30%軽減。3ターン。",
+    "effect_id": "buff"
   },
   {
     "id": "revive",
@@ -662,7 +703,14 @@
     "description": "戦闘不能の味方を最大HPの25%で蘇生。",
     "max_uses": 3,
     "skill_type": "healing",
-    "growth": {"HP": 0, "STR": 0, "AGI": 0, "INT": 1}
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "effect_id": "heal",
+    "presentation_id": "rare_heal"
   },
   {
     "id": "return",
@@ -685,6 +733,843 @@
       "INT": 0
     },
     "relearn_cost": 3,
-    "relearn_uses": 1
+    "relearn_uses": 1,
+    "effect_id": "buff"
+  },
+  {
+    "id": "sweep",
+    "name": "なぎ払い",
+    "rarity": "COMMON",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 0.75,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 1,
+    "description": "全体にダメージ。",
+    "max_uses": 12,
+    "skill_type": "physical",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 0,
+      "INT": 0
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 6,
+    "effect_id": "slash",
+    "field_usable": false
+  },
+  {
+    "id": "flame_wave",
+    "name": "火炎波",
+    "rarity": "COMMON",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0.85,
+    "hits": 1,
+    "cooldown": 1,
+    "description": "全体にダメージ。",
+    "max_uses": 10,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 5,
+    "effect_id": "fire",
+    "field_usable": false
+  },
+  {
+    "id": "venom_strike",
+    "name": "毒撃",
+    "rarity": "COMMON",
+    "effect": "damage",
+    "target": "enemy",
+    "str_scale": 1.4,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 1,
+    "description": "一撃の後、状態異常を狙う。",
+    "max_uses": 12,
+    "skill_type": "physical",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 0,
+      "INT": 0
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 6,
+    "effect_id": "pierce",
+    "field_usable": false,
+    "status_id": "poison",
+    "status_chance": 35
+  },
+  {
+    "id": "sleep_spell",
+    "name": "スリープ",
+    "rarity": "COMMON",
+    "effect": "status",
+    "target": "enemy",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "敵の状態異常を狙う。",
+    "max_uses": 8,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 4,
+    "effect_id": "debuff",
+    "field_usable": false,
+    "status_id": "sleep",
+    "status_chance": 45
+  },
+  {
+    "id": "group_aid",
+    "name": "応急陣",
+    "rarity": "COMMON",
+    "effect": "heal",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0.8,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "生存している味方全員のHPを回復。",
+    "max_uses": 6,
+    "skill_type": "healing",
+    "growth": {
+      "HP": 0.5,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 3,
+    "effect_id": "heal",
+    "field_usable": true
+  },
+  {
+    "id": "battle_cry",
+    "name": "戦いの歌",
+    "rarity": "COMMON",
+    "effect": "power_up",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 4,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 2,
+    "effect_id": "buff",
+    "field_usable": false,
+    "modifier": 1.4,
+    "duration": 3
+  },
+  {
+    "id": "weak_wave",
+    "name": "衰弱波",
+    "rarity": "COMMON",
+    "effect": "weaken",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 4,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 2,
+    "effect_id": "debuff",
+    "field_usable": false,
+    "modifier": 0.8,
+    "duration": 3
+  },
+  {
+    "id": "wild_edge",
+    "name": "乱れ突き",
+    "rarity": "COMMON",
+    "effect": "damage",
+    "target": "random_enemy",
+    "str_scale": 0.5,
+    "agi_scale": 1.2,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 0,
+    "description": "ランダムな敵に一撃。",
+    "max_uses": 16,
+    "skill_type": "speed",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 2,
+      "INT": 0
+    },
+    "relearn_cost": 2,
+    "relearn_uses": 8,
+    "effect_id": "pierce",
+    "field_usable": false
+  },
+  {
+    "id": "whirlwind",
+    "name": "旋風斬",
+    "rarity": "UNCOMMON",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 0.45,
+    "agi_scale": 0.7,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "全体にダメージ。",
+    "max_uses": 8,
+    "skill_type": "speed",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 2,
+      "INT": 0
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "slash",
+    "field_usable": false
+  },
+  {
+    "id": "blizzard",
+    "name": "ブリザード",
+    "rarity": "UNCOMMON",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 1.4,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "全体にダメージ。",
+    "max_uses": 7,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "ice",
+    "field_usable": false
+  },
+  {
+    "id": "shock_stab",
+    "name": "痺れ突き",
+    "rarity": "UNCOMMON",
+    "effect": "damage",
+    "target": "enemy",
+    "str_scale": 0.6,
+    "agi_scale": 0.9,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "一撃の後、状態異常を狙う。",
+    "max_uses": 10,
+    "skill_type": "speed",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 2,
+      "INT": 0
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "lightning",
+    "field_usable": false,
+    "status_id": "paralyze",
+    "status_chance": 30
+  },
+  {
+    "id": "confuse",
+    "name": "コンフューズ",
+    "rarity": "UNCOMMON",
+    "effect": "status",
+    "target": "enemy",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "敵の状態異常を狙う。",
+    "max_uses": 6,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "debuff",
+    "field_usable": false,
+    "status_id": "confusion",
+    "status_chance": 45
+  },
+  {
+    "id": "toxic_mist",
+    "name": "毒霧",
+    "rarity": "UNCOMMON",
+    "effect": "status",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "状態異常を狙う。敵ごとに判定。",
+    "max_uses": 6,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "dark",
+    "field_usable": false,
+    "status_id": "poison",
+    "status_chance": 30
+  },
+  {
+    "id": "mending_wind",
+    "name": "癒しの風",
+    "rarity": "UNCOMMON",
+    "effect": "heal",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 1.4,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "生存している味方全員のHPを回復。",
+    "max_uses": 5,
+    "skill_type": "healing",
+    "growth": {
+      "HP": 0.5,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "heal",
+    "field_usable": true
+  },
+  {
+    "id": "iron_wall",
+    "name": "鉄壁陣",
+    "rarity": "UNCOMMON",
+    "effect": "guard_up",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 4,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "buff",
+    "field_usable": false,
+    "modifier": 0.7,
+    "duration": 3
+  },
+  {
+    "id": "slow_field",
+    "name": "スロウフィールド",
+    "rarity": "UNCOMMON",
+    "effect": "slow",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 4,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "debuff",
+    "field_usable": false,
+    "modifier": 0.5,
+    "duration": 3
+  },
+  {
+    "id": "cure",
+    "name": "キュア",
+    "rarity": "RARE",
+    "effect": "cure",
+    "target": "ally",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 0,
+    "description": "HPを変えず、毒・麻痺・睡眠・混乱を治療。",
+    "max_uses": 3,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 4,
+    "relearn_uses": 2,
+    "effect_id": "heal",
+    "field_usable": true,
+    "cure_statuses": [
+      "poison",
+      "paralyze",
+      "sleep",
+      "confusion"
+    ],
+    "presentation_id": "rare_heal"
+  },
+  {
+    "id": "cleaving_storm",
+    "name": "烈風乱舞",
+    "rarity": "RARE",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 1.5,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "全体にダメージ。",
+    "max_uses": 5,
+    "skill_type": "physical",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 0,
+      "INT": 0
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "slash",
+    "field_usable": false,
+    "presentation_id": "rare_slash"
+  },
+  {
+    "id": "inferno",
+    "name": "インフェルノ",
+    "rarity": "RARE",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 2.4,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "全体にダメージ。",
+    "max_uses": 4,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "fire",
+    "field_usable": false,
+    "presentation_id": "rare_magic"
+  },
+  {
+    "id": "plague_edge",
+    "name": "毒牙斬",
+    "rarity": "RARE",
+    "effect": "damage",
+    "target": "enemy",
+    "str_scale": 2.1,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "一撃の後、状態異常を狙う。",
+    "max_uses": 5,
+    "skill_type": "physical",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 0,
+      "INT": 0
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "dark",
+    "field_usable": false,
+    "status_id": "poison",
+    "status_chance": 60,
+    "presentation_id": "rare_slash"
+  },
+  {
+    "id": "thunder_bind",
+    "name": "雷縛",
+    "rarity": "RARE",
+    "effect": "damage",
+    "target": "enemy",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 2.3,
+    "hits": 1,
+    "cooldown": 2,
+    "description": "一撃の後、状態異常を狙う。",
+    "max_uses": 5,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "lightning",
+    "field_usable": false,
+    "status_id": "paralyze",
+    "status_chance": 45,
+    "presentation_id": "rare_magic"
+  },
+  {
+    "id": "nightmare",
+    "name": "ナイトメア",
+    "rarity": "RARE",
+    "effect": "damage",
+    "target": "enemy",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 2,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "一撃の後、状態異常を狙う。",
+    "max_uses": 4,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "dark",
+    "field_usable": false,
+    "status_id": "sleep",
+    "status_chance": 45,
+    "presentation_id": "rare_dark"
+  },
+  {
+    "id": "chaos_spell",
+    "name": "カオス",
+    "rarity": "RARE",
+    "effect": "damage",
+    "target": "enemy",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 1.8,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "一撃の後、状態異常を狙う。",
+    "max_uses": 4,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "dark",
+    "field_usable": false,
+    "status_id": "confusion",
+    "status_chance": 40,
+    "presentation_id": "rare_dark"
+  },
+  {
+    "id": "armor_wave",
+    "name": "装甲崩壊",
+    "rarity": "RARE",
+    "effect": "armor_break",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 4,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 4,
+    "relearn_uses": 2,
+    "effect_id": "debuff",
+    "field_usable": false,
+    "modifier": 0.7,
+    "duration": 3,
+    "presentation_id": "rare_support"
+  },
+  {
+    "id": "focus_field",
+    "name": "精神集中陣",
+    "rarity": "RARE",
+    "effect": "focus",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 4,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 4,
+    "relearn_uses": 2,
+    "effect_id": "buff",
+    "field_usable": false,
+    "modifier": 1.5,
+    "duration": 3,
+    "presentation_id": "rare_support"
+  },
+  {
+    "id": "purify_wind",
+    "name": "浄化の風",
+    "rarity": "RARE",
+    "effect": "cure",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 3,
+    "description": "HPを変えず、毒・麻痺・睡眠・混乱を治療。",
+    "max_uses": 2,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "heal",
+    "field_usable": true,
+    "cure_statuses": [
+      "poison",
+      "paralyze",
+      "sleep",
+      "confusion"
+    ],
+    "presentation_id": "rare_heal"
+  },
+  {
+    "id": "ragnarok",
+    "name": "ラグナロク",
+    "rarity": "LEGEND",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 3,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 4,
+    "description": "全体にダメージ。",
+    "max_uses": 2,
+    "skill_type": "physical",
+    "growth": {
+      "HP": 0,
+      "STR": 2,
+      "AGI": 0,
+      "INT": 0
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "legend",
+    "field_usable": false,
+    "presentation_id":"legend_ragnarok"
+  },
+  {
+    "id": "starfall",
+    "name": "スターフォール",
+    "rarity": "LEGEND",
+    "effect": "damage",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 4.5,
+    "hits": 1,
+    "cooldown": 4,
+    "description": "全体にダメージ。",
+    "max_uses": 2,
+    "skill_type": "magic",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 2
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "legend",
+    "field_usable": false,
+    "presentation_id":"legend_starfall"
+  },
+  {
+    "id": "miracle",
+    "name": "ミラクル",
+    "rarity": "LEGEND",
+    "effect": "heal",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 5,
+    "hits": 1,
+    "cooldown": 0,
+    "description": "生存している味方全員のHPを回復。",
+    "max_uses": 2,
+    "skill_type": "healing",
+    "growth": {
+      "HP": 0.5,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "heal",
+    "field_usable": true,
+    "presentation_id":"legend_miracle"
+  },
+  {
+    "id": "sanctuary",
+    "name": "サンクチュアリ",
+    "rarity": "LEGEND",
+    "effect": "guard_up",
+    "target": "all_allies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 4,
+    "description": "同系統の効果を更新。累積しない。",
+    "max_uses": 2,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "buff",
+    "field_usable": false,
+    "modifier": 0.55,
+    "duration": 2,
+    "presentation_id":"legend_sanctuary"
+  },
+  {
+    "id": "time_stop",
+    "name": "時の停止",
+    "rarity": "LEGEND",
+    "effect": "status",
+    "target": "all_enemies",
+    "str_scale": 0,
+    "agi_scale": 0,
+    "int_scale": 0,
+    "hits": 1,
+    "cooldown": 4,
+    "description": "状態異常を狙う。敵ごとに判定。",
+    "max_uses": 1,
+    "skill_type": "support",
+    "growth": {
+      "HP": 0,
+      "STR": 0,
+      "AGI": 0,
+      "INT": 1
+    },
+    "relearn_cost": 0,
+    "relearn_uses": 0,
+    "effect_id": "debuff",
+    "field_usable": false,
+    "status_id": "sleep",
+    "status_chance": 70,
+    "presentation_id":"legend_time_stop"
   }
 ]

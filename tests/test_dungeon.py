@@ -13,7 +13,7 @@ from rpg.content import ROOT, load_content
 from rpg.dungeon import Dungeon, load_dungeon_settings
 from rpg.map_resources import load_maps
 from rpg.tiles import (DUNGEON_RESOURCE, AREA_RESOURCES, TILE_WALL, TILE_FLOOR, TILE_ENTRANCE,
-                       TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS)
+                       TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_BOSS, FLOOR_TILES)
 
 
 class DungeonTests(unittest.TestCase):
@@ -98,7 +98,7 @@ class DungeonTests(unittest.TestCase):
                 d.maps[floor].pset(*destination, tile)
                 self.assertFalse(d.can_enter(floor, *destination))
 
-    def test_random_encounter_rate_and_no_random_fights_on_boss_floor(self):
+    def test_random_encounter_rate_is_unchanged(self):
         d = self.dungeon
         d.grace = 0
         d.x, d.y = 4, 3
@@ -111,11 +111,92 @@ class DungeonTests(unittest.TestCase):
             counts.append(count)
         self.assertTrue(700 < counts[0] < 1100)
         self.assertTrue(4000 < counts[1] < 5000)
-        d.debug_floor(4)
-        d.settings["debug_encounter_chance"] = 1
-        for _ in range(100):
-            d.x, d.y = d.find(4, TILE_STAIRS_UP)
-            self.assertEqual(d.move(1, 0, True)[0], "")
+
+    def floor_step(self, floor):
+        """Use two adjacent authored floor tiles, never mutate the map."""
+        d = self.dungeon
+        for x, y in sorted(d.reachable(floor)):
+            if d.tile(floor, x, y) in FLOOR_TILES:
+                for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    if d.tile(floor, x + dx, y + dy) in FLOOR_TILES:
+                        return (x, y), (dx, dy)
+        self.fail(f'B{floor + 1}: no reachable ordinary floor pair')
+
+    def test_b4_b5_b9_b10_b14_roll_encounters_and_boss_clear_does_not_disable_them(self):
+        d = self.dungeon
+        for floor in (3, 4, 8, 9, 13):
+            for cleared in (False, True):
+                for debug in (False, True):
+                    with self.subTest(floor=floor+1, cleared=cleared, debug=debug):
+                        d.debug_floor(floor)
+                        if floor in (4, 9):
+                            d.defeated_bosses.discard(floor)
+                            if cleared:
+                                d.defeat_boss()
+                        point, delta = self.floor_step(floor)
+                        d.x, d.y = point
+                        d.grace = 0
+                        with patch.object(d.rng, 'random', return_value=0) as roll:
+                            self.assertEqual(d.move(*delta, debug=debug)[0], 'battle')
+                        roll.assert_called_once_with()
+
+    def test_b5_b10_preserve_safe_steps_and_configured_chance(self):
+        d = self.dungeon
+        for floor in (4, 9):
+            with self.subTest(floor=floor+1):
+                point, delta = self.floor_step(floor)
+                d.debug_floor(floor)
+                with patch.object(d.rng, 'random', return_value=0) as roll:
+                    for remaining in (1, 0):
+                        d.x, d.y = point
+                        self.assertEqual(d.move(*delta)[0], '')
+                        self.assertEqual(d.grace, remaining)
+                    roll.assert_not_called()
+                    d.x, d.y = point
+                    self.assertEqual(d.move(*delta)[0], 'battle')
+                for debug in (False, True):
+                    chance = d.settings['debug_encounter_chance' if debug else 'encounter_chance']
+                    for sample, expected in ((chance - 0.001, 'battle'), (chance, '')):
+                        d.x, d.y = point
+                        with patch.object(d.rng, 'random', return_value=sample):
+                            self.assertEqual(d.move(*delta, debug=debug)[0], expected)
+
+    def test_b5_b10_normal_enemies_reuse_exact_previous_profile_and_boss_is_unchanged(self):
+        d = self.dungeon
+        before = copy.deepcopy((d.settings, d.enemies))
+        for floor in (4, 9):
+            with self.subTest(floor=floor+1):
+                d.debug_floor(floor)
+                state = d.rng.getstate()
+                actual = d.make_enemies()
+                d.rng.setstate(state)
+                d.floor = floor - 1
+                expected = d.make_enemies()
+                self.assertEqual([vars(e) for e in actual], [vars(e) for e in expected])
+                d.floor = floor
+                boss = d.make_enemies(boss=True)
+                self.assertEqual(len(boss), 1)
+                self.assertEqual((boss[0].name, boss[0].max_hp), (d.boss_data['name'], d.boss_data['max_hp']))
+        self.assertEqual((d.settings, d.enemies), before)
+
+    def test_b15_never_rolls_random_encounters_before_during_or_after_finale(self):
+        d = self.dungeon
+        d.debug_floor(14)
+        point, delta = self.floor_step(14)
+        for stage in ('arrival', 'guardian1', 'guardian2', 'guardian3', 'spring', 'demon_clear'):
+            if stage == 'guardian1':
+                d.finale.start_guardians()
+            elif stage in ('guardian2', 'guardian3', 'spring'):
+                d.finale.guardian_victory()
+            elif stage == 'demon_clear':
+                d.defeat_boss()
+            for debug in (False, True):
+                with self.subTest(stage=stage, debug=debug):
+                    d.x, d.y = point
+                    d.grace = 0
+                    with patch.object(d.rng, 'random', return_value=0) as roll:
+                        self.assertEqual(d.move(*delta, debug=debug)[0], '')
+                    roll.assert_not_called()
 
     def test_editor_moved_stairs_use_new_arrival_and_exit(self):
         d = self.dungeon
@@ -219,7 +300,7 @@ class DungeonTests(unittest.TestCase):
         self.assertEqual([c.hp for c in s.party], before)
         self.assertGreater(s.party[0].max_hp, old_max)
         self.assertTrue(all(c.skills for c in s.party))
-        self.assertIn("持ち越し", s.results[-1])
+        self.assertEqual(s.results[-1], "探索へ戻る")
         s.next_battle(d.make_enemies(), recover=False)
         self.assertEqual([c.hp for c in s.party], before)
 

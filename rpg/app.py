@@ -1,6 +1,8 @@
 """160x120 UI. All rules live outside this module."""
 from collections import deque
 import time
+from .statuses import active_statuses, clear_statuses
+from .skill_targets import AUTO_TARGETS
 
 import pyxel
 
@@ -14,6 +16,9 @@ from .keyboard import GameKeyboard
 from .opening import GAME_TITLE
 from .final_battle import AMRITA_ITEM_ID, LORD_OF_ELYSION_ID
 from .final_presentation import FinalPresentation, AMRITA_MESSAGE_FRAME
+from .battle_presentation import (BattlePresentation, result_pages, draw_status_icons, draw_battle_background,
+                                  enemy_position, ASSET_BANK, KO_SPRITE_U, KO_SPRITE_V,
+                                  KO_SPRITE_W, KO_SPRITE_H)
 
 
 # The official Web touch pad emits gamepad buttons, not keyboard keys.
@@ -28,6 +33,9 @@ GAMEPAD_KEYS = {
 
 FANFARE_MAX_WAIT_SECONDS = 4.5
 FANFARE_MAX_WAIT_FRAMES = 150
+FANFARE_PRESENTATION_SECONDS = 2.4  # Existing score duration; no channel polling.
+FANFARE_PRESENTATION_FRAMES = 72
+QUIT_SELECT_HOLD_SECONDS = 1.0
 
 
 class App:
@@ -36,10 +44,11 @@ class App:
         pyxel.init(160, 120, title=GAME_TITLE, fps=30,
                    display_scale=5, quit_key=pyxel.KEY_NONE, headless=headless)
         self.keyboard = GameKeyboard(enabled=not headless)
+        self.quit_select_started_at = None
         self.keyboard.update()
         load_art(pyxel)
         font()
-        init_sound()
+        self.audio = init_sound()
         self.overlay = None
         self.info_character = self.info_tab = self.scroll = 0
         self.result_page = 0
@@ -56,6 +65,7 @@ class App:
         self.fanfare_timed_out = False
         self.debug_events = []
         self.final_presentation = None
+        self.battle_presentation = None
         if battle_on_start:
             self.start_battle()
         if run:
@@ -84,15 +94,14 @@ class App:
             return False
         elapsed = time.monotonic() - self.fanfare_started_at
         frames = pyxel.frame_count - self.fanfare_start_frame
-        if elapsed >= FANFARE_MAX_WAIT_SECONDS or frames >= FANFARE_MAX_WAIT_FRAMES:
+        ticks = getattr(self, 'fanfare_visual_frames', 0)
+        if (elapsed >= FANFARE_PRESENTATION_SECONDS or frames >= FANFARE_PRESENTATION_FRAMES or
+            ticks >= FANFARE_PRESENTATION_FRAMES):
             if not self.fanfare_timed_out:
-                self.fanfare_timed_out = True
-                self.trace("FANFARE TIMEOUT")
+                self.fanfare_timed_out = elapsed >= FANFARE_MAX_WAIT_SECONDS or frames >= FANFARE_MAX_WAIT_FRAMES
+                self.trace("VICTORY PRESENTATION END")
                 stop_battle_music()
-            return False
-        if not music_is_playing():
             self.fanfare_started_at = None
-            self.trace("FANFARE END")
             return False
         return True
 
@@ -122,6 +131,19 @@ class App:
         self.selected_skill = None
         self.selected_item = None
         self.item_cursor = 0
+        self.skip_confused_commands()
+        if self.actor_position >= len(self.order) and self.order:
+            self.battle.begin_round(self.actions)
+            self.state, self.delay = 'resolve', 0
+            self.log = [f'第{self.battle.round}ターン']
+
+    def skip_confused_commands(self):
+        while self.actor_position < len(self.order):
+            index = self.order[self.actor_position]
+            if 'confusion' not in active_statuses(self.session.party[index]):
+                break
+            self.actions.append(Action(index, 'STATUS'))
+            self.actor_position += 1
 
     @property
     def actor_index(self):
@@ -151,6 +173,25 @@ class App:
         low, high = (pyxel.KEY_LEFT, pyxel.KEY_RIGHT) if horizontal else (pyxel.KEY_UP, pyxel.KEY_DOWN)
         return int(self.button_pressed(high, 10, 3)) - int(self.button_pressed(low, 10, 3))
 
+    def handle_quit_input(self):
+        """Exit without saving; leave plumOS SELECT + D-pad shortcuts usable."""
+        if self.pressed(pyxel.KEY_Q):
+            pyxel.quit()
+            return True
+        dpad = (pyxel.GAMEPAD1_BUTTON_DPAD_UP, pyxel.GAMEPAD1_BUTTON_DPAD_DOWN,
+                pyxel.GAMEPAD1_BUTTON_DPAD_LEFT, pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT)
+        if pyxel.btn(pyxel.GAMEPAD1_BUTTON_BACK) and not any(pyxel.btn(key) for key in dpad):
+            now = time.monotonic()
+            started = getattr(self, "quit_select_started_at", None)
+            if started is None:
+                self.quit_select_started_at = now
+            elif now - started >= QUIT_SELECT_HOLD_SECONDS:
+                pyxel.quit()
+                return True
+        else:
+            self.quit_select_started_at = None
+        return False
+
     def tell(self, message):
         self.notice, self.notice_timer = message, 60
 
@@ -159,13 +200,15 @@ class App:
             dead = self.selected_item == "PHOENIX ASH" or (self.selected_skill and self.selected_skill.effect == "revive")
             return [(i, target) for i, target in enumerate(self.session.party)
                     if target.alive != bool(dead) and
-                    (self.selected_item != "POTION" or target.hp < target.max_hp)]
+                    (self.selected_item != "POTION" or target.hp < target.max_hp) and
+                    (self.selected_item != 'REMEDY' or active_statuses(target))]
         return [(i, target) for i, target in enumerate(self.battle.enemies) if target.alive]
 
     def battle_items(self):
         reserved = {item: sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
-                    for item in ("POTION", "PHOENIX ASH")}
-        options = [item for item in reserved if self.session.inventory.counts[item] > reserved[item]]
+                    for item in ("POTION", "PHOENIX ASH", "REMEDY")}
+        options = [item for item in reserved if self.session.inventory.counts[item] > reserved[item]
+                   and (item != 'REMEDY' or any(c.alive and active_statuses(c) for c in self.session.party))]
         if self.battle.can_use_amrita and not any(a.item_id == AMRITA_ITEM_ID for a in self.actions):
             options.append(AMRITA_ITEM_ID)
         return options
@@ -173,6 +216,7 @@ class App:
     def commit(self, action):
         self.actions.append(action)
         self.actor_position += 1
+        self.skip_confused_commands()
         self.cursor = self.skill_cursor = self.target_cursor = 0
         self.selected_skill = None
         self.selected_item = None
@@ -183,15 +227,48 @@ class App:
         else:
             self.state = "command"
 
+    def update_status_debug(self, confirm, cancel):
+        units = self.session.party + self.battle.enemies
+        self.status_debug_target = (self.status_debug_target + self.direction()) % len(units)
+        self.status_debug_cursor = (self.status_debug_cursor + self.direction(horizontal=True)) % 5
+        if cancel:
+            self.overlay = None
+            self.begin_input()
+        elif confirm:
+            from .statuses import STATUS_IDS
+            target = units[self.status_debug_target]
+            if self.status_debug_cursor == 4:
+                clear_statuses(target)
+                self.tell('DEBUG: 状態異常を解除')
+            else:
+                ident = STATUS_IDS[self.status_debug_cursor]
+                applied = self.battle.apply_status(target, ident)
+                self.tell('DEBUG: 付与' if applied else 'DEBUG: 付与失敗（KO/制御状態/耐性）')
+
+    def draw_status_debug(self):
+        from .statuses import STATUS_IDS
+        units = self.session.party + self.battle.enemies
+        unit = units[self.status_debug_target]
+        self.title('DEBUG / 状態異常')
+        text(5, 17, unit.name, 3, 36)
+        names = [self.battle.status_definitions[k].name for k in STATUS_IDS] + ['解除']
+        text(5, 32, ' / '.join(names), 2, 36)
+        text(5, 44, '> ' + names[self.status_debug_cursor], 3, 36)
+        for i, (ident, turns) in enumerate(active_statuses(unit).items()):
+            text(5, 61 + i * 12, f'{self.battle.status_definitions[ident].name} 残{turns}T', 3, 36)
+        self.footer('上下:対象 左右:種類 A:付与 B:戻る')
+
     def update(self):
         self.keyboard.update()
+        if self.handle_quit_input():
+            return
         if self.state == 'amrita_effect':
             self.update_amrita_effect()
             return
-        self.shake_timer = max(0, self.shake_timer - 1)
-        if self.pressed(pyxel.KEY_Q):
-            pyxel.quit()
+        if self.state == 'resolve' and self.battle_visual().active:
+            self.update_battle_visual()
             return
+        self.shake_timer = max(0, self.shake_timer - 1)
         self.notice_timer = max(0, self.notice_timer - 1)
         if self.pressed(pyxel.KEY_F9):
             self.session.debug = not self.session.debug
@@ -212,6 +289,13 @@ class App:
             self.overlay = None if self.overlay == "help" else "help"
             return
         confirm, cancel = self.confirm(), self.cancel()
+        if self.overlay == 'status_debug':
+            self.update_status_debug(confirm, cancel)
+            return
+        if self.session.debug and self.state == 'command' and self.pressed(pyxel.KEY_F2):
+            self.overlay = 'status_debug'
+            self.status_debug_target = self.status_debug_cursor = 0
+            return
         if self.overlay:
             if cancel:
                 self.overlay = None
@@ -232,6 +316,7 @@ class App:
             self.update_replacement(confirm, cancel)
             return
         if self.state == "result":
+            self.fanfare_visual_frames = getattr(self, 'fanfare_visual_frames', 0) + 1
             page_count = max(1, (len(self.result_lines) + 8) // 9)
             self.result_page = max(0, min(page_count - 1, self.result_page + self.direction(horizontal=True) + self.direction()))
             if confirm:
@@ -261,7 +346,7 @@ class App:
                 self.trace("VICTORY START" if self.battle.outcome == "VICTORY" else "BATTLE END")
                 stop_battle_music()
                 self.notice_timer = 0
-                self.result_lines = wrap_lines(self.session.settle())
+                self.set_result_pages(self.session.settle())
                 self.trace("REWARD GROWTH MASTERY SPARK COMPLETE")
                 self.result_page = 0
                 self.state = "result"
@@ -271,18 +356,19 @@ class App:
                         self.fanfare_started_at = time.monotonic()
                         self.fanfare_start_frame = pyxel.frame_count
                         self.fanfare_timed_out = False
+                        self.fanfare_visual_frames = 0
                         self.trace("FANFARE START")
                     else:
                         self.fanfare_started_at = None
                         self.trace("FANFARE UNAVAILABLE")
             elif self.battle.queue:
-                barrier_before = self.battle.elysion_barrier_active
-                self.pending.extend(wrap_lines(self.battle.step()))
-                play_cue(self.battle.sound_cue)
-                if self.battle.player_hit:
-                    self.shake_timer = 6
-                if barrier_before and not self.battle.elysion_barrier_active:
-                    self.start_amrita_effect()
+                visual = self.battle_visual()
+                if visual.start():
+                    action = self.battle.queue[0][1]
+                    name = self.battle.skills[action.skill_id].name if action.kind == 'SKILL' else action.item_id
+                    self.log = (self.log + [self.session.party[action.actor].name + ' ' + name])[-3:]
+                else:
+                    self.apply_visual_action()
             else:
                 self.begin_input()
             return
@@ -317,6 +403,12 @@ class App:
                         self.actions.clear()
                         self.pending = deque(lines)
                         self.state, self.delay = "resolve", 0
+                        if self.battle.outcome == 'ESCAPE':
+                            self.log = lines
+                            self.pending.clear()
+                            stop_battle_music()
+                            self.battle_visual().start_run()
+                            play_cue('run_success')
         elif self.state == "battle_item":
             options = self.battle_items()
             if cancel:
@@ -349,6 +441,8 @@ class App:
                     self.tell("この技は再使用待ちです")
                 elif skill.target == "self":
                     self.commit(Action(self.actor_index, "SKILL", self.actor_index, skill.id))
+                elif skill.target in AUTO_TARGETS:
+                    self.commit(Action(self.actor_index, "SKILL", 0, skill.id))
                 else:
                     self.selected_skill = skill
                     if not self.targets():
@@ -387,8 +481,11 @@ class App:
 
     def draw(self):
         pyxel.cls(0)
-        if self.state == 'amrita_effect':
+        if self.overlay == 'status_debug':
+            self.draw_status_debug()
+        elif self.state == 'amrita_effect':
             try:
+                pyxel.camera(*self.final_visual().shake_offset())
                 self.draw_battle()
                 self.final_visual().draw_light(pyxel)
             except Exception as error:
@@ -413,35 +510,87 @@ class App:
         elif self.state == "battle_item":
             self.draw_battle_items()
         else:
-            if self.shake_timer:
+            shake = self.battle_visual().shake_offset()
+            if shake != (0, 0):
+                pyxel.camera(*shake)
+            elif self.shake_timer:
                 offsets = ((-2, 0), (2, 1), (-1, -1), (1, 0), (0, 1), (0, 0))
                 pyxel.camera(*offsets[6 - self.shake_timer])
             self.draw_battle()
-            if self.shake_timer:
+            if self.shake_timer or shake != (0, 0):
                 pyxel.camera()
 
     def draw_battle(self):
         flag = " DEBUG" if self.session.debug else ""
         self.title(f"第{self.session.completed + 1}戦 {self.battle.round + (self.state not in ('resolve', 'amrita_effect'))}ターン{flag}")
-        # Sparse dithered battlefield, behind the enemy rows.
-        for x in range(5, 91, 8):
-            pyxel.pset(x, 75, 1)
+        visual = self.battle_visual()
+        area = None if self.battle.is_elysion_battle else getattr(self, 'battle_background_area', None)
+        if area is None:
+            pyxel.rect(0, 67, 96, 13, 0)
+            for x in range(5, 91, 8):
+                pyxel.pset(x, 75, 1)
+        else:
+            draw_battle_background(pyxel, area)
         for i, enemy in enumerate(self.battle.enemies):
-            y = 16 + i * 20
-            if enemy.alive:
+            x, y = enemy_position(i, len(self.battle.enemies))
+            x += visual.enemy_offset(i)
+            visible, sink = visual.enemy_visual(i)
+            if visible:
                 if self.battle.is_elysion_battle and enemy.id == LORD_OF_ELYSION_ID:
+                    flashing = visual.target_flashing('enemy', i)
+                    if flashing:
+                        pyxel.pal(1, 3); pyxel.pal(2, 3)
                     self.draw_lord_of_elysion(enemy)
+                    if flashing:
+                        pyxel.pal()
                 else:
-                    pyxel.blt(38, y, 0, *enemy.sprite, 16, 16, 0)
+                    pyxel.clip(0, 11, 96, y + 16 - 11)
+                    flashing = visual.target_flashing('enemy', i)
+                    if flashing:
+                        pyxel.pal(1, 3); pyxel.pal(2, 3)
+                    pyxel.blt(x, y + sink, 0, *enemy.sprite, 16, 16, 0)
+                    if flashing:
+                        pyxel.pal()
+                    pyxel.clip()
+                if enemy.alive:
+                    icon_x, icon_y = x - 9, y
+                    if self.battle.is_elysion_battle:
+                        fx, fy, _, _ = self.final_visual().bounds()
+                        icon_x, icon_y = fx - 9, fy
+                    draw_status_icons(pyxel, enemy, max(0, icon_x), icon_y, limit=2,
+                                      vertical=True, definitions=self.battle.status_definitions)
         for i, actor in enumerate(self.session.party):
             y = 13 + i * 16
-            active = self.state in ("command", "target", "battle_transition") and self.actor_index == i
+            active = (self.state in ("command", "target", "battle_transition") and self.actor_index == i
+                      or visual.active and visual.actor == i)
             pyxel.rect(97, y, 62, 16, 1 if active else 0)
-            pyxel.blt(98, y, 0, *actor.sprite, 16, 16, 0)
-            text(115, y + 1, actor.name, 3 if actor.alive else 1, 7)
-            status = "KO" if not actor.alive else "!" if actor.berserk else "+" if actor.guarding else ""
+            offset = visual.actor_offset(i)
+            running = visual.phase == 'run_success'
+            recoiling = visual.party_recoiling(i)
+            showing_hit = visual.holds_party_sprite(i)
+            if actor.alive or showing_hit:
+                flashing = visual.target_flashing('party', i)
+                if flashing:
+                    pyxel.pal(1, 3); pyxel.pal(2, 3)
+                pyxel.blt(98 + offset, y, 0, *actor.sprite, -16 if running else 16, 16, 0)
+                if flashing:
+                    pyxel.pal()
+                if not running and actor.alive:
+                    draw_status_icons(pyxel, actor, 82 + offset,
+                                      y + 3, limit=2,
+                                      definitions=self.battle.status_definitions)
+            else:
+                pyxel.blt(98 + offset, y, ASSET_BANK, KO_SPRITE_U, KO_SPRITE_V,
+                          -KO_SPRITE_W if running else KO_SPRITE_W, KO_SPRITE_H, 0)
+            if running:
+                continue  # Leave room for the four moving sprites, without text overlap.
+            label_x = 119 if recoiling else 115
+            shown_hp = visual.displayed_hp(i)
+            text(label_x, y + 1, actor.name, 3 if shown_hp > 0 else 1, 6 if recoiling else 7)
+            status = "KO" if shown_hp <= 0 else "!" if actor.berserk else "+" if actor.guarding else ""
             text(148, y + 1, status, 3, 2)
-            text(115, y + 8, f"{actor.hp}/{actor.max_hp}", 2, 11)
+            text(label_x, y + 8, f"{shown_hp}/{actor.max_hp}", 2, 11)
+        visual.draw_effect(pyxel)
         self.panel(1, 80, 158, 31)
         if self.state in ("command", "battle_transition"):
             for i, label in enumerate(("SKILL 技", "ITEM 道具", "GUARD まもる", "RUN 逃走")):
@@ -459,7 +608,8 @@ class App:
                     x, y, _, h = self.final_visual().bounds()
                     text(x - 8, y + h // 2 - 4, ">", 3)
                 else:
-                    text(28, 20 + target_index * 20, ">", 3)
+                    x, y = enemy_position(target_index, len(self.battle.enemies))
+                    text(x - 8, y + 4, ">", 3)
             label = self.selected_item or f"{self.selected_skill.name} 残{self.actor.skill_uses[self.selected_skill.id]}"
             text(5, 84, label, 2, 37)
             target_line = f"> {target.name} HP {target.hp}/{target.max_hp}" if ally else f"> {target.name}"
@@ -470,6 +620,49 @@ class App:
             for i, line in enumerate(self.log[-3:]):
                 text(5, 84 + i * 8, line, 3 if i == len(self.log[-3:]) - 1 else 2, 37)
             self.footer("" if self.state == 'amrita_effect' else "A:メッセージ送り / 長押しで高速")
+        visual.legend.draw_name(pyxel, visual.phase)
+
+    def battle_visual(self):
+        visual = getattr(self, 'battle_presentation', None)
+        if visual is None or visual.battle is not self.battle:
+            self.battle_presentation = visual = BattlePresentation(self.battle)
+        return visual
+
+    def apply_visual_action(self):
+        visual = self.battle_visual()
+        before = [enemy.alive for enemy in self.battle.enemies]
+        hp_before = [actor.hp for actor in self.session.party]
+        barrier_before = self.battle.elysion_barrier_active
+        self.pending.extend(wrap_lines(self.battle.step()))
+        play_cue(self.battle.sound_cue)
+        visual.after_action(before, hp_before)
+        if self.battle.player_hit:
+            # Strong hits shake at visual impact, for three frames, not during wind-up.
+            self.shake_timer = 0 if visual.enemy_action == 'heavy_attack' else 6
+        if visual.phase == 'enemy_death':
+            play_cue('enemy_defeat')  # Once per death group, never once per blink.
+        if barrier_before and not self.battle.elysion_barrier_active:
+            visual.reset()
+            self.start_amrita_effect()
+
+    def update_battle_visual(self):
+        self.shake_timer = max(0, self.shake_timer - 1)
+        previous_phase = self.battle_visual().phase
+        event = self.battle_visual().advance()
+        if previous_phase != 'enemy_death' and self.battle_visual().phase == 'enemy_death':
+            play_cue('enemy_defeat')
+        if event == 'apply':
+            self.apply_visual_action()
+        elif event == 'escaped':
+            self.session.settle()
+            self.pending.clear()
+            self.finish_results()
+
+    def set_result_pages(self, lines):
+        self.growth_result_pages = result_pages(lines, self.session.party)
+        # Retain the existing 9-lines-per-page interface used by result controls.
+        self.result_lines = [line for page in self.growth_result_pages
+                             for line in page['lines'] + [''] * (9 - len(page['lines']))]
 
     def final_visual(self):
         if getattr(self, 'final_presentation', None) is None:
@@ -575,13 +768,22 @@ class App:
         spark = any("閃き!" in line for line in self.session.results)
         self.title(f"{OUTCOMES[outcome]} / " + ("新たな技の閃き!" if spark else "成長結果"))
         text(5, 15, f"{self.session.completed}戦 {self.session.wins}勝 {self.session.losses}敗 {self.session.draws}分", 2, 37)
-        for i, line in enumerate(self.result_lines[self.result_page * 9:self.result_page * 9 + 9]):
-            text(7, 27 + i * 8, line, 3 if "閃き" in line or "伝説" in line else 2, 36)
+        pages_data = getattr(self, 'growth_result_pages', ())
+        page = pages_data[self.result_page] if self.result_page < len(pages_data) else None
+        if page and page['kind'] == 'growth':
+            actor = self.session.party[page['actor']]
+            pyxel.blt(20, 27, 0, *actor.sprite, 16, 16, 0)
+            text(43, 30, actor.name, 3, 27)
+            for i, line in enumerate(page['lines'][1:]):
+                text(46, 49 + i * 11, line, 3, 25)
+        else:
+            for i, line in enumerate(self.result_lines[self.result_page * 9:self.result_page * 9 + 9]):
+                text(7, 27 + i * 8, line, 3 if "閃き" in line or "伝説" in line else 2, 36)
         pages = max(1, (len(self.result_lines) + 8) // 9)
         text(5, 102, f"{self.result_page + 1}/{pages}ページ", 3, 37)
         next_label = "入替へ" if self.session.pending_replacements else self.next_result_label()
         if self.result_page == pages - 1 and self.waiting_for_fanfare():
-            self.footer("ファンファーレ再生中…")
+            self.footer("")
             return
         self.footer(f"A:{next_label} D-PAD:ページ" if self.result_page == pages - 1 else "A:続きを読む D-PAD:ページ")
 
@@ -600,6 +802,7 @@ class App:
         text(5, 15, f"BATTLES {self.session.total_battles}  {self.session.wins}勝 {self.session.losses}敗 {self.session.draws}分", 2, 37)
         if self.info_tab == 0:
             pyxel.blt(10, 30, 0, *actor.sprite, 16, 16, 0)
+            draw_status_icons(pyxel, actor, 10, 50, limit=2)
             text(34, 29, f"HP {actor.hp}/{actor.max_hp}", 3, 30)
             text(34, 39, f"STR {actor.strength}  AGI {actor.agility}", 3, 30)
             slots = self.session.settings["skill_slots"]
@@ -659,9 +862,7 @@ class App:
                         self.overlay = self.debug_return_overlay if self.session.debug else None
                         self.debug_return_overlay = "debug_skills"
                         return
-                    self.result_lines = wrap_lines(self.session.results)
-                    self.result_page = 0
-                    self.state = "result"
+                    self.finish_results()
             return
         self.replacement_cursor = (self.replacement_cursor + self.direction()) % (len(actor.skills) + 1)
         if cancel:

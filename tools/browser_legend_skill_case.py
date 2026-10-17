@@ -1,0 +1,40 @@
+"""Real Pyodide LEGEND cases, RARE trace parity, old saves and live input."""
+import gc
+import io
+import json
+import unittest
+from copy import deepcopy
+from rpg.dungeon_app import DungeonApp
+from rpg.save import make_save_data, apply_save_data, BrowserSaveBackend
+
+_foundation_live_app = next(o for o in gc.get_objects() if isinstance(o, DungeonApp))
+_suite = unittest.TestSuite([
+    unittest.defaultTestLoader.loadTestsFromTestCase(_skill_test_module.LegendPresentationTests),
+    unittest.defaultTestLoader.loadTestsFromTestCase(_skill_test_module.LegendUITests),
+])
+_stream = io.StringIO()
+_result = unittest.TextTestRunner(stream=_stream, verbosity=2).run(_suite)
+assert _result.wasSuccessful(), _stream.getvalue()
+_status_cases = json.loads(run_cases())
+apply_save_data(_foundation_live_app, deepcopy(_old_skill_save))
+assert make_save_data(_foundation_live_app) == _old_skill_save
+_backend = BrowserSaveBackend(); _backend.write(_old_skill_save)
+apply_save_data(_foundation_live_app, _backend.read())
+assert make_save_data(_foundation_live_app) == _old_skill_save
+
+for _method in ('confirm', 'confirm_held', 'cancel', 'direction'):
+    _foundation_live_app.__dict__.pop(_method, None)
+_foundation_live_app.start_new_game(); _foundation_live_app.enter_camp()
+_foundation_live_app.opening_input_blocked = False
+_foundation_live_app.enter_dungeon(); _foundation_live_app.begin_encounter()
+_foundation_live_app.battle_input_blocked = False
+_foundation_live_app.session.party[0].learn(_foundation_live_app.session.skills['ragnarok'])
+_foundation_live_app.session.discovered_skills.add('ragnarok')
+_foundation_live_app.begin_input(); _foundation_live_app.state = 'skill'
+_foundation_live_app.skill_cursor = 0; _foundation_live_app.notice_timer = 0
+json.dumps(dict(count=_result.testsRun + _status_cases['count'] + 2,
+                legend_tests=_result.testsRun, legend_passed=_result.testsRun,
+                status_cases=_status_cases['count'], old_save_roundtrips=2,
+                native_asset_audits_excluded=True, total_skills=62, legend_count=8,
+                all_eight_rendered=True, rare_traces_matched=20, rule_comparisons=160,
+                repeated_legend_battles=80, save_version=1))

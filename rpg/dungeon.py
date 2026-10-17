@@ -101,6 +101,10 @@ class Dungeon:
         require(multipliers == sorted(multipliers), "spark_multipliersは浅い順に同値か増加")
         for floor, row in enumerate(self.settings["floors"]):
             width, height = self.map_bounds(floor)
+            points = row.get('quest_spawn_points', [])
+            require(isinstance(points, list) and all(
+                isinstance(p, list) and len(p) == 2 and all(type(v) is int for v in p)
+                for p in points), f'{floor + 1}F: quest_spawn_pointsは整数座標2個の配列です')
             require(type(width) is int and 8 <= width <= self.maps[floor].width,
                     f'{floor + 1}F: widthはTilemap内の8以上の整数です')
             require(type(height) is int and 8 <= height <= self.maps[floor].height,
@@ -115,7 +119,7 @@ class Dungeon:
             require(len(row["enemy_ids"]) == len(row["weights"]) > 0, "敵候補と重みの数が不一致")
             require(all(i in self.enemies and not self.enemies[i].get("boss") for i in row["enemy_ids"]), "通常敵IDが無効")
             require(all(number(w, 0.001, 10000) for w in row["weights"]), "敵の重みは正の数")
-            require(len(row["count"]) == 2 and all(type(v) is int for v in row["count"]) and 1 <= row["count"][0] <= row["count"][1] <= 3, "敵数は1～3")
+            require(len(row["count"]) == 2 and all(type(v) is int for v in row["count"]) and 1 <= row["count"][0] <= row["count"][1] <= 4, "敵数は1～4")
             require(all(number(row[k], 0.1, 20) for k in ("hp_scale", "power_scale")), "敵の倍率が無効")
         for ident in self.finale.data['guardian_ids']:
             row = self.enemies.get(ident, {})
@@ -335,7 +339,9 @@ class Dungeon:
         if tile not in FLOOR_TILES and tile not in (TILE_CHEST_OPEN, TILE_BOSS_CLEAR, TILE_QUEST,
                         TILE_DOOR, TILE_DOOR_OPEN, TILE_SWITCH_ON, TILE_GUARDIAN):
             return self.interact()
-        if self.floor in BOSS_FLOORS:
+        # Only B15 is a dedicated finale floor without random encounters.
+        # B5/B10 still roll while exploring, before and after their bosses.
+        if self.floor == 14:
             return "", ""
         if self.grace and not debug:
             self.grace -= 1
@@ -357,13 +363,18 @@ class Dungeon:
             rows = [self.boss_data]
             hp_scale = power_scale = 1
         else:
+            # Boss-only profiles reuse the preceding area's ordinary enemies,
+            # just as hunt quests do; keep their existing weights and stats.
+            if "enemy_ids" not in profile:
+                profile = self.settings["floors"][self.floor - 1]
             ids = self.rng.choices(profile["enemy_ids"], profile["weights"], k=self.rng.randint(*profile["count"]))
             rows = [self.enemies[i] for i in ids]
             hp_scale, power_scale = profile["hp_scale"], profile["power_scale"]
-        return [Enemy(row["name"] + ("" if boss else f" {chr(65 + i)}"),
-                      max(1, round(row["max_hp"] * hp_scale)), max(1, round(row["str"] * power_scale)),
-                      row["agi"], max(1, round(row["int"] * power_scale)), tuple(row["sprite"]), row["magic_chance"],
-                      defense=row.get("defense", 0), magic_defense=row.get("magic_defense", 0))
+        return [Enemy.from_definition(row,
+                      name=row["name"] + ("" if boss else f" {chr(65 + i)}"),
+                      max_hp=max(1, round(row["max_hp"] * hp_scale)),
+                      strength=max(1, round(row["str"] * power_scale)),
+                      intellect=max(1, round(row["int"] * power_scale)))
                 for i, row in enumerate(rows)]
 
     def use_potion(self, character):

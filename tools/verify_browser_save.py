@@ -25,6 +25,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--channel', default=None)
     parser.add_argument('--playwright-path', type=Path)
+    parser.add_argument('--phase7c', action='store_true', help='Also test real AudioContext suspend, page freeze/resume and silent victory')
     args = parser.parse_args()
     if args.playwright_path:
         sys.path.insert(0, str(args.playwright_path.resolve()))
@@ -51,10 +52,11 @@ def main():
                 context = playwright.chromium.launch_persistent_context(str(profile), **settings)
                 page_errors, messages = [], []
 
-                def boot(page):
+                def boot(page, navigate=True):
                     page.on('pageerror', lambda error: page_errors.append(str(error)))
                     page.on('console', lambda message: messages.append(message.text) if message.type == 'error' else None)
-                    page.goto(url, wait_until='domcontentloaded')
+                    if navigate:
+                        page.goto(url, wait_until='domcontentloaded')
                     page.locator('#play').click()
                     frame = page.frame_locator('#game')
                     frame.locator('#pyxel-prompt').wait_for(timeout=120000)
@@ -171,7 +173,7 @@ e.completed_quest_ids = ['explore_l1_01', 'investigate_l2_02', 'hunt_l1_01']
                 print('PASS: SAVE actual localStorage', name, flush=True)
 
                 page.reload(wait_until='domcontentloaded')
-                game = boot(page)
+                game = boot(page, navigate=False)
                 continue_game()
                 assert state() == 'camp' and snapshot() == expected
                 assert py('json.dumps(test_app.exploration.quest_flavor(), ensure_ascii=False)') == flavor
@@ -215,6 +217,85 @@ test_app.exploration.active['investigated_points'] = test_app.exploration.active
                 press('down'); press('a')
                 assert state() == 'camp'
 
+                recovery = {}
+                if args.phase7c:
+                    # This models a frozen/background page, not a physical
+                    # smartphone screen lock. Use the real SDL AudioContext.
+                    recovery = game.evaluate('''async () => {
+                        const ctx = window.pyxelContext.pyodide._module.SDL2.audioContext;
+                        if (!ctx) throw new Error('SDL AudioContext missing');
+                        window.testPhase7CAudio = ctx;
+                        const before = ctx.state;
+                        await ctx.suspend();
+                        ctx.resume = () => Promise.reject(new Error('Phase7C resume failure'));
+                        return { before, suspended: ctx.state };
+                    }''')
+                    assert recovery['suspended'] == 'suspended'
+                    frame_before = py('pyxel.frame_count')
+                    other = context.new_page()
+                    other.goto('about:blank'); other.bring_to_front()
+                    page.wait_for_timeout(250)
+                    recovery['background_hidden'] = game.evaluate('document.hidden')
+                    # Headless Edge may keep all tabs visible. Check the
+                    # existing event handlers separately with synthetic events;
+                    # do not label this a real screen-lock/visibility test.
+                    recovery['synthetic_lifecycle'] = game.evaluate('''() => {
+                        const start = window.sparkAudioEvents.length;
+                        try {
+                            Object.defineProperty(document, 'hidden', { configurable: true, value: true });
+                            _virtualGamepadStates.fill(true);
+                            document.dispatchEvent(new Event('visibilitychange'));
+                            const released = _virtualGamepadStates.every(value => !value);
+                            window.dispatchEvent(new Event('pagehide'));
+                            window.dispatchEvent(new Event('blur'));
+                            Object.defineProperty(document, 'hidden', { configurable: true, value: false });
+                            document.dispatchEvent(new Event('visibilitychange'));
+                            window.dispatchEvent(new Event('pageshow'));
+                            window.dispatchEvent(new Event('focus'));
+                            return { buttons_released: released, events: window.sparkAudioEvents.slice(start) };
+                        } finally {
+                            delete document.hidden;
+                        }
+                    }''')
+                    assert recovery['synthetic_lifecycle']['buttons_released']
+                    assert any('visibilitychange hidden=true' in event for event in recovery['synthetic_lifecycle']['events'])
+                    assert any('visibilitychange hidden=false' in event for event in recovery['synthetic_lifecycle']['events'])
+                    cdp.send('Page.setWebLifecycleState', dict(state='frozen'))
+                    page.wait_for_timeout(300)
+                    cdp.send('Page.setWebLifecycleState', dict(state='active'))
+                    recovery['cdp_frozen_active'] = True
+                    other.close(); page.bring_to_front()
+                    page.wait_for_timeout(150)
+                    py('test_app.enter_dungeon()')
+                    press('b')
+                    assert state() == 'menu', state()
+                    press('b')
+                    assert state() == 'explore'
+                    py('''
+test_app.begin_encounter(animate=True)
+for enemy in test_app.battle.enemies: enemy.hp = 1
+''')
+                    game.wait_for_function('() => window.pyxelContext.pyodide.runPython("test_app.state") === "command"')
+                    py('''
+test_app.battle.begin_round(test_app.battle.auto_actions())
+test_app.state, test_app.delay = 'resolve', 0
+''')
+                    for _ in range(80):
+                        if state() == 'explore': break
+                        press('a')
+                    assert state() == 'explore', state()
+                    assert py("test_app.battle.outcome == 'VICTORY'")
+                    recovery['audio_after_victory'] = game.evaluate('window.testPhase7CAudio.state')
+                    assert recovery['audio_after_victory'] == 'suspended'
+                    recovery['fanfare_timed_out'] = py('test_app.fanfare_timed_out')
+                    recovery['frames_advanced'] = py('pyxel.frame_count') > frame_before
+                    recovery['events'] = game.evaluate('window.sparkAudioEvents.slice()')
+                    assert any('resume-failed:' in event for event in recovery['events'])
+                    py('test_app.enter_camp()')
+                    expected = snapshot()
+                    recovery['silent_victory_and_return'] = True
+                    print('PASS: real audio suspended + failed resume + frozen page -> exploration/battle/victory', name, flush=True)
+
                 # Audio failure cannot block either storage operation.
                 py('''
 import pyxel
@@ -223,6 +304,8 @@ pyxel.play = pyxel.playm = test_audio_failure
 ''')
                 save()
                 assert py('test_app.save_message') == 'セーブしました。'
+                if args.phase7c:
+                    valid_raw = raw()
                 press('b')
                 # Fail writes/reads, including the localStorage property getter.
                 game.evaluate('''() => {
@@ -311,9 +394,12 @@ test_app.finish_results()
                     new_game_preserves_slot_until_explicit_save=True, backend_selected_emscripten=True,
                     physical_smartphone=False, touch_emulation=mobile, page_errors=page_errors,
                     browser_version=cdp.send('Browser.getVersion')['product'])
+                if args.phase7c:
+                    reports[name]['audio_recovery'] = recovery
                 context.close()
                 print('PASS:', name, flush=True)
-        (ROOT / 'verification/browser_save.json').write_text(json.dumps(reports, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        filename = 'phase7c_browser_save.json' if args.phase7c else 'browser_save.json'
+        (ROOT / 'verification' / filename).write_text(json.dumps(reports, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     finally:
         server.shutdown()
         server.server_close()

@@ -1,20 +1,862 @@
 [
-  {"name":"スライム","max_hp":24,"str":5,"agi":3,"int":2,"magic_chance":0,"sprite":[0,16],"id":"slime"},
-  {"name":"コウモリ","max_hp":20,"str":6,"agi":10,"int":2,"magic_chance":0,"sprite":[16,16],"id":"bat"},
-  {"name":"ゴブリン","max_hp":32,"str":7,"agi":5,"int":3,"magic_chance":0,"sprite":[32,16],"id":"goblin"},
-  {"name":"鬼火","max_hp":25,"str":3,"agi":7,"int":8,"magic_chance":0.7,"sprite":[48,16],"id":"wisp"},
-  {"name":"ゴーレム","max_hp":44,"str":9,"agi":2,"int":2,"magic_chance":0,"sprite":[64,16],"id":"golem"},
-  {"id":"skeleton","name":"骸骨兵","max_hp":38,"str":9,"agi":7,"int":3,"magic_chance":0,"sprite":[80,16]},
-  {"id":"mage","name":"魔術師","max_hp":30,"str":4,"agi":6,"int":11,"magic_chance":0.8,"sprite":[96,16]},
-  {"id":"guardian","name":"迷宮の守護者","max_hp":360,"str":22,"agi":8,"int":24,"magic_chance":0.4,"sprite":[112,16],"boss":true,"floor":5,"defense":4,"magic_defense":0,"message":["ここまで来たか。","技を使いこなす力を見せよ。"],"after_message":["守護者を倒した。","B6Fへの道が開いた！"]},
-  {"id":"iron_golem","name":"鉄のゴーレム","max_hp":72,"str":10,"agi":4,"int":2,"magic_chance":0,"sprite":[64,16],"defense":16,"magic_defense":0,"feature":"高DEF。装甲砕き・魔法・高威力物理が有効"},
-  {"id":"berserker","name":"狂戦士","max_hp":70,"str":29,"agi":10,"int":3,"magic_chance":0,"sprite":[32,16],"defense":1,"feature":"高攻撃力。弱体・守りの力で被害を抑える"},
-  {"id":"assassin","name":"暗殺者","max_hp":65,"str":18,"agi":28,"int":8,"magic_chance":0,"sprite":[80,16],"defense":2,"feature":"高速。スロウで次ターンから先手を取る"},
-  {"id":"stone_beast","name":"石の獣","max_hp":88,"str":16,"agi":8,"int":4,"magic_chance":0,"sprite":[64,16],"defense":18,"magic_defense":0,"feature":"物理に強い。集中した魔法でも攻略可能"},
-  {"id":"skill_keeper","name":"技の番人","max_hp":600,"str":32,"agi":24,"int":30,"magic_chance":0.35,"sprite":[144,16],"defense":14,"magic_defense":3,"boss":true,"floor":10,"message":["多くの技を集めたようだな。","その使い道を示してみよ。"],"after_message":["技の番人を倒した。","B11Fへの道が開いた！"]},
-  {"id":"depth_lord","name":"デーモン","max_hp":900,"str":42,"agi":34,"int":44,"magic_chance":0.5,"sprite":[192,16],"defense":20,"magic_defense":5,"boss":true,"floor":15,"message":["アムリタを渡すと思うな。","地上の者はここで滅びよ。"],"after_message":["デーモンを倒した。","深淵に静けさが戻った。"]},
-  {"id":"sentinel_armor","name":"重装の守護者","max_hp":500,"str":30,"agi":12,"int":8,"magic_chance":0,"sprite":[64,16],"defense":24,"magic_defense":2,"boss":true,"floor":15,"feature":"高DEF。魔法・装甲砕き・高威力物理で技Usesを節約"},
-  {"id":"sentinel_speed","name":"高速の守護者","max_hp":420,"str":32,"agi":45,"int":12,"magic_chance":0,"sprite":[80,16],"defense":8,"magic_defense":3,"boss":true,"floor":15,"feature":"高AGI。スロウは有効だが、他の技でも攻略可能"},
-  {"id":"sentinel_mind","name":"魔導の守護者","max_hp":460,"str":20,"agi":24,"int":38,"magic_chance":0.8,"sprite":[96,16],"defense":6,"magic_defense":10,"boss":true,"floor":15,"feature":"魔法中心。弱体・守り・物理の高威力技が有効"},
-  {"id":"lord_of_elysion","name":"ロードオブエリシオン","max_hp":990,"str":50,"agi":36,"int":52,"magic_chance":0.55,"sprite":[112,16],"defense":24,"magic_defense":8,"boss":true,"feature":"アムリタで特殊障壁を解除して戦う最終ボス。性能と画像は仮設定"}
+  {
+    "name": "スライム",
+    "max_hp": 31,
+    "str": 5,
+    "agi": 3,
+    "int": 2,
+    "magic_chance": 0,
+    "sprite": [
+      0,
+      16
+    ],
+    "id": "slime",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 100
+      }
+    ]
+  },
+  {
+    "name": "コウモリ",
+    "max_hp": 27,
+    "str": 7,
+    "agi": 10,
+    "int": 2,
+    "magic_chance": 0,
+    "sprite": [
+      16,
+      16
+    ],
+    "id": "bat",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 100
+      }
+    ]
+  },
+  {
+    "name": "ゴブリン",
+    "max_hp": 40,
+    "str": 8,
+    "agi": 5,
+    "int": 3,
+    "magic_chance": 0,
+    "sprite": [
+      32,
+      16
+    ],
+    "id": "goblin",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 90
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 10
+      }
+    ]
+  },
+  {
+    "name": "鬼火",
+    "max_hp": 31,
+    "str": 3,
+    "agi": 7,
+    "int": 9,
+    "magic_chance": 0.7,
+    "sprite": [
+      48,
+      16
+    ],
+    "id": "wisp",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 30
+      },
+      {
+        "id": "magic",
+        "weight": 70
+      }
+    ]
+  },
+  {
+    "name": "ゴーレム",
+    "max_hp": 52,
+    "str": 10,
+    "agi": 2,
+    "int": 2,
+    "magic_chance": 0,
+    "sprite": [
+      64,
+      16
+    ],
+    "id": "golem",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 85
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 15
+      }
+    ]
+  },
+  {
+    "id": "skeleton",
+    "name": "骸骨兵",
+    "max_hp": 45,
+    "str": 10,
+    "agi": 7,
+    "int": 3,
+    "magic_chance": 0,
+    "sprite": [
+      80,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 100
+      }
+    ]
+  },
+  {
+    "id": "mage",
+    "name": "魔術師",
+    "max_hp": 37,
+    "str": 4,
+    "agi": 6,
+    "int": 12,
+    "magic_chance": 0.8,
+    "sprite": [
+      96,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 20
+      },
+      {
+        "id": "magic",
+        "weight": 80
+      }
+    ]
+  },
+  {
+    "id": "guardian",
+    "name": "迷宮の守護者",
+    "max_hp": 420,
+    "str": 25,
+    "agi": 8,
+    "int": 24,
+    "magic_chance": 0.4,
+    "sprite": [
+      112,
+      16
+    ],
+    "boss": true,
+    "floor": 5,
+    "defense": 10,
+    "magic_defense": 0,
+    "message": [
+      "ここまで来たか。",
+      "技を使いこなす力を見せよ。"
+    ],
+    "after_message": [
+      "守護者を倒した。",
+      "B6Fへの道が開いた！"
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 30
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 45
+      },
+      {
+        "id": "guard",
+        "weight": 25
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true
+    }
+  },
+  {
+    "id": "iron_golem",
+    "name": "鉄のゴーレム",
+    "max_hp": 80,
+    "str": 11,
+    "agi": 4,
+    "int": 2,
+    "magic_chance": 0,
+    "sprite": [
+      64,
+      16
+    ],
+    "defense": 16,
+    "magic_defense": 0,
+    "feature": "高DEF。装甲砕き・魔法・高威力物理が有効",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 75
+      },
+      {
+        "id": "guard",
+        "weight": 25
+      }
+    ]
+  },
+  {
+    "id": "berserker",
+    "name": "狂戦士",
+    "max_hp": 90,
+    "str": 31,
+    "agi": 10,
+    "int": 3,
+    "magic_chance": 0,
+    "sprite": [
+      32,
+      16
+    ],
+    "defense": 1,
+    "feature": "高攻撃力。弱体・守りの力で被害を抑える",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 65
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 35
+      }
+    ]
+  },
+  {
+    "id": "assassin",
+    "name": "暗殺者",
+    "max_hp": 85,
+    "str": 19,
+    "agi": 28,
+    "int": 8,
+    "magic_chance": 0,
+    "sprite": [
+      80,
+      16
+    ],
+    "defense": 2,
+    "feature": "高速。スロウで次ターンから先手を取る",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 70
+      },
+      {
+        "id": "double_attack",
+        "weight": 30
+      }
+    ]
+  },
+  {
+    "id": "stone_beast",
+    "name": "石の獣",
+    "max_hp": 98,
+    "str": 17,
+    "agi": 8,
+    "int": 4,
+    "magic_chance": 0,
+    "sprite": [
+      64,
+      16
+    ],
+    "defense": 18,
+    "magic_defense": 0,
+    "feature": "物理に強い。集中した魔法でも攻略可能",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 65
+      },
+      {
+        "id": "guard",
+        "weight": 20
+      },
+      {
+        "id": "area_attack",
+        "weight": 15
+      }
+    ]
+  },
+  {
+    "id": "skill_keeper",
+    "name": "技の番人",
+    "max_hp": 690,
+    "str": 37,
+    "agi": 24,
+    "int": 30,
+    "magic_chance": 0.35,
+    "sprite": [
+      144,
+      16
+    ],
+    "defense": 12,
+    "magic_defense": 3,
+    "boss": true,
+    "floor": 10,
+    "message": [
+      "多くの技を集めたようだな。",
+      "その使い道を示してみよ。"
+    ],
+    "after_message": [
+      "技の番人を倒した。",
+      "B11Fへの道が開いた！"
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 25
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 35
+      },
+      {
+        "id": "double_attack",
+        "weight": 40
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true
+    }
+  },
+  {
+    "id": "depth_lord",
+    "name": "デーモン",
+    "max_hp": 1080,
+    "str": 46,
+    "agi": 34,
+    "int": 49,
+    "magic_chance": 0.5,
+    "sprite": [
+      192,
+      16
+    ],
+    "defense": 20,
+    "magic_defense": 5,
+    "boss": true,
+    "floor": 15,
+    "message": [
+      "アムリタを渡すと思うな。",
+      "地上の者はここで滅びよ。"
+    ],
+    "after_message": [
+      "デーモンを倒した。",
+      "深淵に静けさが戻った。"
+    ],
+    "actions": [
+      {
+        "id": "magic",
+        "weight": 22
+      },
+      {
+        "id": "area_magic",
+        "weight": 24
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 12
+      },
+      {
+        "id": "power_up",
+        "weight": 6
+      },
+      {
+        "id": "weaken",
+        "weight": 8
+      },
+      {
+        "id": "armor_break",
+        "weight": 6
+      },
+      {
+        "id": "slow",
+        "weight": 6
+      },
+      {
+        "id": "poison_bite",
+        "weight": 6
+      },
+      {
+        "id": "sleep_spell",
+        "weight": 6
+      },
+      {
+        "id": "confusion_touch",
+        "weight": 4
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true,
+      "actions_per_round": 2
+    }
+  },
+  {
+    "id": "sentinel_armor",
+    "name": "重装の守護者",
+    "max_hp": 560,
+    "str": 35,
+    "agi": 12,
+    "int": 8,
+    "magic_chance": 0,
+    "sprite": [
+      112,
+      16
+    ],
+    "defense": 22,
+    "magic_defense": 2,
+    "boss": true,
+    "floor": 15,
+    "feature": "高DEF。魔法・装甲砕き・高威力物理で技Usesを節約",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 15
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 25
+      },
+      {
+        "id": "area_attack",
+        "weight": 30
+      },
+      {
+        "id": "guard",
+        "weight": 15
+      },
+      {
+        "id": "power_up",
+        "weight": 15
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true
+    }
+  },
+  {
+    "id": "sentinel_speed",
+    "name": "高速の守護者",
+    "max_hp": 490,
+    "str": 36,
+    "agi": 45,
+    "int": 12,
+    "magic_chance": 0,
+    "sprite": [
+      144,
+      16
+    ],
+    "defense": 8,
+    "magic_defense": 3,
+    "boss": true,
+    "floor": 15,
+    "feature": "高AGI。スロウは有効だが、他の技でも攻略可能",
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 10
+      },
+      {
+        "id": "double_attack",
+        "weight": 40
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 20
+      },
+      {
+        "id": "slow",
+        "weight": 10
+      },
+      {
+        "id": "armor_break",
+        "weight": 10
+      },
+      {
+        "id": "paralyze_grab",
+        "weight": 10
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true
+    }
+  },
+  {
+    "id": "sentinel_mind",
+    "name": "魔導の守護者",
+    "max_hp": 530,
+    "str": 23,
+    "agi": 24,
+    "int": 43,
+    "magic_chance": 0.8,
+    "sprite": [
+      160,
+      16
+    ],
+    "defense": 6,
+    "magic_defense": 10,
+    "boss": true,
+    "floor": 15,
+    "feature": "魔法中心。弱体・守り・物理の高威力技が有効",
+    "actions": [
+      {
+        "id": "magic",
+        "weight": 25
+      },
+      {
+        "id": "area_magic",
+        "weight": 40
+      },
+      {
+        "id": "area_attack",
+        "weight": 15
+      },
+      {
+        "id": "confusion_touch",
+        "weight": 8
+      },
+      {
+        "id": "sleep_spell",
+        "weight": 12
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true
+    }
+  },
+  {
+    "id": "lord_of_elysion",
+    "name": "ロードオブエリシオン",
+    "max_hp": 1180,
+    "str": 57,
+    "agi": 36,
+    "int": 60,
+    "magic_chance": 0.55,
+    "sprite": [
+      112,
+      16
+    ],
+    "defense": 24,
+    "magic_defense": 8,
+    "boss": true,
+    "feature": "アムリタで特殊障壁を解除して戦う最終ボス。性能と画像は仮設定",
+    "actions": [
+      {
+        "id": "heavy_attack",
+        "weight": 20
+      },
+      {
+        "id": "area_attack",
+        "weight": 30
+      },
+      {
+        "id": "area_magic",
+        "weight": 25
+      },
+      {
+        "id": "weaken",
+        "weight": 10
+      },
+      {
+        "id": "armor_break",
+        "weight": 8
+      },
+      {
+        "id": "slow",
+        "weight": 7
+      }
+    ],
+    "ai": {
+      "avoid_active_buffs": true,
+      "avoid_repeat_control": true,
+      "max_consecutive_aoe": 2,
+      "phases": [
+        {
+          "hp_at_most": 0.25,
+          "actions": [
+            {
+              "id": "heavy_attack",
+              "weight": 20
+            },
+            {
+              "id": "area_attack",
+              "weight": 35
+            },
+            {
+              "id": "area_magic",
+              "weight": 37
+            },
+            {
+              "id": "weaken",
+              "weight": 3
+            },
+            {
+              "id": "armor_break",
+              "weight": 4
+            },
+            {
+              "id": "slow",
+              "weight": 1
+            }
+          ]
+        },
+        {
+          "hp_at_most": 0.5,
+          "actions": [
+            {
+              "id": "heavy_attack",
+              "weight": 20
+            },
+            {
+              "id": "area_attack",
+              "weight": 32
+            },
+            {
+              "id": "area_magic",
+              "weight": 33
+            },
+            {
+              "id": "weaken",
+              "weight": 5
+            },
+            {
+              "id": "armor_break",
+              "weight": 7
+            },
+            {
+              "id": "slow",
+              "weight": 3
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "horn_rabbit",
+    "name": "ツノウサギ",
+    "max_hp": 29,
+    "str": 6,
+    "defense": 0,
+    "agi": 15,
+    "int": 2,
+    "magic_defense": 0,
+    "magic_chance": 0,
+    "sprite": [
+      208,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 90
+      },
+      {
+        "id": "double_attack",
+        "weight": 10
+      }
+    ]
+  },
+  {
+    "id": "poison_snake",
+    "name": "毒蛇",
+    "max_hp": 70,
+    "str": 14,
+    "defense": 2,
+    "agi": 17,
+    "int": 4,
+    "magic_defense": 2,
+    "magic_chance": 0,
+    "sprite": [
+      128,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 75
+      },
+      {
+        "id": "poison_bite",
+        "weight": 25
+      }
+    ]
+  },
+  {
+    "id": "blood_bat",
+    "name": "ブラッドバット",
+    "max_hp": 63,
+    "str": 16,
+    "defense": 1,
+    "agi": 24,
+    "int": 5,
+    "magic_defense": 2,
+    "magic_chance": 0,
+    "sprite": [
+      16,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 75
+      },
+      {
+        "id": "double_attack",
+        "weight": 25
+      }
+    ]
+  },
+  {
+    "id": "ghost",
+    "name": "ゴースト",
+    "max_hp": 73,
+    "str": 8,
+    "defense": 4,
+    "agi": 16,
+    "int": 22,
+    "magic_defense": 12,
+    "magic_chance": 0.6,
+    "sprite": [
+      176,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 20
+      },
+      {
+        "id": "magic",
+        "weight": 60
+      },
+      {
+        "id": "confusion_touch",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "id": "mummy",
+    "name": "ミイラ",
+    "max_hp": 105,
+    "str": 19,
+    "defense": 8,
+    "agi": 6,
+    "int": 10,
+    "magic_defense": 8,
+    "magic_chance": 0,
+    "sprite": [
+      224,
+      16
+    ],
+    "actions": [
+      {
+        "id": "attack",
+        "weight": 65
+      },
+      {
+        "id": "heavy_attack",
+        "weight": 15
+      },
+      {
+        "id": "paralyze_grab",
+        "weight": 20
+      }
+    ]
+  },
+  {
+    "id": "dark_wisp",
+    "name": "ダークウィスプ",
+    "max_hp": 74,
+    "str": 6,
+    "defense": 3,
+    "agi": 18,
+    "int": 26,
+    "magic_defense": 12,
+    "magic_chance": 1,
+    "sprite": [
+      48,
+      16
+    ],
+    "actions": [
+      {
+        "id": "magic",
+        "weight": 65
+      },
+      {
+        "id": "area_magic",
+        "weight": 20
+      },
+      {
+        "id": "sleep_spell",
+        "weight": 15
+      }
+    ]
+  },
+  {
+    "id": "warlock",
+    "name": "ウォーロック",
+    "max_hp": 84,
+    "str": 8,
+    "defense": 5,
+    "agi": 14,
+    "int": 29,
+    "magic_defense": 10,
+    "magic_chance": 0.45,
+    "sprite": [
+      96,
+      16
+    ],
+    "actions": [
+      {
+        "id": "magic",
+        "weight": 45
+      },
+      {
+        "id": "power_up",
+        "weight": 15
+      },
+      {
+        "id": "weaken",
+        "weight": 15
+      },
+      {
+        "id": "armor_break",
+        "weight": 10
+      },
+      {
+        "id": "slow",
+        "weight": 10
+      },
+      {
+        "id": "sleep_spell",
+        "weight": 5
+      }
+    ]
+  }
 ]

@@ -5,7 +5,7 @@ from .content import ROOT
 from .growth import spark
 from .quests import (QUEST_TYPES, QUEST_NAMES, QUEST_COMPLETION_IDS,
                      QUEST_COMPLETION_TOTAL, load_quest_settings,
-                     load_quest_flavors, spawn_candidates)
+                     load_quest_flavors, spawn_candidates, log_spawn_failure)
 from .labels import CURRENCY_NAME
 from .models import Enemy
 
@@ -128,6 +128,9 @@ class Exploration:
         count = self.quest_data['investigate_points'][str(quest_id)] if quest_type == 'investigate' else 1
         candidates = {floor: spawn_candidates(self.dungeon, floor)
                       for floor in range(quest['floors'][0] - 1, quest['floors'][1])}
+        for floor, points in candidates.items():
+            if len(points) < count:
+                log_spawn_failure(quest_type, quest_id, floor, count, len(points))
         candidates = {floor: points for floor, points in candidates.items() if len(points) >= count}
         if not candidates:
             raise ValueError('安全なQUEST候補地点が足りません。')
@@ -149,6 +152,16 @@ class Exploration:
     def activate_quest(self, quest):
         if self.active_quest:
             raise ValueError(self.message('already_active'))
+        # Accept the displayed floor and points exactly, or refuse the offer.
+        # Do not reroll to another floor if a preview has become invalid.
+        valid = spawn_candidates(self.dungeon, quest['target_floor'] - 1)
+        points = [tuple(p) for p in quest['points']]
+        if (len(valid) < quest['required_count'] or
+            len(set(points)) != quest['required_count'] or
+            not set(points) <= set(valid)):
+            log_spawn_failure(quest['type'], quest['level'], quest['target_floor'] - 1,
+                              quest['required_count'], len(valid))
+            raise ValueError('安全なQUEST候補地点が足りません。')
         self.active_quest = quest
         self.completion_ready = False
         self.last_flavor_id = quest['flavor_id']
@@ -173,8 +186,10 @@ class Exploration:
             raise ValueError(self.message('already_active'))
         if self.pending_quest is None:
             raise ValueError('確認中の依頼がありません。')
-        self.session.rng.setstate(self.pending_quest_rng_state)
-        return self.activate_quest(self.pending_quest)
+        rng_state = self.pending_quest_rng_state
+        message = self.activate_quest(self.pending_quest)
+        self.session.rng.setstate(rng_state)
+        return message
 
     def decline_preview(self):
         self.pending_quest = self.pending_quest_rng_state = None
@@ -209,11 +224,11 @@ class Exploration:
         profile = self.dungeon.settings['floors'][q['hunt_source_floor'] - 1]
         row = self.dungeon.enemies[q['hunt_enemy_id']]
         bonus = self.quest_data['hunt']
-        return [Enemy(row['name'], max(1, round(row['max_hp'] * profile['hp_scale'] * bonus['hp_multiplier'])),
-                      max(1, round(row['str'] * profile['power_scale']) + bonus['str_bonus']), row['agi'],
-                      max(1, round(row['int'] * profile['power_scale'])), tuple(row['sprite']), row['magic_chance'],
-                      defense=row.get('defense', 0) + bonus['def_bonus'],
-                      magic_defense=row.get('magic_defense', 0), id=row['id'])]
+        return [Enemy.from_definition(row,
+                      max_hp=max(1, round(row['max_hp'] * profile['hp_scale'] * bonus['hp_multiplier'])),
+                      strength=max(1, round(row['str'] * profile['power_scale']) + bonus['str_bonus']),
+                      intellect=max(1, round(row['int'] * profile['power_scale'])),
+                      defense=row.get('defense', 0) + bonus['def_bonus'])]
 
     def hunt_victory(self):
         if not self.hunt_here():

@@ -6,7 +6,9 @@ from .final_battle import load_final_battle_data
 
 AMRITA_EFFECT_FRAMES = 45  # 30 FPS: 1.5 seconds; independent of sound.
 AMRITA_EFFECT_MAX_SECONDS = 2.0  # Also releases after a suspended/background tab.
-AMRITA_FLASH_FRAMES = (4, 5, 10, 11)
+AMRITA_FLASH_FRAMES = (24, 25)  # One short pulse after the charge.
+AMRITA_SHAKE_START = 26
+AMRITA_SHAKE_OFFSETS = ((2, 0), (-2, 1), (1, -1), (-1, 0), (1, 1), (0, 0))
 AMRITA_IMPACT_FRAME = 24
 AMRITA_BREAK_FRAME = 32
 AMRITA_MESSAGE_FRAME = 38
@@ -44,6 +46,10 @@ class FinalPresentation:
         s = self.sprite
         return (48 - s['width'] // 2, 48 - s['height'] // 2, s['width'], s['height'])
 
+    def shake_offset(self):
+        index = self.frame - AMRITA_SHAKE_START
+        return AMRITA_SHAKE_OFFSETS[index] if self.active and 0 <= index < len(AMRITA_SHAKE_OFFSETS) else (0, 0)
+
     def barrier_points(self):
         x, y, w, h = self.bounds()
         return [(round(x + w / 2 + (w / 2 + 4) * math.cos(i * math.tau / 16)),
@@ -53,9 +59,8 @@ class FinalPresentation:
     def draw_boss(self, pyxel, enemy, barrier_active):
         x, y, w, h = self.bounds()
         f = self.frame
-        shaking = self.active and AMRITA_IMPACT_FRAME <= f < AMRITA_MESSAGE_FRAME
-        offset = (-2, 2, -1, 1)[f % 4] if shaking else 0
-        flashing = self.active and AMRITA_IMPACT_FRAME <= f < AMRITA_BREAK_FRAME and f % 4 < 2
+        offset = 0  # The whole screen now shakes once, through App's camera.
+        flashing = self.active and f in AMRITA_FLASH_FRAMES
         try:
             if flashing:
                 pyxel.pal(1, 3)
@@ -80,8 +85,6 @@ class FinalPresentation:
                 color = 3 if f < 35 else 2
             else:
                 color = 3 if (i + phase // 4) % 4 < 2 else 1
-                if self.active and AMRITA_IMPACT_FRAME <= f < AMRITA_BREAK_FRAME and f % 4 >= 2:
-                    continue
             # Constrain all particles to the battlefield; never cover name/party/log.
             if 2 <= px <= 92 and 21 <= py <= 77:
                 pyxel.pset(px, py, color)

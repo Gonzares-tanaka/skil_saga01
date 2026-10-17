@@ -1,14 +1,15 @@
 # Skill Seekers!!~深淵のアムリタ~
 
-## Phase 7A / 7B：SAVE / LOAD
+## Phase 7A / 7B / 7C：SAVE / LOAD
 
 PC Python・PCブラウザ・スマートフォンブラウザで、**拠点 → GUILD → SAVE → はい**から保存できます。スロットは1つです。次回起動後、タイトルの**つづきから**を選ぶと、導入を飛ばして通常の拠点TOPから再開します。Aで決定、Bで取り消します。保存完了・失敗のメッセージからはA/BでGUILDへ戻れます。スマートフォンも十字キー・A/Bだけで操作できます。NEW GAMEだけでは既存SAVEを上書きせず、次にSAVEした時点で上書きします。
 
-| 環境 | 保存先 |
-|---|---|
-| PC Python | 実行ディレクトリ基準の`save/save.json`。`run.cmd`ではプロジェクト内 |
-| PCブラウザ | ゲームURLのオリジンに属するlocalStorage |
-| スマートフォンブラウザ | 同じくlocalStorage。PC・他ブラウザとは自動同期されない |
+| 環境 | Backend / 保存先 | Phase 7C確認状況 |
+|---|---|---|
+| PC Python | FileSaveBackend / 実行ディレクトリ基準の`save/save.json`。`run.cmd`ではプロジェクト内 | Python 3.14.7・Pyxel 2.9.9。別プロセスで終了・再起動・再保存を確認 |
+| PCブラウザ | BrowserSaveBackend / ゲームURLのオリジンに属するlocalStorage | 実Edge・実Pyodideで確認 |
+| スマートフォンブラウザ | BrowserSaveBackend / 同じくlocalStorage。PC・他ブラウザとは自動同期されない | 対象実機はiOS Safari。EdgeのPixel 7タッチ模擬環境のみ確認済みで、iOS実機は未確認 |
+| GKD Pixel 2 Python | FileSaveBackend / 書き込み可能なディレクトリ内のJSON | plumOS / Python 3.11.7 / Pyxel 2.9.9 / aarch64を更新後の実機ログで確認。ゲーム起動・SAVE動作をユーザーの実機確認で確認済み。終了操作の追加とLOADは実機確認待ち |
 
 ブラウザではSAVE後にページを再読み込み・タブを閉じても、同じURL・同じブラウザからCONTINUEで再開できます。**サイトデータを削除すると保存も消えます。** プライベートモードやブラウザ設定によっては保存を保持できない場合があります。保存できない場合は失敗メッセージを表示し、ゲームへ戻れます。未保存の進行は終了すると失われます。Web版はHTTP(S)で開いてください。
 
@@ -18,7 +19,40 @@ PC Python・PCブラウザ・スマートフォンブラウザで、**拠点 →
 
 実装は[rpg/save.py](rpg/save.py)に集約しています。共通データ変換は`make_save_data()` / `apply_save_data()`、版移行の入口は`migrate_save_data()`です。`default_backend()`の1箇所で、Pyodideの`emscripten`は`BrowserSaveBackend`、PC Pythonは`FileSaveBackend`を選びます。ファイル保存先は`FileSaveBackend(path)`、ブラウザのキーは`BROWSER_SAVE_KEY = 'skill_seekers_save_v1'`で変更できます。キー名とデータ内の`save_version = 1`は別に管理し、URLのクエリ文字列はキーに含めません。`SaveManager`へ`read()` / `write(data)`と`available`を持つバックエンドを渡すことで保存媒体を交換できます。将来のデータ変更では、IDの維持と`save_version`の移行処理が必要です。
 
-ブラウザでは既存Pyodideの`js`モジュールからlocalStorageへ直接接続します。保存と音声処理は独立しています。IndexedDB、クラウド同期、EXPORT / IMPORT、GKD専用処理は追加していません。GKD Pixel 2はPhase 7Cで実機確認予定です。確認内容と制限は[Phase 7B実装・検証報告](verification/PHASE7B_REVIEW.md)、共通SaveDataの設計は[Phase 7A報告](verification/PHASE7A_REVIEW.md)を参照してください。
+ブラウザでは既存Pyodideの`js`モジュールからlocalStorageへ直接接続します。保存と音声処理は独立しています。IndexedDB、クラウド同期、EXPORT / IMPORT、GKD専用処理は追加していません。確認内容と制限は[Phase 7C統合確認報告](verification/PHASE7C_REVIEW.md)、ブラウザ実装は[Phase 7B報告](verification/PHASE7B_REVIEW.md)、共通SaveDataの設計は[Phase 7A報告](verification/PHASE7A_REVIEW.md)を参照してください。
+
+PC / GKDのファイル保存先は、[rpg/save.py](rpg/save.py)の`DEFAULT_SAVE_PATH = Path('save') / 'save.json'`で一箇所に設定できます。起動前に書き込み可能な場所を指定してください。既存の`DungeonApp(..., save_backend=FileSaveBackend(path))`による指定も可能です。ディレクトリはSAVE時に作成し、権限不足はSAVE失敗として扱います。GKDではランチャーの作業ディレクトリ・SDカードのマウント先・書き込み権限を実機で確認する必要があります。Windowsのドライブ名やユーザー名は保存コードに固定していません。
+
+現在固定している[Pyxel 2.9.9](https://pypi.org/project/pyxel/2.9.9/)はPython 3.11以上を要求します。2026-10-10のユーザー提供ログで、GKDのPython 3.11.7 / Pyxel 2.9.9 / aarch64を確認しました。旧Pyxel 2.3.6とのバージョン差は更新によって解消しています。これはパッケージ版の確認であり、ゲーム起動・表示・入力・音声・SAVE / LOADの実機確認はまだ必要です。plumOSの公式更新方法はUSB Wi-Fi接続後のTools → `pyxel_update`です。GKD向けにゲーム本体・依存固定版・リソース形式を変更していません。
+
+**plumOSでのバージョン確認：** [公式資料](https://github.com/game-de-it/plumOS-pixel2#pyxelについて)はPythonの場所を`/storage/pyxel_Python/bin/python3`と案内していますが、正確なPython・Pyxelの同梱版は記載していません。Pyxelは更新可能なので実機の値を確認します。[tools/check_gkd_versions.sh](tools/check_gkd_versions.sh)をGKDの`roms/ports/`へコピーし、Portsから実行すると、`gkd_versions.txt`にバージョンが出ます。パッケージの更新・ゲーム起動・SAVE変更は行いません。実行したPython環境のメタデータを確認するだけなので、ゲームが別のランチャー環境を使う場合はその設定も照合してください。
+
+診断スクリプトのrevision 2は、まず`/storage/roms/ports/gkd_versions.txt`への出力を試み、Python起動前に`CHECK START`を書きます。Pythonが失敗してもエラーと終了コードを記録します。Portsに書けない場合はスクリプトのフォルダ、作業ディレクトリ、最後に`/tmp/gkd_versions.txt`へ出力します。ログ先頭の`Report path`で実際の場所を確認できます。PC側の修正はGKDへ自動反映されないので、GKDの`.sh`を上書きコピーしてください。ファイルはLF・BOMなしを維持します。`.txt`はPortsのゲーム一覧ではなく、PC／ファイルマネージャーで確認します。
+
+Phase 7Cでは218件の自動テスト、PCでの3プロセス保存・復元、実Edgeでの再読み込み・ブラウザ再起動を確認しました。実AudioContextを停止し、`resume()`を失敗させ、ページをfreeze/復帰させても戦闘・勝利・探索復帰・SAVE / LOADは進行しました。ヘッドレスEdgeのタブ切替では実際の`document.hidden`遷移を再現できなかったため、非表示イベントの処理は合成イベントで別途確認しています。スマートフォンの画面ロック実機試験とGKD実機試験は残っています。SaveDataはversion 1のままで、ゲーム本体・マップ・素材・配布用`dist`の変更はありません。
+
+## GKD Pixel 2へコピーして実機確認
+
+**ゲーム終了はSELECT単独を約1秒長押し**です。タイトル・探索・戦闘・演出中も使用できます。SELECTはPyxelの`GAMEPAD1_BUTTON_BACK`を使います。plumOSの音量・明るさ調整に使うSELECT＋十字キーでは終了せず、長押し時間をリセットします。終了は自動セーブしません。進行を残すには、先に拠点 → GUILD → SAVEで保存してください。長押し時間は`rpg/app.py`の`QUIT_SELECT_HOLD_SECONDS`で変更できます。
+
+`verification/packages/skill_seekers_gkd.zip`は2026-10-12のStatus Ailment Phase 1.5（探索中の毒持ち越し・REMEDY）までを含む実機確認用パッケージです。`python tools/build_gkd.py`で最新ソース・素材から再生成できます。展開した`Skill_Seekers.sh`と`Skill_Seekers/`を両方とも本体の`roms/ports/`へコピーし、Portsから`Skill_Seekers`を実行します。既存ゲームの更新はファイルを上書きし、本体の`save/`を残してください。ZIP内の内容は次の構成です。
+
+```text
+roms/ports/
+├── Skill_Seekers.sh
+└── Skill_Seekers/
+    ├── main.py
+    ├── game.pyxres / game.pyxpal
+    ├── area2.pyxres / area2.pyxpal
+    ├── area3.pyxres / area3.pyxpal
+    ├── rpg/
+    ├── data/
+    └── assets/
+```
+
+起動スクリプトの元ファイルは[tools/run_gkd.sh](tools/run_gkd.sh)です。手動でコピーする場合は`Skill_Seekers.sh`へ名前を変えて上記の位置へ配置してください。スクリプトはゲームフォルダへ移動してから、実機で確認済みの`/storage/pyxel_Python/bin/python3`を使います。これによりSAVE先は`roms/ports/Skill_Seekers/save/save.json`になります。SAVE時にフォルダを作成します。既存のGKDセーブを残す場合は、この`save/`を上書き・削除しないでください。
+
+PCの`save/`、`.venv/`、`dist/`、`tests/`はZIPに含めていません。起動ログは`roms/ports/skill_seekers_launch.log`です。起動できない場合はPC／ファイルマネージャーでこのログを確認してください。スクリプトの構文とPCでの無画面起動は確認済みですが、GKD実機の表示・操作・音声・SAVE / LOADの動作保証を意味しません。ゲームを更新した場合は最新の上記ファイルをコピーし直してください。
 
 ## Phase 6D：QUEST 3種と通貨TRZ
 
@@ -59,7 +93,9 @@ QUESTには種別・Lvごとの短い依頼文・依頼人・固有のお礼が�
 
 **Lv1はB1～B5、Lv2はB6～B10（B5ボス撃破後）、Lv3はB11～B15（B10ボス撃破後）**です。依頼画面に対象階を明示します。全滅すると受注は残り、未報告の進捗を失って同じ対象へ再挑戦します。討伐のRUN・DRAWでは達成せず、対象が残ります。討伐でも通常の成長・閃き・Uses消費を使い、QUESTのTRZ報酬は帰還まで渡しません。
 
-配置は既存のTilemapの`TILE_QUEST`候補から選び、マップ自体を変更しません。ボス・守護者・警告イベントを越えずに到達でき、必要数の候補がある階だけを使います。**現在の手編集済みB15には安全な候補が1地点のため、調査Lv3はB11～B14から選択**します。探索・討伐Lv3はB15も対象です。階段・宝箱・泉・毒沼・落とし穴・スイッチ・扉・石碑・ボス上には配置しません。
+配置は既存のTilemapの`TILE_QUEST`候補と、`data/dungeon.json`の各階の`quest_spawn_points`から選び、マップ自体を変更しません。追加座標は普通の床であり、ボス・守護者・警告イベントを越えずに到達できる場合だけ有効です。**B15は守護者より手前の空き床4地点を追加登録し、安全な候補が5地点になりました。調査Lv3も正式範囲のB11～B15から選択します。** 階段・宝箱・泉・毒沼・落とし穴・スイッチ・扉・石碑・ボス上には配置しません。受注前にも地点を再検証し、不足時は受注せず`QUEST SPAWN FAILED`へ種別・Lv・対象階・必要数・有効候補数を記録します。表示した対象階を受注後に勝手に変えません。
+
+候補検証は`.venv/Scripts/python.exe tools/verify_quest_spawn.py`で実行できます。全15階の登録数・フィルタ前後の候補数・各種別の配置可否を表示し、`verification/quest_spawn.json`へ結果を出します。今回の調査・修正と、報告されたB14のWeb/SAVEケースの確認範囲は[QUEST配置調査報告](verification/QUEST_SPAWN_REVIEW.md)を参照してください。SAVEの版は1のままで、対象階・進捗・flavor_idを保持し、座標だけロード時に安全な候補から再構築します。調査1/3なら残り2地点を表示します。
 
 | 編集対象 | 場所 |
 |---|---|
@@ -70,9 +106,9 @@ QUESTには種別・Lvごとの短い依頼文・依頼人・固有のお礼が�
 | 調査の仮画像 | `game.pyxres` → Image Bank 1 → **(240,0)から8×8** |
 | 討伐の仮画像 | `game.pyxres` → Image Bank 1 → **(248,0)から8×8** |
 
-`edit.cmd`で3種の画像を描き直せます。色0は透明です。ゲームは画像バンクから描画し、起動・Webビルド時に仮絵を再生成しません。**Tilemapへ置くのは従来の候補印`TILE_QUEST`(13,0)です。新しい3画像は地形として配置しません。** 共通のマップ候補印(104,0)は引き続き配置編集用で、ゲーム中は床として表示します。画像変更後は`tools/build_web.cmd`で再生成した`dist/game.html`もPushしてください。
+`edit.cmd`で3種の画像を描き直せます。色0は透明です。ゲームは画像バンクから描画し、起動・Webビルド時に仮絵を再生成しません。明るい床に明るいシンボルが溶け込まないよう、`rpg/art.py`の`draw_quest_symbol()`で暗い1ピクセルの縁取りを重ねます。元画像・パレット・Tilemapは変更しません。**Tilemapへ置くのは従来の候補印`TILE_QUEST`(13,0)です。新しい3画像は地形として配置しません。** 共通のマップ候補印(104,0)は引き続き配置編集用で、ゲーム中は床として表示します。画像変更後は`tools/build_web.cmd`で再生成した`dist/game.html`もPushしてください。
 
-受注データは`Exploration.active_quest`のJSON化可能な辞書です。保存機能は今回追加していません。将来はこの辞書に含まれる種別・Lv・対象階・地点・調査済み地点・進捗・必要数・達成フラグ・報酬・討伐敵ID・`flavor_id`を保存してください。文章と依頼人は保存せず、`flavor_id`から読み出します。
+受注データは`Exploration.active_quest`のJSON化可能な辞書です。現在のSAVEは種別・Lv・対象階・進捗・必要数・達成フラグ・報酬・討伐敵ID・`flavor_id`を保存します。地点・調査済み地点は一時状態としてLOAD時に再構築します。文章と依頼人は保存せず、`flavor_id`から読み出します。
 
 既存＋追加の184テスト、全9パターンのD-PAD/A/B・RETURN・無音試験、最終章B10→ENDINGと全滅5回の回帰試験を実施しています。結果・24ケース・編集場所・PC/Web/実機の区別は[Phase 6D報告](verification/PHASE6D_REVIEW.md)に記録します。
 
@@ -183,7 +219,7 @@ Editorで変更した後は`tools/build_web.cmd`でWeb版を再生成し、**`ga
 | `TILE_DOOR_OPEN` | (17,0) | (136,0) | 開扉表示。直接置く場合は常に通行可 |
 | `TILE_SWITCH_ON` | (18,0) | (144,0) | ON表示用。初期配置にはOFFタイルを使用 |
 
-QUEST候補は従来の(13,0)タイルで編集します。B6：(5,5)/(13,12)/(20,8)、B7：(20,6)/(5,11)/(12,15)、B8：(2,5)/(12,20)/(20,10)/(9,9)、B9：(18,5)/(8,13)/(17,21)、B10：(7,20)/(16,17)/(12,9)。B7の扉の先の候補も、到達可能なスイッチを操作して調査できます。B11以降は候補印がなければ到達可能な床から抽選します。
+QUEST候補は従来の(13,0)タイルで編集します。B6：(5,5)/(13,12)/(20,8)、B7：(20,6)/(5,11)/(12,15)、B8：(2,5)/(12,20)/(20,10)/(9,9)、B9：(18,5)/(8,13)/(17,21)、B10：(7,20)/(16,17)/(12,9)。B7の扉の先の候補も、到達可能なスイッチを操作して調査できます。B11以降も候補印と明示登録した`quest_spawn_points`を使います。任意の床から自動抽選する処理はありません。
 
 検証は`python tools/verify_phase5_maps.py`（配置・経路・保存状態）、`python tools/verify_phase5_ui.py`（実描画とA/B操作）、`python tools/verify_expedition.py`（通常移動・戦闘・帰還）で行えます。F9でDEBUG、F4でB6～B10を選んで確認できます。Webへ反映するには`tools/build_web.cmd`で再生成した`dist/game.html`もコミットしてください。
 
@@ -203,7 +239,7 @@ B1～B5は固定マップで、初稿後に手編集されています。以下�
 
 B2の最初の箱は上り階段から4歩、B3のレア箱は毒沼経由なら13歩、安全な迂回路なら35歩です。B4の泉は必須経路から外れ、泉からB5への階段まで19歩あります。宝箱の**位置は固定、中身は既存のランダム抽選**です。泉の回復条件、ボスロック、敵出現率、深度別閃き倍率は変更していません。
 
-QUEST候補はImage Bank 1の**調査印タイル(13,0)**をTilemapへ各階3個ずつ置いています。Editorでは印が見え、ゲーム中は通常の床に見えます。受注するとこの印から調査地点を抽選し、選ばれた1か所だけゲーム中にも印が出ます。候補を移動するときは元の印を床へ戻し、壁・階段・箱・泉・罠・ボスと重ならない到達可能な床に置いてください。B6～B10にもPhase 5で候補を配置し、B11以降は従来どおり到達可能な床から抽選します。
+QUEST候補はImage Bank 1の**調査印タイル(13,0)**をTilemapへ置いています。Editorでは印が見え、ゲーム中は通常の床に見えます。受注すると候補から必要数を抽選し、選ばれた地点に種別ごとのシンボルが出ます。候補を移動するときは元の印を床へ戻し、壁・階段・箱・泉・罠・ボスと重ならない到達可能な床に置いてください。B11以降も候補印と明示登録した`quest_spawn_points`を使います。
 
 初稿のQUEST候補座標は、B1：(3,5)・(12,6)・(8,16)、B2：(18,20)・(12,13)・(6,6)、B3：(5,20)・(8,10)・(19,6)、B4：(19,3)・(10,17)・(18,17)、B5：(5,18)・(10,13)・(17,9)です。地形やイベントの移動はTilemapだけで反映されます。
 
@@ -213,7 +249,7 @@ QUEST候補はImage Bank 1の**調査印タイル(13,0)**をTilemapへ各階3個
 
 起動すると文字だけのタイトル画面が開きます。十字キーで「はじめから／つづきから」を選び、Aで決定します。Bはタイトルでは何もしません。「はじめから」は短い暗転の後、白地に黒文字の4ページの導入ストーリーへ進みます。最後のページでAを押すと、既存の拠点TOPを約3秒だけ操作不可で表示し、初回だけ城下町の説明を表示します。説明でAを押すと、5施設を操作できる拠点TOPへ入ります。「つづきから」は保存済みデータを読み込み、導入なしで拠点TOPへ入ります。保存がない・読み込めない場合はメッセージを表示し、A/Bでタイトルへ戻ります。PCの矢印・Z/X、スマートフォンの仮想十字キー・A/Bで操作できます。
 
-導入文は[data/intro.json](data/intro.json)の`pages`、初回のみ表示する城下町の説明は同じファイルの`hub_intro`を編集します。行やページの変更はゲーム再起動後に反映され、文章は自動で中央に配置されます。拠点プレビューの長さは`rpg/opening.py`の`HUB_PREVIEW_FRAMES`（30FPSで90フレーム）で変更できます。プレビュー中は操作できず、帰還時にはプレビュー・説明とも再表示されません。タイトル文字を将来Pyxel Editorの画像に替える場合は`rpg/dungeon_app.py`の`draw_title_logo()`を変更します。タイトルメニューとNEW GAME・CONTINUEの処理は別の関数です。NEW GAMEはパーティ・技・道具・宝・調査・ダンジョン進行を初期化します。タイトル／導入BGMはまだありません。
+導入文は[data/intro.json](data/intro.json)の`pages`、初回のみ表示する城下町の説明は同じファイルの`hub_intro`を編集します。行やページの変更はゲーム再起動後に反映され、文章は自動で中央に配置されます。拠点プレビューの長さは`rpg/opening.py`の`HUB_PREVIEW_FRAMES`（30FPSで90フレーム）で変更できます。プレビュー中は操作できず、帰還時にはプレビュー・説明とも再表示されません。タイトル文字を将来Pyxel Editorの画像に替える場合は`rpg/dungeon_app.py`の`draw_title_logo()`を変更します。タイトルメニューとNEW GAME・CONTINUEの処理は別の関数です。NEW GAMEはパーティ・技・道具・宝・調査・ダンジョン進行を初期化します。AUDIO PASS 01以降はタイトルに専用曲、導入に拠点曲を再生します。
 
 ## α版 Phase 2：通常戦闘への突入演出
 
@@ -256,7 +292,7 @@ QUEST候補はImage Bank 1の**調査印タイル(13,0)**をTilemapへ各階3個
 戦闘の基本コマンドは **SKILL / ITEM / GUARD / RUN** です。GUARD（まもる）は1人の1行動を使い、そのターンに受けるダメージを50%にします。技・道具・宝は消費せず、攻撃や回復、成長・閃きの加点もありません。通常攻撃はなく、技は有限回数です。戦闘不能（HP 0）は戦闘後も探索中も続き、4人全員が戦闘不能になると全滅です。拠点へ戻ると全員回復します。
 
 - **REVIVE** はRAREの回復技。戦闘不能の味方を最大HPの25%（最低1）で蘇生します。3回で消滅し、使い切るとMASTEREDとして記録されます。攻撃技のPOWER倍率は付きません。蘇生割合は`data/items.json`、技の使用回数は`data/skills.json`で調整できます。
-- **POTION / PHOENIX ASH / REMEDY** は各9個まで。POTIONは生存者のHPを30回復、PHOENIX ASHはREVIVEと同じ蘇生です。REMEDYは将来用の所持・購入データで、現時点では使用できません。戦闘中の道具使用はそのキャラクターの1行動を消費します。満杯の宝箱は中身を保持して開かず、探索の進行は可能です。
+- **POTION / PHOENIX ASH / REMEDY** は各9個まで。POTIONは生存者のHPを30回復、PHOENIX ASHはREVIVEと同じ蘇生です。REMEDYは生存者の毒・マヒ・睡眠・混乱をすべて治療し、BUFF/DEBUFFは解除しません。探索中も毒の治療に使用できます。治す状態異常がない対象・戦闘不能の対象には消費しません。戦闘中の道具使用はそのキャラクターの1行動を消費します。満杯の宝箱は中身を保持して開かず、探索の進行は可能です。
 - **SHOP** は確定した宝でPOTION（1）、PHOENIX ASH（4）、REMEDY（2）を購入します。価格と初期所持数は`data/items.json`で編集します。未確定の宝は使えません。
 - **回復の泉** は生存者のHPを全回復し、同じ探索では各泉1回だけ使えます。戦闘不能者・技回数・道具は回復しません。配置はPyxel EditorのTilemapにある泉タイルで編集します。
 - **RUN** は通常戦闘から探索へ逃げる非常手段です。失敗すると敵の行動を受け、成功時は能力成長・閃き・報酬なしです。HP、技回数、アイテムの消耗は保持します。ボス戦では使えません。基本15%、AGI差補正は最大±15%、最終成功率は10～30%。設定は`data/items.json`です。拠点へ帰るRETURNとは別です。
@@ -267,7 +303,7 @@ QUEST候補はImage Bank 1の**調査印タイル(13,0)**をTilemapへ各階3個
 
 ### 音声停止からの復帰
 
-スマートフォンの画面ロックやタブ切り替えで音声が止まっても、戦闘結果は進められます。ファンファーレ待ちは最大4.5秒または150フレームで解除します。Web版では復帰後の最初のタップ・キー入力で音声再開を試みます。再開に失敗しても無音のまま遊べます。DEBUG中の戦闘F3にはWeb Audioの状態を表示し、非表示・復帰の記録はブラウザの開発者コンソールで確認できます。音声停止の模擬検証は`python tools/verify_audio_recovery.py`です。
+スマートフォンの画面ロックやタブ切り替えで音声が止まっても、戦闘結果は進められます。勝利演出は2.4秒または72更新フレームで解除し、音声チャンネルの終了を待ちません。Web版では復帰後の最初のタップ・キー入力で音声再開を試みます。再開に失敗しても無音のまま遊べます。DEBUG中の戦闘F3にはWeb Audioの状態を表示し、非表示・復帰の記録はブラウザの開発者コンソールで確認できます。音声停止の模擬検証は`python tools/verify_audio_recovery.py`です。
 
 この検証スクリプトは、無音時のMASTERED・閃き・入れ替えと、即勝利から結果表示・探索復帰までの100回連続遷移を確認します。成長タイプと技カテゴリの補正は`data/settings.json`、MASTERED攻撃倍率は`rpg/models.py`の`MASTERED_POWER_MULTIPLIER`で調整できます。成長補正は今回強化していません。
 
@@ -301,7 +337,7 @@ QUEST候補はImage Bank 1の**調査印タイル(13,0)**をTilemapへ各階3個
 | Lv2 | B6～10F | B5Fボス撃破 | 4 / 5 / 6 TRZ |
 | Lv3 | B11～15F | B10Fボス撃破 | 6 / 7 / 8 TRZ |
 
-必要数の安全な候補がある階から1階を抽選し、探索は人影1地点、調査は虫眼鏡2/3/3地点、討伐は魔物の顔1地点を重ね描画します。現在のB15は安全な候補が1地点なので、調査Lv3はB11～B14から選びます。対象階に入ると階番号付きのヒントを表示します。**その場ではQUESTのTRZ報酬なし**。徒歩またはRETURNで生還すると自動報告します。全滅時は進捗が0になり、同じ地点でやり直せます。討伐は既存敵1体を使った通常ルールの追加戦闘で、RUN・DRAWでは対象が残ります。宝箱とは独立した目的です。
+必要数の安全な候補がある階から1階を抽選し、探索は人影1地点、調査は虫眼鏡2/3/3地点、討伐は魔物の顔1地点を重ね描画します。B15は安全な候補5地点を使い、調査Lv3を含めB11～B15すべてが対象です。対象階に入ると階番号付きのヒントを表示します。**その場ではQUESTのTRZ報酬なし**。徒歩またはRETURNで生還すると自動報告します。全滅時は進捗が0になり、同じ地点でやり直せます。討伐は既存敵1体を使った通常ルールの追加戦闘で、RUN・DRAWでは対象が残ります。宝箱とは独立した目的です。
 
 ### 補助技の準備と演出
 
@@ -348,10 +384,20 @@ F1のレア箱生成は探索中の通常床のみ。変更はメモリ上で、
 - チャンネル1：メロディー、2：ベース、3：ドラム。3列の合計時間を揃えるとループがずれません。
 - 戦闘曲は各32音、SPEED 12、各列8パターンで25.6秒。ファンファーレは8音・SPEED 18のフレーズ（1.2秒）と、1音・SPEED 144の終止音（1.2秒）で計2.4秒です。終止音はFadeOutで連続的に減衰し、ドラムは余韻部分を休符にしています。SPEEDを変更する場合は3パートとも同じ比率で調整してください。
 - 通常戦闘・連戦ラボで再生し、勝利・全滅・引き分けの結果表示で停止します。ボス戦には今回の通常戦闘BGMを流しません。
-- 勝利結果画面に入るとファンファーレを1回だけ再生します（通常戦・ボス戦・連戦ラボ共通）。敗北・引き分けでは再生しません。再生中も結果のページ送りはでき、再生終了後に次へ進めます。音声が停止したままでも最大4.5秒または150フレームで待機を解除します。Editorでファンファーレを長く編集する場合は、この上限も見直してください。
-- Sound 60・61はコード生成の効果音で予約済みです。Editorで変更しても起動時に再設定されます。
+- 勝利結果画面に入るとファンファーレを1回だけ再生します（通常戦・ボス戦・連戦ラボ共通）。敗北・引き分けでは再生しません。結果のページ送りはいつでも可能で、次画面への移動は2.4秒または72更新フレームの演出タイマーで解禁します。音声の終了状態には依存しません。Editorで長く編集する場合は`rpg/app.py`の`FANFARE_PRESENTATION_SECONDS / FRAMES`も変更してください。
+- AUDIO PASS 01以降はSound 60～63も`game.pyxres`から読み込みます。Editorで変更した音は起動時に再設定されません。
 
 試聴WAVは`python tools/verify_battle_music.py`で`verification/audio/battle_preview.wav`（戦闘曲2周）と`victory_preview.wav`へ書き出せます。改訂版の作曲コードは`tools/create_heavy_music.py`です。このスクリプトは既存アセットを`verification/audio/`へ日時付きでバックアップしてからBGM 0だけを更新し、既存のファンファーレは保持します。普段の編集では実行不要です。通常起動では生成し直しません。Web版へ編集内容を反映するには`tools/build_web.cmd`を実行し、更新された`dist/game.html`をpushしてください。
+
+### BGM / SE AUDIO PASS 01
+
+タイトル・拠点・AREA1/2/3・ボス・最終戦に7曲、探索に階段・宝箱・罠Damage・回復の泉・落とし穴・QUEST目標達成の6SEを追加しました。通常戦闘曲と勝利ファンファーレは既存の音源を維持します。
+
+追加曲は`pyxel edit game.pyxres`のMusic 0=TITLE、1=HUB、2=AREA1、3=AREA2、4=AREA3、5=BOSS、6=FINAL。探索SEは同ファイルのSound 50～55です。通常戦闘曲と勝利曲は引き続き`assets/battle_music.pyxres`のMusic 0/1を編集します。既存のRUN/撃破/戦闘突入SE（Sound 30/31/59）は同ファイルが編集元です。両ファイルの同じ番号は別バンクなので、曲を編集するときはファイル名も確認してください。
+
+割当は`rpg/sound.py`の`BGM_IDS` / `BATTLE_BGM` / `SE_IDS` / `FIELD_SE`で管理します。BGMはチャンネル1～3、SEは0。同じAREA内では曲を再開せず、境界・戦闘・帰還で切り替えます。ネイティブでは全曲・ファンファーレをチャンネル別に再生し、`playm`を使いません。音声状態はSAVEに入りません。
+
+曲の速さ・使用Sound・編集手順と55項目の確認結果は[BGM / SE AUDIO PASS 01報告](verification/AUDIO_PASS_01_REVIEW.md)にまとめます。`tools/add_audio_pass_assets.py`は一度限りの初稿取込みで、Editor編集後の再実行は不要です。試聴WAVは`python tools/verify_audio_pass.py`で`verification/audio/pass01/`へ書き出せます。
 
 > **開発中のプロトタイプです。** グラフィック、UI、バランス、敵、スキルはプレイテストに応じて変更される場合があります。
 
@@ -551,7 +597,7 @@ WindowsではゲームウィンドウのIMEを自動解除します。日本語�
 
 起動するとタイトル画面です。「はじめから」→4ページの導入→約3秒の拠点プレビュー→初回だけの城下町説明→5施設の拠点TOPと進みます。拠点の「DUNGEON」で1F入口から出発し、「TRAINING」→「SKILL ARCHIVE」で収集状況を確認できます。探索中はD-PADで1マス移動、Bで「状態 / 習得技 / 道具」メニュー、Aで足元を調べます。階段・宝箱・ボス・入口は踏んでも作動します。階段到着時に即座に往復することはありません。
 
-B5F・B10F・B15F以外の床で敵と遭遇し、結果と技の入れ替えを終えると**同じ階・同じ位置へ戻ります。HP・戦闘不能・技残数を持ち越します**。戦闘中の構え・一時強化・技の再使用待ちは戦闘終了時に解除します。HP成長は最大HPだけを増やし、現在HPを回復しません。
+B15F以外の床で敵と遭遇します。B5F・B10Fもボス撃破前後の通常探索では遭遇します。結果と技の入れ替えを終えると**同じ階・同じ位置へ戻ります。HP・戦闘不能・技残数を持ち越します**。戦闘中の構え・一時強化・技の再使用待ちは戦闘終了時に解除します。HP成長は最大HPだけを増やし、現在HPを回復しません。
 
 入口まで歩いて戻ると拠点で全員のHPを回復・戦闘不能も解除します。所持品・成長・技の残数・ボス撃破状態は維持します。消滅した技は戻りません。ボスタイルに入ると会話を表示し、Aで読み進めてから固定ボス1体との戦闘を始めます。Bで会話から探索に戻れます。育成結果と入れ替えの後、撃破メッセージをAで閉じて先へ進みます。
 
@@ -561,7 +607,7 @@ B5F・B10F・B15F以外の床で敵と遭遇し、結果と技の入れ替えを
 | 第2 | B6F～B10F | B10F: 技の番人 `skill_keeper` | B11Fへの下り階段を解放 |
 | 第3 | B11F～B15F | B15F: 深淵の王 `depth_lord` | DUNGEON CLEAR |
 
-ボス階にはランダム遭遇がありません。未撃破のB5F・B10Fの下り階段を使うと案内が出て、その場に留まります。撃破済みボスは再出現せず、帰還・全滅・階段往復後もロック解除を保持します。状態は`Dungeon.defeated_bosses`で管理（内部の階番号は0始まり）。B15F後の進行は上記Phase 6A/6Bを参照してください。通常の周回はありません。PC版では撃破状態もSAVE/LOADの対象です。
+B5F・B10Fは通常探索中にランダム遭遇があり、ボス会話・戦闘中にはありません。B15Fだけは専用最終フロアとして、守護者開始前・連戦中・泉からデーモンまで・撃破後のすべてで通常ランダム遭遇なしです。B15Fの探索・調査・討伐QUESTは引き続き有効です。未撃破のB5F・B10Fの下り階段を使うと案内が出て、その場に留まります。撃破済みボスは再出現せず、帰還・全滅・階段往復後もロック解除を保持します。状態は`Dungeon.defeated_bosses`で管理（内部の階番号は0始まり）。B15F後の進行は上記Phase 6A/6Bを参照してください。通常の周回はありません。PC版では撃破状態もSAVE/LOADの対象です。
 
 ### 探索の道具と宝箱
 
@@ -585,7 +631,7 @@ B5F・B10F・B15F以外の床で敵と遭遇し、結果と技の入れ替えを
 | Aを長押し（行動解決中） | ログを高速送り。次のターンはAを押し直す |
 | F9 | DEBUG MODEを切替。閃き・遭遇率を上げる（詳細は下記） |
 | 拠点・探索メニューの「操作 HELP」 | 操作ヘルプを開く。Bで閉じる |
-| Q / ウィンドウの× | 終了 |
+| Q / ウィンドウの× / SELECT単独を約1秒長押し | 終了（自動セーブなし） |
 
 「SKILL」→使用する技→対象をAで決定します。「ITEM」からPOTION/PHOENIX ASHを1行動で使用します。「RUN」は通常戦闘から逃走を試みます。Bで前の選択へ戻ります。初期技はロウ・センがパンチ30/30、カイが速撃30/30、ミオが火花28/28です。タイプ専用の習得制限はありません。
 
@@ -844,7 +890,7 @@ round((STR * str_scale + AGI * agi_scale + INT * int_scale) * hits)
 
 | 意味・定数 | タイル座標 | 画像の左上座標 | 通行・イベント |
 |---|---|---|---|
-| 床 `TILE_FLOOR` | (0, 0) | (0, 0) | 通行可、ボス階以外で遭遇抽選 |
+| 床 `TILE_FLOOR` | (0, 0) | (0, 0) | 通行可、B15以外で遭遇抽選（B5/B10を含む） |
 | 壁 `TILE_WALL` | (1, 0) | (8, 0) | 通行不可 |
 | 上り階段 `TILE_STAIRS_UP` | (2, 0) | (16, 0) | ひとつ上の階へ |
 | 下り階段 `TILE_STAIRS_DOWN` | (3, 0) | (24, 0) | ひとつ下の階へ |
@@ -948,7 +994,7 @@ Pyxel Editorが担当するのは**敵・味方の見た目**です。名前・H
 | 設定 | 初期値 | 意味 |
 |---|---:|---|
 | `width` / `height` | 24 / 24 | 各階で使用するTilemap範囲。8～256マス |
-| `encounter_chance` | 0.09 | ボス階以外の移動1歩あたりの遭遇率 |
+| `encounter_chance` | 0.09 | B15以外の抽選対象の移動1歩あたりの遭遇率 |
 | `debug_encounter_chance` | 0.45 | DEBUG時の遭遇率 |
 | `safe_steps` | 2 | 出発・階段移動・戦闘復帰後の安全歩数。DEBUGでは無視 |
 | `items.initial_potions` | 2 | ゲーム開始時の薬の数 |
@@ -956,15 +1002,39 @@ Pyxel Editorが担当するのは**敵・味方の見た目**です。名前・H
 | `items.potion_heal` | 30 | 1個の回復量 |
 | 宝箱テーブル | 別ファイル | `data/exploration.json`の`CHEST_REWARD_TABLE`を編集 |
 
-床を実際に1マス移動したときだけ抽選します。壁への入力、メニュー操作、Zの連打、階段・入口・宝箱・ボスへの進入ではランダム遭遇しません。B5/B10/B15にはランダム戦闘がありません。9%は抽選対象の歩数で平均約11歩、戦闘後の安全2歩を加えると約13歩です。
+床を実際に1マス移動したときだけ抽選します。壁への入力、メニュー操作、Zの連打、階段・入口・宝箱・ボスへの進入ではランダム遭遇しません。B5/B10は通常探索で抽選し、B15には通常ランダム戦闘がありません。9%は抽選対象の歩数で平均約11歩、戦闘後の安全2歩を加えると約13歩です。
 
-`floors`配列の先頭からB1F～B15Fに対応します。通常階の`enemy_ids`が敵候補、`weights`が同じ順の出現重み、`count: [最小, 最大]`が敵数（1～3）、`hp_scale`がHP倍率、`power_scale`がSTR・INT倍率です。AGI・DEF・魔法DEFは敵データのままです。B1～B4は既存設定を維持し、B6以降に補助技が有効な敵、B11以降にその強化編成が登場します。
+`floors`配列の先頭からB1F～B15Fに対応します。通常階の`enemy_ids`が敵候補、`weights`が同じ順の出現重み、`count: [最小, 最大]`が敵数（1～4）、`hp_scale`がHP倍率、`power_scale`がSTR・INT倍率です。AGI・DEF・魔法DEFは敵データのままです。従来2～3体の階は2～4体へ変更し、1～2体の階は維持しています。B6以降に補助技が有効な敵、B11以降にその強化編成が登場します。
+
+B5/B10の設定はボス情報のみのため、通常戦ではそれぞれB4/B9の敵候補・重み・編成数・倍率をそのまま再利用します。討伐QUESTと同じ参照方式で、敵データや遭遇率は変更しません。修正・検証結果は[ボス階の通常遭遇修正報告](verification/BOSS_ENCOUNTER_REVIEW.md)を参照してください。
 
 敵の素の能力・名前は**`data/enemies.json`**にあります。既存項目を複製し、重複しない`id`と名前・能力を設定してから、出したい階の`enemy_ids`と`weights`へ追加してください。通常敵は`boss`を省略するか`false`にします。Pyxel Editorは外見とマップ、JSONは数値と出現候補を担当します。
 
 ### 敵・ボス能力とメッセージ
 
-**`data/enemies.json`**の`max_hp`がHP、`str`が物理ATK、`defense`が物理DEF、`magic_defense`が魔法DEF、`agi`が行動速度、`int`が魔法威力です。`magic_chance`は魔法を選ぶ確率。`feature`は調整用の特徴メモで、特殊処理を実行するスクリプトではありません。実際の特徴は数値と魔法使用率で表します。
+**`data/enemies.json`**の`max_hp`がHP、`str`が物理ATK、`defense`が物理DEF、`magic_defense`が魔法DEF、`agi`が行動速度、`int`が魔法威力です。`actions`がある敵はその行動weightを使用し、未設定／空なら`magic_chance`で従来の物理・魔法を選びます。`feature`は特徴メモで、特殊処理を実行するスクリプトではありません。
+
+### 敵行動の編集（Enemy Action System Phase 1）
+
+行動名・効果は**`data/enemy_actions.json`**、敵ごとの行動比率は**`data/enemies.json`**をメモ帳で編集します。例えば`"actions": [{"id":"attack","weight":65},{"id":"heavy_attack","weight":35}]`なら通常攻撃と強攻撃を65:35で抽選します。weightは正の相対値です。行動を外す場合はその項目を削除し、全行動を外す場合は`actions`を省略するか`[]`にします。階層による固定の特殊行動率はありません。
+
+| action ID | 初期効果 |
+|---|---|
+| attack / magic | 従来の単体物理 / 単体魔法、威力1.00倍 |
+| heavy_attack | 単体物理1.35倍 |
+| double_attack | 同じ対象へ0.60倍×2回。KOで残りhit終了 |
+| area_attack / area_magic | 生存者全員へ物理0.55倍 / 魔法0.50倍 |
+| guard | 被ダメージ0.50倍。次の自身の行動開始で解除 |
+| power_up | 自身の物理攻撃1.20倍、3ターン |
+| weaken | 味方1人の攻撃ダメージ0.85倍、3ターン。回復量は維持 |
+| armor_break | 味方1人の物理被ダメージを1÷0.85倍、3ターン |
+| slow | 味方1人の行動速度0.80倍、3ターン |
+
+味方にはDEF値がないため、敵の防御崩しは物理被ダメージ倍率で表現します。既存の敵へのARMOR BREAKは従来のDEF低下を維持します。一時効果は既存の`effects`を使用し、同じ効果は累積せず上書き・期限更新します。3ターンには付与したラウンドを含み、各ラウンド終了で残り時間を減らします。slowは作成済みの行動順を変更せず次ラウンドから反映します。
+
+通常敵は18種類です。既存11体の初期weightは維持し、追加7体へ状態異常やpower_up／DEBUFF／area_magicを割り当てています。ボス7体はactions未設定のままで従来の行動を維持します。HUNTは元敵のactionsを引き継ぎ、従来の能力補正を使用します。
+
+特殊行動は既存の16×16エフェクトを使用し、連撃は実際に行ったhit数だけ反復します。音声終了は待ちません。行動中の状態はSAVEに含めず、SAVE_VERSIONは1のままです。編集後のWeb反映は`tools/build_web.cmd`。検証結果は[Enemy Action Phase 1確認報告](verification/ENEMY_ACTIONS_PHASE1_REVIEW.md)を参照してください。
 
 | 敵ID | HP / ATK / DEF / AGI / INT | 特徴と複数の対策 |
 |---|---|---|
@@ -1012,3 +1082,227 @@ Pyxel Editorが担当するのは**敵・味方の見た目**です。名前・H
 「弱い魔法をあえて使ってINTを伸ばす」といった育成方針は手動で試してください。シミュレーションの結果だけで面白さの判定はできません。DEBUGは短時間で習得UIを試す機能なので、通常確率での20～50戦とも比較してください。
 
 実装後のセルフレビューと具体的な検証結果は`verification/REVIEW.md`に記録しています。
+
+## 戦闘演出と画像の編集（Battle Presentation Phase）
+
+行動者だけが左へ6px踏み込み、共通スキルエフェクトを表示してから既存の戦闘計算を実行し、定位置へ戻ります。GUARDは踏み込みません。敵の撃破は点滅0.4秒＋沈む0.2秒、計0.6秒です。演出中はA/B/D-PADを読み取らず、フレーム数と各段階最大2秒のタイマーで進行します。
+
+`edit.cmd`で`game.pyxres`の**Image Bank 2**を編集してください。透過色は0です。既存施設画像とマップは変更していません。
+
+| 素材 | 左上のピクセル座標 | サイズ |
+|---|---|---|
+| KO（戦闘不能） | (240,0) | 16×16 |
+| poison / paralyze / sleep / curse・weak | (192,0) / (200,0) / (208,0) / (216,0) | 各8×8 |
+| スキルエフェクト | 下表の行、X=192 / 208 / 224 | 各16×16、左から3コマ |
+
+| effect_id | Y座標 | effect_id | Y座標 |
+|---|---:|---|---:|
+| slash | 32 | magic | 128 |
+| blunt | 48 | dark | 144 |
+| pierce | 64 | heal | 160 |
+| fire | 80 | buff | 176 |
+| ice | 96 | debuff | 192 |
+| lightning | 112 | legend | 208 |
+
+`data/skills.json`の各技へ`"effect_id": "fire"`などを指定するだけで共通エフェクトを利用できます。未指定・未知の値は`blunt`へフォールバックします。座標・時間定数・描画関数は`rpg/battle_presentation.py`にまとめています。KOは現在HPから判定し、蘇生すると通常画像へ戻ります。状態アイコンは下記Status Ailment Systemの毒・マヒ・睡眠・混乱を表示します。以前のcurse/weak画像は未使用の予約素材として残し、呪いのルールは実装していません。
+
+通常戦闘の背景は下記のエリア別96×16画像帯を使用します。成長結果は計算済みログをキャラクターごとのページへまとめ、成長なしのキャラクターは省略します。報酬・閃き・入れ替えは従来どおりです。ファンファーレの字幕を削除し、進行は音声終了でなく2.4秒または72更新フレームの演出タイマーで解禁します。
+
+素材は`tools/add_battle_presentation_assets.py`で一度だけ作成済みです。起動やビルド時には再生成しません。編集後の再実行は不要です。画像編集後は`tools/build_web.cmd`で`dist/game.html`を更新してください。指定38項目と44ケースの検証結果は`verification/BATTLE_PRESENTATION_REVIEW.md`を参照してください。
+
+### 追加改善：逃走・撃破SE・エリア背景・RESULT
+
+RUN成功時は4人の画像を左右反転し、右へ16px移動して約0.5秒後に探索へ戻ります。KO画像も一緒に移動します。演出中は文字と重ならないように名前/HP欄を一時的に隠します。成功率・消費済みHP/Uses/ITEMの扱いは従来どおりです。失敗時の反転・移動・成功SEはありません。音声再生の終了を待ちません。
+
+`edit_music.cmd`で`assets/battle_music.pyxres`の**Sound 30 = RUN SUCCESS（足音）、Sound 31 = ENEMY DEFEAT（崩れる音）**を編集できます。どちらもSE用チャンネル0。通常起動時に上書きしません。撃破SEは消滅演出の開始時に1回だけ再生し、同時に複数撃破した場合は1回にまとめます。ロードオブエリシオンには重ねません。
+
+背景は`edit.cmd`の`game.pyxres`、**Image Bank 2**で編集します。
+
+通常敵は最大4体を2×2で表示します。左上(22,18)、右上(50,18)、左下(22,42)、右下(50,42)の16×16画像で、背景帯Y64より上へ収まります。敵選択カーソル・スキル効果・撃破演出も同じ座標を使い、倒した敵の空き枠は詰めません。座標は`rpg/battle_presentation.py`の`ENEMY_GRID_POSITIONS`で編集できます。単体敵と最終ボスは既存の位置を維持します。
+
+| 階層 | 画像帯の左上 | サイズ | 仮素材のテーマ |
+|---|---|---|---|
+| B1～B5 | (0,208) | 96×16 | 石床・小さな柱・瓦礫・苔 |
+| B6～B10 | (0,224) | 96×16 | 規則的な石床・水路・古い柱 |
+| B11～B15 | (0,240) | 96×16 | 亀裂・古代文字・崩れた柱 |
+
+`rpg/battle_presentation.py`の`BATTLE_FLOOR_STRIP_AREA1`～`AREA3`に座標を集約しています。画面の(X=0,Y=64)へ1枚だけ描画し、上部は単色背景です。横幅は敵側領域の96pxまで、メッセージ開始Y=81や味方ステータス領域には伸びません。特殊最終戦の背景は維持します。以前の壁・床素材は保存したまま描画を無効化しました。
+
+画像帯は`tools/add_battle_strip_assets.py`で一度だけ作成済みです。起動・ビルド時には生成せず、編集後の再実行も不要です。Sound 31は低い下降ノイズ音で約0.292秒（通常ヒット音は約0.075秒）。音を待たず、撃破演出の開始時だけ鳴らします。
+
+味方の実際のHP減少を検出すると、対象だけ右へ4pxノックバックし、30FPSで3フレーム（約0.1秒）以内に戻します。踏み込みは左6px・4フレーム（約0.133秒）なので、被弾は距離・時間とも小さくなります。定数は`HIT_PIXELS` / `HIT_FRAMES` / `HIT_SECONDS`です。HP0でも通常画像で被弾反応を見せてからKO画像になります。回復・BUFF・0ダメージでは動かず、入力と次の行動は反応終了まで待ちます。フレームと時間で進行し、音声状態には依存しません。今回の詳細確認は`verification/BATTLE_HIT_STRIP_REVIEW.md`を参照してください。
+
+RESULTはキャラクター別成長→閃き等の残り結果→必要なら入れ替え→終了の順です。入れ替え確定・新技拒否のどちらも成長画面へ戻りません。計算は既存の`Session.settle`で1回だけ行い、表示順を変えても成長/閃きの乱数や確率は変えません。演出状態はSAVEへ追加しません。編集後のWeb反映は`tools/build_web.cmd`。30項目の詳細報告は`verification/BATTLE_EXTRA_REVIEW.md`を参照してください。
+
+### 敵の特殊行動を見分ける演出（Enemy Action Visual Feedback Pass）
+
+通常物理は敵の小さな3pxの動きと既存の被弾反応、強攻撃は9pxの踏み込みと大きめの打撃マークで区別します。強攻撃の命中時だけ最大3px・3フレーム（30FPSで約0.1秒）揺れます。魔法は敵を動かさず、対象へ既存magicエフェクトを表示します。全体魔法は生存者全員へ同時表示。全体物理の全員ノックバックは維持します。
+
+連撃は3フレームの効果→3フレームの被弾反応→2フレームの間→2発目の効果と反応、計14フレームです。初撃KOや反撃で攻撃が止まった場合は1発分の6フレームだけ表示します。効果中のA/B/D-PADで演出は飛びません。メッセージの早送り・待ち時間は従来どおりです。ダメージは既存の戦闘処理で一度だけ確定し、描画・アニメーションで再計算しません。
+
+`data/enemy_actions.json`の`effect_id`で素材を指定します。未指定・未知の値はbluntへフォールバック。power_upは既存buff、weakenは既存debuffを再利用し、防御・防御低下・速度低下は次の小さな素材で区別します。
+
+| effect_id | game.pyxres Image Bank 2の左上 | サイズ・コマ数 |
+|---|---|---|
+| heavy_hit | (144,96) / (160,96) / (176,96) | 各16×16、3コマ |
+| guard | (144,112) / (160,112) / (176,112) | 各16×16、3コマの盾 |
+| armor_down | (144,128) / (160,128) / (176,128) | 各16×16、割れた盾と↓ |
+| slow | (144,144) / (160,144) / (176,144) | 各16×16、砂時計と速度線 |
+
+編集は`edit.cmd`。素材作成スクリプト`tools/add_enemy_action_visual_assets.py`は初回作成専用で、起動・ビルド時には実行しません。編集済み領域への再実行は拒否します。時間・移動量は`rpg/battle_presentation.py`の定数で調整できます。新しい色・音声終了待ち・戦闘ルールは追加していません。
+
+Web配布は`tools/build_web.cmd`で再生成。Pixel2用は`python tools/build_gkd.py`で再生成し、ZIP内の最新ゲームファイルを上書きコピーします。本体の`save/`は残してください。今回の両配布物は更新済みです。指定36項目・41ケースの結果は[敵行動演出の確認報告](verification/ENEMY_ACTION_VISUAL_REVIEW.md)を参照してください。
+
+### 状態異常（Status Ailment Phase 1 / 1.5）
+
+`data/statuses.json`で表示名、標準持続本人ターン数、icon_id、毒の割合、マヒの失敗率、混乱の倍率・抽選weightを編集できます。内部IDはpoison/paralyze/sleep/confusionの4つで固定です。BUFF/DEBUFFの`effects`とは分離し、敵・味方の`statuses = {"poison": 3, "sleep": 2}`へ残り本人ターン数を保持します。
+
+| 状態 | 初期効果 | 標準持続 |
+|---|---|---|
+| poison / 毒 | 本人行動後に最大HPの5%、最低1ダメージ。通常のDEF/MDEF/GUARDを無視 | 3tick |
+| paralyze / マヒ | 本人行動直前に50%で失敗。Uses/ITEMは消費しない | 3本人ターン |
+| sleep / 睡眠 | 行動をskip。実際のHP減少で起床。毒でも起床 | 2本人ターン |
+| confusion / 混乱 | STR×0.75の専用行動。敵側40%、別の味方40%、何もしない20% | 2本人ターン |
+
+RARE 20技の戦闘演出は、任意の静的`presentation_id`で6共通Familyへ割り当てています。
+`rare_impact` / `rare_slash` / `rare_magic` / `rare_dark` / `rare_heal` / `rare_support`です。
+既存`effect_id`と技性能は維持し、BASIC・COMMON・UNCOMMON・LEGENDは既存演出を使います。
+編集素材は`game.pyxres`のImage Bank 1、(0,96)～(191,191)、各32×32・3frame。
+全体技は同じframeで全対象へ描画し、RARE攻撃→Damage表示→成功した状態異常の既存Feedbackの順に見せます。
+詳細・素材座標・検証結果は[RARE Skill Presentation報告](verification/RARE_SKILL_PRESENTATION_REVIEW.md)を参照してください。
+
+LEGEND 8技には個別の`legend_<skill_id>`を設定し、技名強調・Charge・専用効果・結果・余韻を固定Frameで表示します。
+素材は`game.pyxres`のImage Bank 0、(0,128)～(191,255)、各32×32・3Frameです。
+七連斬の7回の見た目とSTARFALLの4個の弾は描画専用。TIME STOPも更新・入力処理を継続し、成功した敵だけへ既存SLEEP Feedbackを表示します。
+技性能、RARE演出、SAVE、音声対策は維持しています。[LEGEND Skill Presentation報告](verification/LEGEND_SKILL_PRESENTATION_REVIEW.md)に各技の素材座標と検証結果をまとめています。
+
+本人ターンの開始時に制御状態を判定→通常または代替行動→毒tick→残りターン減算の順です。混乱中はコマンド選択を自動で省き、Skill Uses、ITEM、習熟、使用カテゴリ、成長への使用貢献を消費・加算しません。自分は攻撃せず、別の味方がいない場合の味方攻撃枠は何もしません。入力後に混乱し、行動前に治療された自動予約はGUARDへ戻ります。
+
+マヒ・睡眠・混乱は同時に1種類だけ。別の制御状態を重ねる付与は失敗し、同じ状態の再付与は標準持続へ更新します。毒と制御状態は併用可能。マヒ・睡眠・混乱と敵の状態異常は戦闘終了時に解除します。味方の毒だけはダンジョン戦の勝利・RUN成功・引き分け後も残りtick数を保持します。KO・拠点帰還・全滅・最終戦再挑戦では全状態を解除し、SAVEへは含めません。REMEDYは生存する状態異常対象にだけ使え、1個で4状態をすべて治療します。WEAKEN/ARMOR BREAK/SLOWなどの`effects`は解除しません。
+
+共通APIは`rpg/statuses.py`の`apply_status(target, status_id, chance=100, rng=None, definitions=None)`。`chance`と`target.status_resistances`は0～100の百分率、`status_immunities`は無効化する固定IDの一覧です。Battleからは`battle.apply_status(...)`を呼ぶと付与メッセージと短い表示も記録します。既存ボスへ耐性は設定していません。最終ボスの既存バリアは毒ダメージも遮断します。
+
+Enemy Roster Expansionで、この基盤を利用する4つの敵行動を`enemy_actions.json`へ追加しました。既存11体のweightとPLAYER Skillは維持しています。定義例は次のとおりです。
+
+```json
+"poison_bite": {"name":"毒の牙", "type":"physical_single", "target":"random_player",
+  "power":0.90, "effect_id":"slash", "status_id":"poison", "status_chance":45},
+"sleep_spell": {"name":"睡眠魔法", "type":"status", "target":"random_player",
+  "effect_id":"magic", "status_id":"sleep", "status_chance":45}
+```
+
+DEBUG中（F9）の戦闘コマンド画面でF2を押すと、上下で敵/味方、左右で毒/マヒ/睡眠/混乱/解除、Aで付与・解除、Bで閉じます。閉じるとそのターンの未確定コマンド選択を始め直します。UsesやITEMは消費しません。探索中のF2は既存の宝デバッグのままです。
+
+アイコンは`edit.cmd`→`game.pyxres`→Image Bank 2で編集できます。すべて8×8、毒(192,0)、マヒ(200,0)、睡眠(208,0)、混乱(224,0)。毒・マヒ・睡眠は既存素材を保持し、「?」だけ未使用セルへ追加しました。味方は画像左に最大2個横並び、敵は画像左に2個縦並び。KO・撃破時は状態アイコンを消します。毒tickや行動阻害には6フレームの短いフィードバックを表示し、音声終了を待ちません。
+
+Web版とPixel2用ZIPは更新済みです。編集後は`tools/build_web.cmd`／`python tools/build_gkd.py`で再生成してください。45項目と必須ケースの確認結果は[状態異常システムの報告](verification/STATUS_AILMENT_PHASE1_REVIEW.md)にまとめています。
+
+### 通常敵18種類（Enemy Roster Expansion Phase）
+
+新規7体の仮表示名・能力・行動weightは`data/enemies.json`、共通行動は`data/enemy_actions.json`、階層別の出現候補・weightは`data/dungeon.json`です。`id`は固定内部ID、`name`だけを変更すれば表示名を差し替えられます。画像はすべて既存の`game.pyxres` Image Bank 0を再利用し、描き足し・上書きをしていません。
+
+| ID / 仮表示名 | 画像座標（16×16） | 初登場 | 行動weight |
+|---|---|---|---|
+| horn_rabbit / ツノウサギ | (208,16) | B2 | attack 90 / double_attack 10 |
+| poison_snake / 毒蛇 | (128,16) | B6 | attack 75 / poison_bite 25 |
+| blood_bat / ブラッドバット | (16,16) | B7 | attack 75 / double_attack 25 |
+| ghost / ゴースト | (176,16) | B9 | attack 20 / magic 60 / confusion_touch 20 |
+| dark_wisp / ダークウィスプ | (48,16) | B11 | magic 65 / area_magic 20 / sleep_spell 15 |
+| mummy / ミイラ | (224,16) | B12 | attack 65 / heavy_attack 15 / paralyze_grab 20 |
+| warlock / ウォーロック | (96,16) | B13 | magic 45 / power_up 15 / weaken 15 / armor_break 10 / slow 10 / sleep_spell 5 |
+
+状態異常は行動選択→付与判定の二段階です。毒の牙は物理0.90倍＋毒45%、混乱の接触は魔法0.85倍＋混乱35%、マヒのつかみは物理0.85倍＋マヒ35%、睡眠魔法はダメージなし＋睡眠45%。たとえば毒蛇が毒を与える確率は1行動あたり25%×45%=11.25%で、毎回45%ではありません。睡眠失敗時の魔法fallbackはありません。
+
+B1～B5の通常敵には状態異常を割り当てず、B6から毒、B9から混乱、B11から睡眠、B12からマヒが登場します。B5はB4、B10はB9の通常テーブルを参照。B15は通常遭遇なしを維持し、HUNTだけB14を参照します。指定のAREA3テーブルには毒蛇が含まれないため、通常遭遇での毒はAREA2に登場します。
+
+HUNTは新規IDも自動的に抽選候補となり、既存の能力補正と行動・成功率を引き継ぎます。SAVE_VERSION=1を維持し、受注済みHUNTは保存された`hunt_enemy_id`を再抽選しません。既存11体、ボス7体、階層倍率、遭遇率9%、REMEDY、PLAYER Skill、マップと画像は維持しています。
+
+今回のWeb版（`dist/game.html`）とPixel2用ZIPは更新済みです。通常プレイでも新規敵から状態異常が発生するため、GKDでもデバッグキーなしで確認できます。コピー更新時は本体の`save/`を残してください。指定46項目・64ケースの確認は[敵追加の検証報告](verification/ENEMY_ROSTER_EXPANSION_REVIEW.md)、抽選結果は`verification/enemy_roster.json`を参照してください。実機のiOS SafariとPixel2、および自然進行での難易度評価は未実施です。
+
+### 探索中の毒持ち越し（Status Ailment Phase 1.5）
+
+ダンジョン戦で受けた毒は、勝利・RUN成功後も残りtick数を保持します。たとえば3tickで付与→本人ターン後に2tick→勝利→探索→次戦開始でも2tickです。歩行、待機、メニュー、階段、B15への移動、守護者間の会話ではtickを消費せず、毒のHPダメージもありません。ダメージと減算は戦闘の本人ターン終了時だけです。既存の毒沼・罠などによる探索ダメージは別の仕組みで、変更していません。
+
+探索での治療は **B:メニュー → 道具 ITEM → REMEDY → 対象 → A**。生存する毒の対象を選ぶと1個を消費し、HP・Skill Usesを変えず即治療します。毒なし・KOには消費せず理由を表示します。探索に戦闘ターンはありません。戦闘中REMEDYは従来どおり使用者の1ターンと1個を消費して4状態を治療します。
+
+毒アイコンは既存の`game.pyxres` Image Bank 2 `(192,0)`の8×8です。探索右側のパーティー一覧、ITEM対象選択、能力STATUS画面へ同じアイコンを表示します。マップ上の主人公画像へは追加していません。泉とPOTIONはHPのみ回復し、毒を治療しません。KO・通常退出・RETURN・全滅で全状態を解除します。拠点では全員が状態異常なしとなり、SAVE_VERSION=1のまま保存／読込できます。
+
+持ち越しの入口は`DungeonApp.begin_encounter`→`Session.next_battle(persistent_poison=True)`、保持処理は`rpg/statuses.py`の`clear_statuses(..., preserve_poison=True)`です。別の探索用毒データは作らず、既存の`Character.statuses['poison']`を使用します。`Battle.clear_effects`がダンジョン戦の結果に応じて味方の毒だけ保持し、`Character.reset_battle_state`が次戦へ引き継ぎます。プロトタイプの自動HP回復戦闘・最終戦は持ち越し対象外。最終戦チェックポイントやSAVEの処理は変更していません。
+
+Web版とPixel2用ZIPはこのPhaseまで更新済みです。指定33項目・78ケースと確認範囲は[毒持ち越し検証報告](verification/PERSISTENT_POISON_REVIEW.md)にまとめています。iOS Safari・Pixel2の実機確認は未実施です。
+
+## PLAYER Skill拡張基盤
+
+正式Skillは31種類（BASIC 3 / COMMON 10 / UNCOMMON 5 / RARE 10 / LEGEND 3）のままです。既存の技データ・Uses・成長・閃き・素材・SAVE_VERSION 1は維持しています。今回追加した機能は、次のSkill追加工程で使う基盤です。
+
+`target`には`enemy`、`ally`、`self`、`all_enemies`、`all_allies`、`random_enemy`を指定できます。全体・ランダム対象は個別対象選択を省略します。全体技のUses・Cooldown・成長加算は1使用分だけで、対象ごとに防御・軽減・バリアを計算します。PLAYER多段は従来どおり合算Powerによる1回のダメージ処理です。ランダム対象は発動時のBattle RNGで選び、演出側では乱数を使いません。
+
+状態異常情報は`status_id`と`status_chance`です。IDは`data/statuses.json`の`poison` / `paralyze` / `sleep` / `confusion`、確率は敵Actionと同じ0～100の百分率（35なら35%）。`effect: "status"`でダメージなしの付与、`effect: "damage"`や`"drain"`との組み合わせでダメージ後の生存対象へ付与できます。耐性・無効化・排他・持続更新は既存の共通処理を使います。
+
+治療は`effect: "cure"`と、解除するID配列`cure_statuses`で指定します。例えば`["poison", "paralyze", "sleep", "confusion"]`です。HPやBUFF/DEBUFFは変えません。共通APIの`cure_statuses()`は解除したIDのtupleを返し、戦闘は`last_skill_cured_count`、探索は`FieldSkillResult.cured_count`でも解除数を確認できます。
+
+探索使用は`field_usable: true`で指定します。省略した既存データはheal/returnのみTrue、その他Falseとして互換処理します。新しいcureを探索でも使う場合は明示してください。`Session.field_use()`はheal/cure/returnを扱い、結果に`used`、`messages`、`cured_count`、`returned`を返します。探索使用ではBattle成長・Cooldownを加算しません。探索で回復/治療対象がなければ消費しません。正式CURE追加後は、戦闘でも治療対象なしの場合Uses・Cooldown・成長ポイントを消費しません。実行時の失敗としてメッセージを出し、その行動の順番は終了します。
+
+RESTORE可否は`relearn_cost`と`relearn_uses`の明示データで決まります。両方0/省略なら不可、両方正数なら可です。片側だけ指定、負数、再取得Usesがmax Usesを超える定義は拒否します。拡張前の15技の可否・価格・再取得Usesは完全一致しています。新しいRARE Cure等は、この2項目を付けてRESTORE対象にできます。MASTERED条件は使い切りのまま、damage/drainの再取得コピーだけ1.2倍、status/cureは記録のみです。
+
+この基盤Phase時点では正式技31種類でした。次のRoster Expansionで正式CURE・全体技等を追加しています。基盤のテスト用Skillはtests/検証時のメモリ内だけに作り、Archive/Sparkと配布データへ混入させません。[基盤45項目と必須95ケースの検証報告](verification/PLAYER_SKILL_FOUNDATION_REVIEW.md)を参照してください。
+
+## PLAYER Skill Roster Expansion（62技）
+
+既存31技の定義をそのまま維持し、`data/skills.json`の末尾に31技を追加しました。BASIC 3 / COMMON 18 / UNCOMMON 13 / RARE 20 / LEGEND 8です。Archiveは新規ゲームでDISCOVERED 3/62、MASTERED 0/62。閃き・技宝箱は追加技も同じ候補生成を使い、LEGENDもB1から候補に入ります。Rarity Weightは12 / 48 / 28 / 10 / 2、所持枠は6のままです。
+
+探索でも使用できる追加技は`group_aid`、`mending_wind`、`cure`、`purify_wind`、`miracle`。全体回復は生存者全員、CUREは選択した生存者、浄化の風は生存者全員の毒・麻痺・睡眠・混乱を治療します。HP回復と状態異常治療は別処理です。回復・治療する相手がいなければ探索でUsesを消費しません。SANCTUARYはGUARD UPと同じ防御枠を×0.55/2ラウンドへ更新し、別枠の乗算はしません。後からGUARD UP/IRON WALLを使うと、既存の再適用仕様どおり×0.7/3ラウンドへ更新します。
+
+RESTORE対象は26技です。追加COMMON 8技はCost 2、追加RAREのCURE・装甲崩壊・精神集中陣はCost 4でUses 2。所持中の技の回数補充には使えません。SAVEはversion 1のまま、旧31技版セーブも読み込めます。新技を含むセーブを旧プログラムへ戻して読み込むことは保証しません。
+
+全技データ・個別成長ポイント・検証結果・配布物については[62技版の検証報告](verification/PLAYER_SKILL_ROSTER_REVIEW.md)を参照してください。検証には合成セーブのみ使用し、プレイヤーの`save/`は読み書きしていません。
+
+## GKD Pixel2 戦闘開始フリーズ調査・診断版
+
+PCのPyxel 2.9.9でも、戦闘突入の最後の`pyxel.playm()`が戻らない停止を再現しました。ネイティブ版のBGM/ファンファーレはMusic Editorの同じチャンネル配列を`pyxel.play()`へ渡す最小回避を行っています。Webのplaym経路、曲データ、戦闘ロジック、入力ロック、62技、SAVE形式は維持しています。GKD実機の停止が同じ原因かは、実機確認が必要です。
+
+通常修正版は`verification/packages/skill_seekers_gkd.zip`、別の診断版は`verification/packages/skill_seekers_gkd_diagnostic.zip`です。診断ZIPの`Skill_Seekers`を既存フォルダへ上書き/結合し、`Skill_Seekers_Diagnostic.sh`を通常ランチャーと同じ場所へコピーして、診断ランチャーから起動してください。既存フォルダや`save/`は削除しません。通常ランチャーは診断ZIPでは上書きしません。
+
+診断ログは`Skill_Seekers/diagnostics/battle_start.jsonl`（および`.1`）、`python_stacks.log`（および`.1`）。ランチャー階層の`skill_seekers_diagnostic_launch.log`も回収できます。チェックポイントごとにflushし、更新が20秒途絶えた場合にfaulthandlerでスタックを出します。対応していなければWATCHDOG_UNAVAILABLEを記録します。ログはSAVEデータへ混ぜません。
+
+`Skill_Seekers/diagnostic_config.json`で戦闘開始音声だけの無効化（`battle_start_audio: false`）や既存の演出なし開始経路（`skip_transition: true`）を診断版だけで切り替えられます。まずデフォルトで試し、比較するときは1項目ずつ変更してください。設定は次回起動から有効です。[42項目の調査結果・実機での手順](verification/GKD_BATTLE_FREEZE_REVIEW.md)を参照してください。
+
+## ENEMY & BOSS BALANCE PASS 01
+
+通常敵18種のHPと攻撃能力、ボス7体の数値・行動weightを`data/enemies.json`で調整しました。出現率・報酬・画像・マップ・PLAYER Skill62種の性能・成長・閃き・MASTERED・RESTOREは変更していません。毒は従来どおり味方/敵共通の`max(1, int(max_hp * 0.05))`です。最大HP40未満なら1ダメージになります。
+
+ボスだけの省略可能な`ai`設定で、`actions_per_round: 2`（デーモンのみ）、`avoid_active_buffs`、`avoid_repeat_control`、`max_consecutive_aoe`、`phases`を指定できます。`phases`は`hp_at_most`と`actions`の配列です。ロードオブエリシオンはHP50%/25%でweightを変更します。共通Actionの威力・状態異常成功率は`data/enemy_actions.json`をそのまま使っています。
+
+デーモンは一つの行動順枠で2行動を連続実行します。同じラウンドの同一Action、全体攻撃2回、行動阻害2回を禁止。毒tick・状態異常の残りターン・マヒの50%判定は本人ターンにつき1回です。他のボスは1行動です。
+
+最終戦は`bgm_boss`（`game.pyxres` Music 5）から開始し、アムリタの発光→2フレームの単発フラッシュ→短い画面揺れ→バリア破壊（32フレーム目）で`bgm_final`（Music 6）へ切り替わります。調整定数は`rpg/final_presentation.py`です。再挑戦は再びバリアあり・Boss BGMから始まります。演出は45フレーム/最大2秒で終了し、音声終了を待ちません。
+
+守護者間は既存の曲位置復帰を維持し、再生に失敗した場合は「再生中」と誤認せず0.5秒間隔で再試行します。失敗しても戦闘を止めません。ネイティブ版は引き続き`pyxel.play()`を使い、`playm()`へ戻していません。
+
+数値の全変更、比較条件、63項目・112ケースの結果は[敵・ボス調整の検証報告](verification/ENEMY_BOSS_BALANCE_01_REVIEW.md)を参照してください。比較は`python tools/verify_enemy_balance.py`、実描画・入力・音声障害は`python tools/verify_enemy_balance_runtime.py`、回帰テストは`python -m unittest discover -s tests`で再実行できます。既存の実セーブは検証で使用していません。
+
+## AUDIO PASS 03：OPENINGの曲切替とAREA1
+
+TITLE→NEW GAME→INTRO（全ページ）は、確認済みの`bgm_title`を再スタートせず継続します。最初に城下町を描画する`HUB_PREVIEW`へ入ったフレームで`bgm_hub`へ切り替え、その後の拠点説明・通常HUBへ継続します。LOADと通常帰還は従来どおりHUB曲です。Audio Manager、曲IDの対応、音声復帰・nativeのチャンネル別再生方式は変更していません。
+
+AREA1（B1～B5）は「深淵へ踏み出す者たち」。D minorを基調に、低いベース、明確な拍、短い旋律の反復と展開で、勇ましさと少しの緊張感を付けました。Music **2**、Sound **14～20 / 58**、チャンネル1=主旋律、2=ベース、3=伴奏＋リズムです。Speed **29**、1ステップを八分音符として約**124.14 BPM**、16小節・約**30.93秒**でループします。
+
+`edit.cmd`から`game.pyxres`を開いてMusic 2とそのSoundを編集できます。`edit_music.cmd`は従来の通常戦闘・ファンファーレ用ファイルを開くため、今回のAREA1編集には使用しません。スコアの編集用原稿は`tools/art/audio_pass_03.json`、限定インポートは`python tools/rework_area1_music03.py`です。インポーターはユーザーが対象Soundを手修正した場合、その変更を勝手に上書きせず停止します。
+
+TITLEのMusic 0・Sound 0～6/57、他BGM、全SEは変更していません。特にユーザー編集済みの階段SE Sound **50**は、Note/Tone/Volume/Effect/Speedだけでなくリソース内の記述バイトまで保持しています。画像・マップ・パレットも不変です。
+
+[27項目と18ケースの検証報告](verification/AUDIO_PASS_03_REVIEW.md)を参照してください。`python tools/verify_opening_audio03.py`で開始演出の時系列、`python tools/verify_audio_pass03.py`で音源保護とWAV生成を再確認できます。試聴用WAVは`verification/audio/pass03/bgm_area1.wav`（gitignore対象）です。Web本体、Pixel2通常ZIP・診断ZIPも更新済みです。iOS SafariとPixel2の物理端末・小型スピーカーでの聴感は未確認です。
+
+## タイトルロゴ画像
+
+タイトルは`game.pyxres`のImage Bank **1**、**(0,192)**から**128×32**を等倍で描画します。160×120画面では描画位置は**(16,23)**です。背景は画面と同じ色0なので、透明色は指定していません。ロゴ画像・パレット・曲データは今回変更せず、既存メニューと開始時のBGM遷移も維持しています。
+
+ロゴを編集する場合は`edit.cmd`から同じ領域を編集してください。Webへ反映するには`python tools/build_web.py`、Pixel2用には`python tools/build_gkd.py`で配布物を再生成します。[タイトルロゴの確認結果](verification/TITLE_LOGO_REVIEW.md)も参照してください。
+
+## アムリタ献上イベントのBGM
+
+「アムリタを王に献上しますか？」で「はい」を決定した瞬間、専用曲「献上――玉座の影」へ切り替わります。低音の持続音と半音・増四度を交えた短い旋律による、60 BPM・32秒の不穏なループです。会話のページ送りでは再スタートせず、最終戦開始時に既存のボス曲へ移ります。「後で」やBで戻った場合は拠点曲のままです。
+
+編集する場合は`edit_event_music.cmd`を開いてください。対象は`assets/omen_music.pyxres`の**Music 0 / Sound 0～5**です。チャンネル1は旋律、2は低音、3は薄い伴奏で、チャンネル0はSE用に空けています。既存の`game.pyxres`と`assets/battle_music.pyxres`は変更していません。編集後はWeb/Pixel2配布物を再生成してください。
+
+編集用の初期譜面は`tools/art/omen_music.json`、試聴WAVは`verification/audio/omen/offering_omen.wav`（gitignore対象）。`tools/create_omen_music.py`は初回作成専用で、既存ファイルの上書きを拒否します。[献上BGMの確認結果](verification/OMEN_MUSIC_REVIEW.md)を参照してください。

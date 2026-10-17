@@ -162,7 +162,8 @@ class FinalPresentationTests(unittest.TestCase):
         with patch.object(pyxel, 'blt') as blt:
             self.a.draw_battle()
         for call in blt.call_args_list:
-            self.assertEqual(call.args[5:7], (16, 16))
+            if call.args[2] == 0:  # Enemy/party sprites; editor backgrounds use Image 2.
+                self.assertEqual(call.args[5:7], (16, 16))
 
     def test_sprite_metadata_rejects_size_that_would_cover_ui(self):
         data = dict(self.a.final_battle_data)

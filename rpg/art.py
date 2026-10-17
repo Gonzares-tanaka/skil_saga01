@@ -5,6 +5,17 @@ PALETTE = [0x152B24, 0x456849, 0x8EAD62, 0xDBE8A6]
 RESOURCE = ROOT / "assets" / "sprites.pyxres"
 
 
+def draw_quest_symbol(pyxel, x, y, bank, u, v):
+    """Keep editable glyphs visible on both dark and light dungeon floors."""
+    image = pyxel.images[bank]
+    for sy in range(8):
+        for sx in range(8):
+            if image.pget(u + sx, v + sy) != 0:
+                for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                    pyxel.pset(x + sx + dx, y + sy + dy, 0)
+    pyxel.blt(x, y, bank, u, v, 8, 8, 0)
+
+
 def draw_defaults(pyxel):
     image = pyxel.images[0]
     image.cls(0)

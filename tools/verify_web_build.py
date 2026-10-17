@@ -54,7 +54,7 @@ from rpg.battle_transition import BATTLE_TRANSITION_HOLD_FRAMES, BATTLE_TRANSITI
 from rpg.content import ROOT, load_content
 from rpg.dungeon_app import DungeonApp
 from rpg.opening import TITLE_FADE_FRAMES, HUB_PREVIEW_FRAMES
-from rpg.tiles import TILE_FLOOR, TILE_WALL, TILE_SWITCH, TILE_DOOR, TILE_QUEST, TILE_WARNING, TILE_BOSS
+from rpg.tiles import TILE_FLOOR, TILE_WALL, TILE_SWITCH, TILE_DOOR, TILE_QUEST, TILE_WARNING, TILE_BOSS, FLOOR_TILES
 app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True)
 expected = [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 assert len(expected) == 32 and list(pyxel.colors) == expected
@@ -294,6 +294,37 @@ with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), p
     app.finish_results()
     assert app.state == 'ending' and d.finale.amrita_power_spent
     assert d.finale.lord_of_elysion_defeated and not d.finale.has_amrita
+# Exercise random encounters from real D-PAD input in the shipped payload.
+# Preserve production rates: force the RNG roll, never the encounter setting.
+app.start_new_game()
+d = app.dungeon
+app.opening_input_blocked = False
+for floor in (3, 4, 8, 9, 13, 14):
+    point, delta = next(((x, y), (dx, dy)) for x, y in sorted(d.reachable(floor))
+                        for dx, dy in ((1,0),(-1,0),(0,1),(0,-1))
+                        if d.tile(floor,x,y) in FLOOR_TILES and d.tile(floor,x+dx,y+dy) in FLOOR_TILES)
+    button = {(1,0):pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT,(-1,0):pyxel.GAMEPAD1_BUTTON_DPAD_LEFT,
+              (0,1):pyxel.GAMEPAD1_BUTTON_DPAD_DOWN,(0,-1):pyxel.GAMEPAD1_BUTTON_DPAD_UP}[delta]
+    for cleared in (False, True):
+        d.debug_floor(floor)
+        if floor in (4, 9):
+            d.defeated_bosses.discard(floor)
+            if cleared:
+                d.defeat_boss()
+        d.x,d.y = point
+        d.grace = 0
+        app.session.battle = None  # Independent encounter fixture, no unfinished prior fight.
+        app.state,app.overlay,app.battle_input_blocked = 'explore',None,False
+        with patch.object(d.rng,'random',return_value=0) as roll:
+            press(button)
+        if floor == 14:
+            assert app.state == 'explore'
+            roll.assert_not_called()
+        else:
+            assert app.state == 'battle_transition' and app.battle_kind == 'normal'
+            assert app.battle.enemies and not app.battle.boss
+            assert roll.called  # Enemy table sampling also uses this shared RNG.
+print("PASS: shipped B4/B5/B9/B10/B14 normal encounters, B5/B10 before/after clear, B15 no random encounters")
 print("PASS: embedded resources/palette, pad input, silent guardians, Amrita, final barrier/retry and ENDING")
 '''
     subprocess.run([sys.executable, "-c", check], cwd=Path(temp) / "spark_web", check=True)

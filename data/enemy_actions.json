@@ -1,0 +1,17 @@
+{
+  "attack": {"name":"攻撃","type":"physical_single","power":1.0,"hits":1,"target":"random_player","effect_id":"blunt"},
+  "magic": {"name":"魔法","type":"magic_single","power":1.0,"hits":1,"target":"random_player","effect_id":"magic"},
+  "heavy_attack": {"name":"強攻撃","type":"physical_single","power":1.35,"hits":1,"target":"random_player","effect_id":"heavy_hit"},
+  "double_attack": {"name":"連撃","type":"physical_single","power":0.60,"hits":2,"target":"random_player","effect_id":"slash"},
+  "area_attack": {"name":"全体攻撃","type":"physical_all","power":0.55,"hits":1,"target":"all_players","effect_id":"blunt"},
+  "area_magic": {"name":"全体魔法","type":"magic_all","power":0.50,"hits":1,"target":"all_players","effect_id":"magic"},
+  "guard": {"name":"まもる","type":"guard","target":"self","modifier":0.50,"effect_id":"guard"},
+  "power_up": {"name":"力をためる","type":"buff","target":"self","effect":"power_up","modifier":1.20,"duration":3,"effect_id":"buff"},
+  "weaken": {"name":"弱体","type":"debuff","target":"random_player","effect":"weaken","modifier":0.85,"duration":3,"effect_id":"debuff"},
+  "armor_break": {"name":"防御崩し","type":"debuff","target":"random_player","effect":"armor_break","modifier":0.85,"duration":3,"effect_id":"armor_down"},
+  "slow": {"name":"スロウ","type":"debuff","target":"random_player","effect":"slow","modifier":0.80,"duration":3,"effect_id":"slow"},
+  "poison_bite": {"name":"毒の牙","type":"physical_single","power":0.90,"target":"random_player","effect_id":"slash","status_id":"poison","status_chance":45},
+  "confusion_touch": {"name":"混乱の接触","type":"magic_single","power":0.85,"target":"random_player","effect_id":"magic","status_id":"confusion","status_chance":35},
+  "paralyze_grab": {"name":"マヒのつかみ","type":"physical_single","power":0.85,"target":"random_player","effect_id":"blunt","status_id":"paralyze","status_chance":35},
+  "sleep_spell": {"name":"睡眠魔法","type":"status","target":"random_player","effect_id":"magic","status_id":"sleep","status_chance":45}
+}

@@ -1,5 +1,6 @@
 """JSON round trips, validation before mutation and atomic file failure."""
 from copy import deepcopy
+from dataclasses import replace
 import json
 from pathlib import Path
 import tempfile
@@ -267,6 +268,71 @@ class SaveTests(unittest.TestCase):
         self.assertEqual(storage.values[BROWSER_SAVE_KEY], raw)
         self.assertEqual(make_save_data(self.app), original)
         self.assertFalse(self.backend.path.exists())
+
+    def test_file_browser_parity_for_full_records_and_one_more_battle(self):
+        from rpg.quests import QUEST_COMPLETION_IDS
+        self.fixture()
+        s, d, e = self.app.session, self.app.dungeon, self.app.exploration
+        s.treasure.banked, s.total_battles = 21, 128
+        s.party[0].skill_uses['punch'] = 17
+        s.party[0].skill_uses['return'] = 1
+        s.party[0].learn(s.skills['revive'])
+        s.party[0].skill_uses['revive'] = 2
+        s.discovered_skills.add('revive')
+        e.quest_clear_counts.update(explore=5, investigate=3, hunt=4)
+        e.completed_quest_ids = [sid for kind, count in e.quest_clear_counts.items()
+                                 for sid in QUEST_COMPLETION_IDS[kind][:count]]
+        self.assertEqual(len(e.completed_quest_ids), 12)
+        d.finale.guardians_defeated = True
+        d.finale.claim_amrita()
+        d.defeated_bosses.add(14)
+        e.accept(3, quest_type='hunt')
+        flavor = deepcopy(e.quest_flavor())
+        expected = make_save_data(self.app)
+        browser = SaveManager(BrowserSaveBackend(MemoryStorage()))
+        for manager in (self.manager, browser):
+            manager.save(self.app)
+            self.app.session.treasure.banked = 0
+            manager.load(self.app)
+            self.assertEqual(make_save_data(self.app), expected)
+            self.assertEqual(self.app.exploration.quest_flavor(), flavor)
+        self.app.session.next_battle()
+        self.assertEqual(self.app.session.total_battles, 129)
+
+    def test_saved_skill_and_hunt_enemy_references_survive_display_name_changes(self):
+        self.fixture()
+        self.app.exploration.accept(2, quest_type='hunt')
+        data = make_save_data(self.app)
+        sid = self.app.session.party[0].skills[0]
+        enemy_id = data['active_quest']['hunt_enemy_id']
+        content = deepcopy(self.app.initial_content)
+        content[1][sid] = replace(content[1][sid], name='表示名変更テスト')
+        for row in content[3]:
+            if row['id'] == enemy_id:
+                row['name'] = '敵の表示名変更テスト'
+        self.app.initial_content = content
+        for manager in (self.manager, SaveManager(BrowserSaveBackend(MemoryStorage()))):
+            manager.save(self.app)
+            manager.load(self.app)
+            self.assertEqual(make_save_data(self.app), data)
+            self.assertEqual(self.app.session.skills[sid].name, '表示名変更テスト')
+            self.assertEqual(self.app.dungeon.enemies[enemy_id]['name'], '敵の表示名変更テスト')
+
+    def test_native_linux_path_permission_and_interrupted_write_compatibility(self):
+        from rpg.keyboard import GameKeyboard
+        with patch('rpg.save.sys.platform', 'linux'), patch.dict('sys.modules', {'js': None}):
+            self.assertIsInstance(default_backend(), FileSaveBackend)
+            keyboard = GameKeyboard()
+            self.assertIsNone(keyboard.user32)
+            self.assertIsNone(keyboard.imm32)
+        self.manager.save(self.app)
+        original = self.backend.path.read_bytes()
+        for target in ('rpg.save.os.fsync', 'pathlib.Path.mkdir'):
+            with patch(target, side_effect=PermissionError('filesystem denied')):
+                with self.assertRaises(SaveError):
+                    self.manager.save(self.app)
+            self.assertEqual(self.backend.path.read_bytes(), original)
+            self.assertFalse(self.backend.path.with_suffix('.tmp').exists())
 
 
 if __name__ == '__main__':

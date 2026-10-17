@@ -240,15 +240,17 @@ def main():
             assert app.state=='camp' and d.finale.has_amrita and not d.finale.final_event_started
             facilities.append(('GUILD','TRAINING','PUB','SHOP')[facility])
         # Deterministic pre-checkpoint loadout/resources, not enemy balance edits.
+        # Extra random encounters can exhaust/replace BASIC skills on the way;
+        # explicitly provide every skill exercised by the barrier test.
         for c in s.party:
-            for sid in ('fire','meteor','seven_slash'):
+            for sid in ('punch','fire','meteor','seven_slash'):
                 if sid not in c.skills:
                     if len(c.skills)>=8:
                         old=next(k for k in reversed(c.skills) if k not in ('punch','quick_hit','spark','return','fire','meteor','seven_slash'))
                         c.forget(old)
                     c.learn(s.skills[sid])
                     s.discovered_skills.add(sid)
-            for sid in ('meteor','seven_slash'):
+            for sid in ('punch','fire','meteor','seven_slash'):
                 c.skill_uses[sid]=c.max_uses(s.skills[sid])
         s.inventory.counts={iid:9 for iid in s.inventory.counts}
         assert AMRITA_ITEM_ID not in s.inventory.counts and d.finale.has_amrita

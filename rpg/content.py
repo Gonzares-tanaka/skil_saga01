@@ -6,9 +6,70 @@ from pathlib import Path
 from .models import Character, Skill
 from .skill_resources import MAX_SKILLS, FALLBACK_SKILL
 from .labels import EFFECTS, BUFFS
+from .enemy_actions import load_enemy_actions, validate_enemy_action_lists
+from .statuses import load_statuses, percentage
+from .skill_targets import SKILL_TARGETS
+from .rare_skill_presentation import RARE_PRESENTATION_IDS
+from .legend_skill_presentation import LEGEND_PRESENTATION_IDS
 
 ROOT = Path(__file__).resolve().parent.parent
 RARITIES = ("BASIC", "COMMON", "UNCOMMON", "RARE", "LEGEND")
+
+
+def validate_skill(skill, status_definitions=None):
+    """Validate the same model for JSON data and isolated test fixtures."""
+    statuses = load_statuses() if status_definitions is None else status_definitions
+    def require(ok, message):
+        if not ok:
+            raise ValueError(f'{skill.id}: {message}')
+    def number(value, low, high):
+        return (isinstance(value, (int, float)) and not isinstance(value, bool)
+                and math.isfinite(value) and low <= value <= high)
+    def integer(value, low, high):
+        return type(value) is int and low <= value <= high
+    effects = {'damage', 'heal', 'revive', 'counter', 'drain', 'berserk', 'return', 'status', 'cure'} | EFFECTS.keys()
+    require(skill.effect in effects, 'Unknown effect')
+    require(skill.target in SKILL_TARGETS, 'Invalid target')
+    require(skill.presentation_id is None or (
+            isinstance(skill.presentation_id, str) and (
+                skill.rarity == 'RARE' and skill.presentation_id in RARE_PRESENTATION_IDS
+                or skill.rarity == 'LEGEND' and skill.presentation_id in LEGEND_PRESENTATION_IDS)),
+            'Invalid presentation_id')
+    if skill.effect == 'revive':
+        allowed = ('ally',)
+    elif skill.effect in ('counter', 'berserk', 'return'):
+        allowed = ('self',)
+    elif skill.effect in ('heal', 'cure') or skill.effect in BUFFS:
+        allowed = ('ally', 'self', 'all_allies')
+    else:
+        allowed = ('enemy', 'all_enemies', 'random_enemy')
+    require(skill.target in allowed, 'Invalid effect/target combination')
+    require(percentage(skill.status_chance), 'status_chance must be 0..100')
+    require(skill.status_id is None or isinstance(skill.status_id, str) and skill.status_id in statuses,
+            'Unknown status_id')
+    require(skill.status_id is not None or skill.status_chance == 0, 'status_chance without status_id')
+    require(skill.status_id is None or skill.effect in ('damage', 'drain', 'status'), 'Invalid status effect')
+    require(skill.effect != 'status' or skill.status_id is not None, 'Pure status needs status_id')
+    require(isinstance(skill.cure_statuses, (list, tuple))
+            and all(isinstance(key, str) and key in statuses for key in skill.cure_statuses)
+            and len(set(skill.cure_statuses)) == len(skill.cure_statuses), 'Invalid cure_statuses')
+    require(bool(skill.cure_statuses) == (skill.effect == 'cure'), 'Cure needs its own nonempty status list')
+    require(type(skill.field_usable) is bool, 'field_usable must be boolean')
+    require(not skill.field_usable or skill.effect in ('heal', 'cure', 'return'), 'Invalid field use effect')
+    require(skill.effect != 'return' or skill.field_usable, 'RETURN must be field usable')
+    if skill.effect in EFFECTS:
+        require(integer(skill.duration, 1, 9), 'duration must be 1..9')
+        lo, hi = (1.01, 2) if skill.effect in ('power_up', 'focus') else (0.1, 0.99)
+        require(number(skill.modifier, lo, hi), 'Invalid modifier')
+    require(all(number(v, 0, 100) for v in (skill.str_scale, skill.agi_scale, skill.int_scale)), 'Invalid scales')
+    require(integer(skill.hits, 1, 20) and integer(skill.cooldown, 0, 99), 'Invalid hits/cooldown')
+    require(integer(skill.max_uses, 1, 99), 'max_uses must be 1..99')
+    no_restore = type(skill.relearn_cost) is int and type(skill.relearn_uses) is int and skill.relearn_cost == skill.relearn_uses == 0
+    require(no_restore or integer(skill.relearn_cost, 1, 999) and integer(skill.relearn_uses, 1, skill.max_uses),
+            'Invalid relearn_cost/relearn_uses pair')
+    require(skill.skill_type in ('physical', 'speed', 'magic', 'healing', 'support'), 'Invalid skill_type')
+    require(set(skill.growth) == {'HP', 'STR', 'AGI', 'INT'}
+            and all(number(v, 0, 10) for v in skill.growth.values()), 'Invalid growth contributions')
 
 
 def load_content(directory=None):
@@ -17,6 +78,8 @@ def load_content(directory=None):
         with (directory / f"{name}.json").open(encoding="utf-8-sig") as f:
             return json.load(f)
     settings, rows, enemies = read("settings"), read("party"), read("enemies")
+    status_definitions = load_statuses(directory / 'statuses.json')
+    validate_enemy_action_lists(enemies, load_enemy_actions())
     settings.setdefault("skill_slots", MAX_SKILLS)
     skills = {}
     def require(ok, message):
@@ -34,27 +97,15 @@ def load_content(directory=None):
         require(name_ok(skill.name) and name_ok(skill.id) and skill.id.isascii(), "技名は表示可能な文字、IDは半角英数字で指定してください。")
         require(skill.id not in skills, f"Duplicate skill: {skill.id}")
         require(skill.rarity in RARITIES, f"Unknown rarity: {skill.id}")
-        require(skill.effect in {"damage", "heal", "revive", "counter", "drain", "berserk", "return"} | EFFECTS.keys(), f"Unknown effect: {skill.id}")
-        expected = "ally" if skill.effect in ("heal", "revive") or skill.effect in BUFFS else "self" if skill.effect in ("counter", "berserk", "return") else "enemy"
-        if skill.effect in EFFECTS:
-            require(integer(skill.duration, 1, 9), f"durationは1～9: {skill.id}")
-            lo, hi = (1.01, 2) if skill.effect in ("power_up", "focus") else (0.1, 0.99)
-            require(number(skill.modifier, lo, hi), f"Invalid modifier: {skill.id}")
-        require(skill.target == expected, f"Invalid target: {skill.id}; expected {expected}")
-        require(all(number(v, 0, 100) for v in (skill.str_scale, skill.agi_scale, skill.int_scale)), f"Invalid scales: {skill.id}")
-        require(integer(skill.hits, 1, 20) and integer(skill.cooldown, 0, 99), f"Invalid hits/cooldown: {skill.id}")
+        validate_skill(skill, status_definitions)
         require(name_ok(skill.description), f"Invalid description: {skill.id}")
-        require(integer(skill.max_uses, 1, 99), f"max_usesは1～99: {skill.id}")
-        if skill.can_relearn:
-            require(integer(skill.relearn_cost, 1, 999) and integer(skill.relearn_uses, 1, skill.max_uses), f"Invalid relearn_cost/relearn_uses: {skill.id}")
-        require(skill.skill_type in ("physical", "speed", "magic", "healing", "support"), f"Invalid skill_type: {skill.id}")
-        require(set(skill.growth) == {"HP", "STR", "AGI", "INT"} and all(number(v, 0, 10) for v in skill.growth.values()), f"Invalid growth contributions: {skill.id}")
         skills[skill.id] = skill
     require(bool(skills), "skills.json must contain skills.")
     require(len(rows) == 4 and bool(enemies), "Exactly 4 party members and at least 1 enemy are required.")
     for row in rows + enemies:
         require(name_ok(row["name"]), "名前には改行や制御文字を使用できません。")
-        require(all(integer(row[k], 1, 999) for k in ("max_hp", "str", "agi", "int")), f"Invalid stats: {row['name']}")
+        require(integer(row['max_hp'], 1, 9999 if row.get('boss') else 999)
+                and all(integer(row[k], 1, 999) for k in ("str", "agi", "int")), f"Invalid stats: {row['name']}")
         require(len(row["sprite"]) == 2 and all(integer(v, 0, 240) for v in row["sprite"]), "Sprite must fit a 16x16 area in bank 0.")
     require(len({r["name"] for r in rows}) == 4, "Party names must be unique.")
     for row in enemies:

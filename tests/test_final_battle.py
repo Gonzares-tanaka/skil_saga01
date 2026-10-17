@@ -39,6 +39,9 @@ class FinalBattleTests(unittest.TestCase):
                          self.s.treasure, self.s.inventory)
         self.e = Exploration(self.s, self.d)
         self.a = a = DungeonApp.__new__(DungeonApp)
+        from rpg.sound import init_sound
+        a.audio = init_sound()
+        a.hunt_goal_lines = None
         a.session, a.dungeon, a.exploration = self.s, self.d, self.e
         a.initial_content = deepcopy((self.s.settings, self.s.skills, self.s.party, self.s.enemy_data))
         a.initial_rng_state, a.initial_debug = self.s.rng.getstate(), False

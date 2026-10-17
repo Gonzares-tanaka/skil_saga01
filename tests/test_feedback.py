@@ -10,6 +10,7 @@ from rpg.exploration import Exploration
 from rpg.growth import spark
 from rpg.map_resources import load_maps
 from rpg.models import Action
+from rpg.quests import spawn_candidates
 from rpg.tiles import (TILE_CHEST, TILE_RARE_CHEST, TILE_POISON, TILE_PIT,
                        TILE_HEAL_POINT, TILE_FLOOR, TILE_QUEST, TILE_ENTRANCE,
                        TILE_STAIRS_UP, PASSABLE, PIT_TILES)
@@ -158,7 +159,7 @@ class FeedbackTests(unittest.TestCase):
                 e.accept(qid)
                 floor, x, y = e.target
                 floors.add(floor)
-                self.assertEqual(self.d.tile(floor, x, y), TILE_QUEST)
+                self.assertIn((x, y), spawn_candidates(self.d, floor))
                 self.assertIn((x, y), self.d.reachable(floor))
             self.assertEqual(floors, set(range((qid - 1) * 5, qid * 5)))
 

@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
+from copy import deepcopy
 from .labels import EFFECTS
+from .statuses import clear_statuses
 
 
 MASTERED_POWER_MULTIPLIER = 1.2
@@ -25,11 +27,22 @@ class Skill:
     modifier: float = 1.0
     relearn_cost: int = 0
     relearn_uses: int = 0
+    effect_id: str = 'blunt'  # Optional presentation data; never used in damage rules.
+    status_id: str | None = None
+    status_chance: float = 0  # Percentage, matching EnemyAction (0..100).
+    cure_statuses: tuple[str, ...] = ()
+    field_usable: bool | None = None
+    presentation_id: str | None = None  # Static RARE visuals; never saved or used by rules.
+
+    def __post_init__(self):
+        # Preserve the five existing field skills without changing their JSON.
+        if self.field_usable is None:
+            object.__setattr__(self, 'field_usable', self.effect in ('heal', 'return'))
 
     @property
     def can_relearn(self):
-        return self.rarity in ("BASIC", "COMMON") or (
-            self.rarity == "RARE" and self.skill_type == "support" and self.effect in EFFECTS)
+        # Validation rejects incomplete/nonpositive pairs; no rarity/effect gate.
+        return bool(self.relearn_cost or self.relearn_uses)
 
     @property
     def mastery_label(self):
@@ -43,6 +56,10 @@ class Skill:
         return max(1, round(base * factor))
 
     def formula(self):
+        if self.effect == 'status':
+            return f"状態異常付与 {self.status_chance:g}%"
+        if self.effect == 'cure':
+            return "指定の状態異常を治療"
         if self.effect == "return":
             return "探索専用 / 拠点へ帰還"
         if self.effect == "revive":
@@ -54,6 +71,14 @@ class Skill:
                   ("INT", self.int_scale)) if scale]
         formula = "+".join(parts) or "能力強化"
         return f"({formula})*{self.hits}" if self.hits > 1 else formula
+
+
+@dataclass
+class FieldSkillResult:
+    used: bool
+    messages: list[str]
+    cured_count: int = 0
+    returned: bool = False
 
 
 @dataclass
@@ -80,6 +105,9 @@ class Character:
     counter: Skill | None = None
     berserk: int = 0
     effects: dict[str, tuple[float, int]] = field(default_factory=dict)
+    statuses: dict[str, int] = field(default_factory=dict, repr=False)
+    status_resistances: dict[str, float] = field(default_factory=dict, repr=False)
+    status_immunities: tuple[str, ...] = field(default_factory=tuple, repr=False)
 
     def __post_init__(self):
         self.hp = self.max_hp
@@ -121,7 +149,7 @@ class Character:
         self.mastered_copies.discard(skill_id)
         self.cooldowns.pop(skill_id, None)
 
-    def reset_battle_state(self):
+    def reset_battle_state(self, preserve_poison=False):
         """Reset per-battle effects without healing wounds or reviving allies."""
         self.growth_points.clear()
         self.used_skills.clear()
@@ -131,6 +159,7 @@ class Character:
         self.counter = None
         self.berserk = 0
         self.effects.clear()
+        clear_statuses(self, preserve_poison)
 
 
 @dataclass
@@ -149,6 +178,27 @@ class Enemy:
     magic_defense: float = 0
     effects: dict[str, tuple[float, int]] = field(default_factory=dict)
     id: str = ""
+    actions: list[dict] = field(default_factory=list, repr=False)
+    ai: dict = field(default_factory=dict, repr=False)  # Static boss rules, never saved.
+    guard_multiplier: float = 0.5
+    statuses: dict[str, int] = field(default_factory=dict, repr=False)
+    status_resistances: dict[str, float] = field(default_factory=dict, repr=False)
+    status_immunities: tuple[str, ...] = field(default_factory=tuple, repr=False)
+
+    @classmethod
+    def from_definition(cls, row, **overrides):
+        """Keep the fixed data ID separate from names and encounter scaling."""
+        values = dict(name=row["name"], max_hp=row["max_hp"], strength=row["str"],
+                      agility=row["agi"], intellect=row["int"], sprite=tuple(row["sprite"]),
+                      magic_chance=row["magic_chance"], defense=row.get("defense", 0),
+                      magic_defense=row.get("magic_defense", 0),
+                      actions=deepcopy(row.get("actions") or []))
+        values['status_resistances'] = deepcopy(row.get('status_resistances') or {})
+        values['status_immunities'] = tuple(row.get('status_immunities') or ())
+        values['ai'] = deepcopy(row.get('ai') or {})
+        values.update(overrides)
+        values["id"] = row["id"]
+        return cls(**values)
 
     def __post_init__(self):
         self.hp = self.max_hp

@@ -31,10 +31,7 @@ def make_final_enemy(enemy_data):
     row = next((row for row in enemy_data if row["id"] == LORD_OF_ELYSION_ID), None)
     if row is None or not row.get("boss"):
         raise ValueError("enemies.json: lord_of_elysionのボスデータが必要です。")
-    return Enemy(row["name"], row["max_hp"], row["str"], row["agi"], row["int"],
-                 tuple(row["sprite"]), row["magic_chance"],
-                 defense=row.get("defense", 0), magic_defense=row.get("magic_defense", 0),
-                 id=LORD_OF_ELYSION_ID)
+    return Enemy.from_definition(row)
 
 
 @dataclass(frozen=True)

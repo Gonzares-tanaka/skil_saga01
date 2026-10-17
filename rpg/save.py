@@ -13,7 +13,7 @@ from .battle import Session
 from .dungeon import Dungeon, load_dungeon_settings
 from .exploration import Exploration
 from .models import Character
-from .quests import QUEST_TYPES, QUEST_COMPLETION_IDS, spawn_candidates
+from .quests import QUEST_TYPES, QUEST_COMPLETION_IDS, spawn_candidates, log_spawn_failure
 
 SAVE_VERSION = 1
 DEFAULT_SAVE_PATH = Path('save') / 'save.json'
@@ -267,6 +267,8 @@ def prepare_saved_game(app, raw_data):
         require(type(q['reward']) is int and q['reward'] == e.quest_data['rewards'][kind][str(level)], 'QUEST報酬')
         require(q['flavor_id'] is None or isinstance(q['flavor_id'], str), 'flavor_id')
         points = spawn_candidates(d, q['target_floor'] - 1)
+        if len(points) < expected:
+            log_spawn_failure(kind, level, q['target_floor'] - 1, expected, len(points))
         require(len(points) >= expected, 'QUEST安全地点')
         q = {key: deepcopy(q[key]) for key in keys}
         q.update(id=level, points=[list(p) for p in points[:expected]],

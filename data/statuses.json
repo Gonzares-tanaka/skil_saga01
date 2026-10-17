@@ -1,0 +1,7 @@
+{
+  "poison": {"name": "毒", "duration": 3, "icon_id": "poison", "damage_fraction": 0.05},
+  "paralyze": {"name": "マヒ", "duration": 3, "icon_id": "paralyze", "skip_chance": 0.50},
+  "sleep": {"name": "睡眠", "duration": 2, "icon_id": "sleep"},
+  "confusion": {"name": "混乱", "duration": 2, "icon_id": "confusion", "power": 0.75,
+    "enemy_weight": 40, "ally_weight": 40, "idle_weight": 20}
+}

@@ -1,0 +1,3 @@
+# Keep the GKD diagnostic executable by POSIX shells after a Windows checkout.
+tools/check_gkd_versions.sh text eol=lf
+tools/run_gkd.sh text eol=lf

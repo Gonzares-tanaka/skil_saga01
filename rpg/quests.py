@@ -1,11 +1,12 @@
 """Quest definitions and safe spawn candidates; terrain is never rewritten."""
 from collections import deque
 import json
+import logging
 
 from .content import ROOT
 from .tiles import (PASSABLE, PIT_TILES, TILE_ENTRANCE, TILE_STAIRS_UP,
                     TILE_STAIRS_DOWN, TILE_BOSS, TILE_GUARDIAN, TILE_WARNING,
-                    TILE_DOOR, TILE_SWITCH, TILE_QUEST)
+                    TILE_DOOR, TILE_SWITCH, TILE_QUEST, FLOOR_TILES)
 
 QUEST_TYPES = ('explore', 'investigate', 'hunt')
 QUEST_NAMES = dict(zip(QUEST_TYPES, ('探索', '調査', '討伐')))
@@ -81,8 +82,15 @@ def load_quest_settings():
     return data
 
 
-def spawn_candidates(dungeon, floor):
-    """Use authored markers without crossing bosses, guardians or story gates."""
+def quest_spawn_report(dungeon, floor):
+    """Filter editor markers and data-only points against the same safe route.
+
+    Supplemental points must be ordinary floor; they never rewrite a Tilemap.
+    Quest reachability excludes story gates even after the guardian is defeated.
+    """
+    markers = dungeon.positions(floor, TILE_QUEST)
+    extra = [tuple(point) for point in dungeon.settings['floors'][floor].get('quest_spawn_points', [])]
+    registered = markers + extra
     start = dungeon.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
     forbidden = PIT_TILES | {TILE_ENTRANCE, TILE_STAIRS_UP, TILE_STAIRS_DOWN,
                              TILE_BOSS, TILE_GUARDIAN, TILE_WARNING}
@@ -98,4 +106,27 @@ def spawn_candidates(dungeon, floor):
                     seen.add(point)
                     queue.append(point)
         if doors_open or not any(dungeon.tile(floor, *p) == TILE_SWITCH for p in seen):
-            return sorted(p for p in seen if dungeon.tile(floor, *p) == TILE_QUEST)
+            break
+    valid, rejected = [], []
+    for point in sorted(set(registered)):
+        tile = dungeon.tile(floor, *point)
+        reason = ('outside_map' if tile is None else
+                  'not_empty_floor' if tile not in FLOOR_TILES | {TILE_QUEST} else
+                  'unreachable_before_story_gates' if point not in seen else None)
+        if reason:
+            rejected.append(dict(point=point, reason=reason))
+        else:
+            valid.append(point)
+    return dict(floor=floor + 1, marker_count=len(markers), extra_count=len(extra),
+                registered_count=len(registered), pre_filter_count=len(set(registered)),
+                valid_count=len(valid), valid_points=valid, rejected=rejected)
+
+
+def spawn_candidates(dungeon, floor):
+    return quest_spawn_report(dungeon, floor)['valid_points']
+
+
+def log_spawn_failure(kind, level, floor, required, valid_count):
+    logging.getLogger(__name__).warning(
+        'QUEST SPAWN FAILED type=%s level=%s target_floor=B%sF required_count=%s valid_candidate_count=%s',
+        kind, level, floor + 1, required, valid_count)

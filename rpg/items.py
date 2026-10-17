@@ -3,6 +3,7 @@ import json
 
 from .content import ROOT
 from .labels import CURRENCY_NAME
+from .statuses import active_statuses, clear_statuses
 
 
 ITEMS = ("POTION", "PHOENIX ASH", "REMEDY")
@@ -49,8 +50,13 @@ class Inventory:
         if item not in ITEMS or self.counts[item] <= 0:
             return False, "道具がありません"
         if item == "REMEDY":
-            return False, "今は治す状態異常がありません"
-        if item == "POTION":
+            if not target.alive:
+                return False, "戦闘不能には使えません"
+            if not active_statuses(target):
+                return False, "今は治す状態異常がありません"
+            clear_statuses(target)
+            message = f"{target.name} 状態異常を治療"
+        elif item == "POTION":
             if not target.alive:
                 return False, "戦闘不能には使えません"
             if target.hp >= target.max_hp:
@@ -62,6 +68,7 @@ class Inventory:
             if target.alive:
                 return False, "戦闘不能の味方を選んでください"
             target.hp = self.revival_hp(target)
+            clear_statuses(target)
             message = f"{target.name} 復活 HP {target.hp}/{target.max_hp}"
         self.counts[item] -= 1
         return True, message

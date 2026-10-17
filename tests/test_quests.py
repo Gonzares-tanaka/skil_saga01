@@ -78,7 +78,6 @@ class QuestTests(unittest.TestCase):
                     self.assertEqual(q['required_count'], count)
                     self.assertEqual(len({tuple(p) for p in q['points']}), count)
                     for p in q['points']:
-                        self.assertEqual(self.d.tile(q['target_floor']-1, *p), TILE_QUEST)
                         self.assertIn(tuple(p), spawn_candidates(self.d, q['target_floor']-1))
                     seen.add(q['target_floor'])
                 eligible = {f+1 for f in range((level-1)*5, level*5)
@@ -197,7 +196,8 @@ class QuestTests(unittest.TestCase):
         self.assertTrue(candidates)
         self.d.finale.guardians_defeated = True
         self.assertEqual(spawn_candidates(self.d,14), candidates)
-        self.assertLess(len(candidates), 3)  # Human map stays unchanged.
+        self.assertGreaterEqual(len(candidates), 3)
+        self.assertTrue(all(y > 19 for x, y in candidates))  # Safe entrance side; human map unchanged.
 
 
 if __name__ == '__main__':

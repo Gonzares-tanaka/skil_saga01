@@ -18,6 +18,7 @@ from rpg.exploration import Exploration
 from rpg.finale import FinaleProgress, load_finale_data
 from rpg.map_resources import load_maps
 from rpg.models import Action
+from rpg.quests import spawn_candidates
 from rpg.tiles import (LORE_TILES, TILE_BOSS, TILE_GUARDIAN, TILE_HEAL_POINT,
                        TILE_QUEST, TILE_WARNING)
 
@@ -119,6 +120,9 @@ class FinaleIntegrationTests(unittest.TestCase):
             rates.update(HP=0, STR=0, AGI=0, INT=0)
         # Exercise the real UI methods without reinitializing Pyxel in each test.
         app = self.app = DungeonApp.__new__(DungeonApp)
+        from rpg.sound import init_sound
+        app.audio = init_sound()
+        app.hunt_goal_lines = None
         app.session, app.dungeon = self.session, self.dungeon
         app.exploration = Exploration(self.session, self.dungeon)
         app.initial_content = deepcopy((self.session.settings, self.session.skills,
@@ -192,6 +196,29 @@ class FinaleIntegrationTests(unittest.TestCase):
         self.assertEqual((d.x, d.y, d.steps, d.grace, d.rng.getstate()), before)
         self.complete_guardian_flags()
         self.assertTrue(d.can_enter(14, *gate))
+
+    def test_b5_b10_boss_dialog_and_battle_never_update_exploration_movement(self):
+        app, d = self.app, self.dungeon
+        for floor in (4, 9):
+            with self.subTest(floor=floor+1):
+                # Each subcase starts an independent battle fixture.
+                self.session.battle = None
+                d.debug_floor(floor)
+                d.x, d.y = d.find(floor, TILE_BOSS)
+                app.handle_event(*d.interact())
+                self.assertEqual(app.state, 'boss_message')
+                with patch.object(d, 'move', side_effect=AssertionError('random movement during boss')), \
+                     patch.object(app, 'direction', return_value=1), \
+                     patch.object(app, 'confirm', return_value=False), \
+                     patch.object(app, 'cancel', return_value=False), \
+                     patch.object(app, 'pressed', return_value=False):
+                    app.update()
+                    self.assertEqual(app.state, 'boss_message')
+                    app.begin_encounter(boss=True)
+                    app.update()
+                    self.assertEqual(app.state, 'command')
+                    self.assertEqual(app.battle_kind, 'boss')
+                    self.assertTrue(app.battle.boss)
 
     def test_demon_cannot_start_or_clear_before_guardians(self):
         d = self.dungeon
@@ -456,7 +483,7 @@ class FinaleIntegrationTests(unittest.TestCase):
             floor, x, y = exploration.target
             floors.add(floor)
             self.assertIn(floor, range(10, 15))
-            self.assertEqual(d.tile(floor, x, y), TILE_QUEST)
+            self.assertIn((x, y), spawn_candidates(d, floor))
             self.assertIn((x, y), d.reachable(floor))
         self.assertEqual(floors, set(range(10, 15)))
 

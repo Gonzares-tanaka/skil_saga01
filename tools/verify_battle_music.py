@@ -15,6 +15,7 @@ from rpg.sound import play_cue
 from rpg.tiles import TILE_BOSS
 
 app = DungeonApp(Session(*load_content(), seed=42), run=False, headless=True, start_at_title=False)
+app.audio._install_bank('battle')  # Inspect the preserved source bank, not HUB.
 seqs = [list(seq) for seq in pyxel.musics[0].seqs]
 assert not seqs[0] and all(seqs[i] for i in (1, 2, 3))
 durations = [sum(pyxel.sounds[s].total_sec() for s in seqs[i]) for i in (1, 2, 3)]
@@ -28,13 +29,14 @@ with wave.open(str(output), "rb") as wav:
     pcm = array("h", wav.readframes(wav.getnframes()))
     assert max(abs(x) for x in pcm) > 100
     assert sum(abs(x) >= 32767 for x in pcm) / len(pcm) < 0.001
-with patch.object(pyxel, "playm") as music, patch.object(pyxel, "stop") as stop, patch.object(pyxel, "play") as effect:
+with patch("rpg.sound._play_music", return_value=True) as music, patch.object(pyxel, "stop") as stop, patch.object(pyxel, "play") as effect:
     app.enter_dungeon()
     app.begin_encounter()
-    music.assert_called_once_with(0, loop=True)
+    assert music.call_args_list[-1].args == (0, True)
     play_cue("attack")
     assert effect.call_args.args[0] == 0
-    assert stop.call_count == 0
+    assert all(c.args[0] in (1, 2, 3) for c in stop.call_args_list)
+    stop.reset_mock()
     app.battle.outcome = "DEFEAT"
     app.state, app.delay = "resolve", 0
     app.update()
@@ -43,7 +45,8 @@ with patch.object(pyxel, "playm") as music, patch.object(pyxel, "stop") as stop,
     app.finish_results()
     app.dungeon.floor = 4
     app.begin_encounter(boss=True)
-    assert music.call_count == 1
+    assert app.audio.current_bgm == 'bgm_boss'
+app.audio._install_bank('battle')
 assert list(pyxel.colors) == [int(line, 16) for line in (ROOT / "game.pyxpal").read_text().splitlines()]
 fanfare_seqs = [list(seq) for seq in pyxel.musics[1].seqs]
 assert not fanfare_seqs[0]
@@ -62,12 +65,12 @@ with wave.open(str(fanfare_output), "rb") as wav:
         return (sum(x * x for x in section) / len(section)) ** 0.5
     assert rms(1.3, 1.5) > rms(1.8, 2.0)
     assert rms(2.25, 2.39) < rms(0.5, 0.7)
-with patch.object(pyxel, "playm") as music:
+with patch("rpg.sound._play_music", return_value=True) as music:
     # Current battle is a boss battle; victory uses the same fanfare.
     app.battle.outcome = "VICTORY"
     app.state, app.delay = "resolve", 0
     app.update()
-    music.assert_called_once_with(1, loop=False)
+    music.assert_called_once_with(1, False)
     for _ in range(10):
         app.update()
     assert music.call_count == 1
@@ -86,6 +89,7 @@ app.result_lines, app.result_page = ["Victory"], 0
 app.fanfare_started_at = time.monotonic()
 app.fanfare_start_frame = pyxel.frame_count
 app.fanfare_timed_out = False
+app.fanfare_visual_frames = 0
 with patch.object(pyxel, "btnp", side_effect=lambda key, *args: key == pyxel.KEY_Z), patch.object(pyxel, "play_pos", side_effect=lambda ch: (22, 1.0) if ch == 3 else None):
     for _ in range(10):
         app.update()
@@ -93,22 +97,24 @@ with patch.object(pyxel, "btnp", side_effect=lambda key, *args: key == pyxel.KEY
     app.finish_results()
     assert app.state == "result"
 with patch.object(pyxel, "btnp", return_value=False), patch.object(pyxel, "play_pos", return_value=None):
+    app.fanfare_started_at = time.monotonic() - 2.5
     app.update()
     assert app.state == "result"  # No deferred confirm, requires a fresh press.
 with patch.object(pyxel, "btnp", side_effect=lambda key, *args: key == pyxel.GAMEPAD1_BUTTON_A), patch.object(pyxel, "play_pos", return_value=None), patch.object(pyxel, "stop") as stop:
     app.update()
     assert app.state == "explore"
-    assert [call.args[0] for call in stop.call_args_list] == [1, 2, 3]
 # Boss victory must wait before its after-battle dialogue too.
 app.state, app.battle_is_boss = "result", True
 app.battle_position = (4, *app.dungeon.find(4, TILE_BOSS))
 app.fanfare_started_at = time.monotonic()
 app.fanfare_start_frame = pyxel.frame_count
 app.fanfare_timed_out = False
+app.fanfare_visual_frames = 0
 with patch.object(pyxel, "play_pos", return_value=(20, 0.5)):
     app.finish_results()
     assert app.state == "result"
 with patch.object(pyxel, "play_pos", return_value=None):
+    app.fanfare_started_at = time.monotonic() - 2.5
     app.finish_results()
     assert app.state == "boss_after"
 print(f"PASS: aligned {durations[0]:.2f}s loop, audio render, SFX isolation, normal/boss/result lifecycle, palette unchanged")

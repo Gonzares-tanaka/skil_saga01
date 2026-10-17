@@ -6,6 +6,8 @@ import json
 import pyxel
 
 from .app import App
+from .art import draw_quest_symbol
+from .battle_presentation import battle_area, draw_status_icons
 from .battle import Session
 from .save import SaveManager, SaveError, NoSaveError
 from .final_battle import (FinalBattleCheckpoint, load_final_battle_data,
@@ -22,17 +24,20 @@ from .labels import CURRENCY_NAME
 from .quests import (QUEST_TYPES, QUEST_NAMES, QUEST_SYMBOLS, QUEST_FLAVOR_MAX_CHARS,
                      QUEST_FLAVOR_LINE_HEIGHT, QUEST_FLAVOR_LINES_PER_PAGE)
 from .models import effect_factor, battle_agility
-from .opening import (TITLE_MAIN, TITLE_SUBTITLE, TITLE_OPTIONS, TITLE_FADE_FRAMES,
+from .items import ITEMS
+from .opening import (TITLE_OPTIONS, TITLE_FADE_FRAMES,
                        NEW_GAME_BANKED_TRZ,
                       HUB_PREVIEW_FRAMES,
                       INTRO_MARGIN, INTRO_LINE_HEIGHT, load_intro_pages,
                       load_hub_intro_lines)
 from .battle_transition import (BATTLE_TRANSITION_HOLD_FRAMES, BATTLE_TRANSITION_FRAMES,
                                 BATTLE_TRANSITION_FLASH_FRAMES, draw_pieces)
+from .final_presentation import AMRITA_BREAK_FRAME
 from .hub import (HUB_IMAGE_BANK, HUB_PICTURE_SIZE, HUB_FACILITIES, HUB_ICONS, HUB_PICTURES,
                   HUB_DESCRIPTIONS, HUB_MENUS, HUB_MENU_Y, HUB_MENU_STEP,
                   HUB_CURRENCY_RIGHT, HUB_CURRENCY_Y, HUB_CURRENCY_WIDTH)
-from .sound import play_cue, start_battle_music, stop_battle_music
+from .sound import (play_cue, start_battle_music, stop_battle_music, area_bgm, FIELD_SE,
+                    TITLE_STATES, HUB_STATES, FIELD_STATES, BATTLE_STATES, BATTLE_BGM)
 from .tiles import (DUNGEON_RESOURCE, MAP_IMAGE_BANK, BOSS_FLOORS,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR, TILE_SIZE,
                     TILE_FLOOR, FLOOR_TILES, TILE_RARE_CHEST, TILE_QUEST,
@@ -110,9 +115,11 @@ class DungeonApp(App):
         self.final_question_page = 0
         self.camp_offer_pending = False
         self.explore_message = "入口へ戻ると全回復"
-        self.enter_camp()
+        self.hunt_goal_lines = None
+        self.enter_camp(play_music=not start_at_title)
         if start_at_title:
             self.state = "title"
+        self.sync_scene_audio()
         if run:
             pyxel.run(self.update, self.draw)
 
@@ -144,13 +151,14 @@ class DungeonApp(App):
         self.player_facing = "down"
         self.overlay = None
         self.notice = ""
-        self.enter_camp()
+        self.enter_camp(play_music=False)
         self.intro_page = 0
         self.hub_intro_shown = False
         self.hub_preview_remaining = 0
         self.title_fade_remaining = TITLE_FADE_FRAMES
         self.opening_input_blocked = True
         self.state = "title_fade"
+        self.sync_scene_audio()
 
     def update_opening(self):
         if self.state == "title_fade":
@@ -187,16 +195,16 @@ class DungeonApp(App):
                     self.hub_preview_remaining = HUB_PREVIEW_FRAMES
                     self.opening_input_blocked = True
                     self.state = "hub_preview"
+                    self.sync_scene_audio()
         elif self.state == "hub_intro" and self.confirm():
             self.hub_intro_shown = True
             self.enter_camp()
             self.opening_input_blocked = True
 
     def draw_title_logo(self):
-        """Replace only this method with Image Bank blits for future title art."""
-        text((pyxel.width - text_width(TITLE_MAIN)) // 2, 28, TITLE_MAIN, 3)
-        text((pyxel.width - text_width(TITLE_SUBTITLE)) // 2, 43,
-             TITLE_SUBTITLE, 2)
+        """Draw the user-owned logo at native size, including its color-0 background."""
+        width, height = 128, 32
+        pyxel.blt((pyxel.width - width) // 2, 23, 1, 0, 192, width, height)
 
     def draw_title_menu(self):
         for index, label in enumerate(TITLE_OPTIONS):
@@ -265,6 +273,8 @@ class DungeonApp(App):
             return
         stop_battle_music()
         # Loaded gameplay objects are detached/new; discard only obsolete UI waits.
+        self.audio.pending_se = None
+        self.hunt_goal_lines = None
         self.battle = self.final_checkpoint = self.final_presentation = None
         self.battle_kind, self.battle_is_boss = 'normal', False
         self.battle_position = self.next_guardian_index = None
@@ -287,9 +297,11 @@ class DungeonApp(App):
         self.camp_message = 'セーブを読み込みました'
         self.hub_preview_remaining = self.title_fade_remaining = self.intro_page = 0
         self.opening_input_blocked = True
+        self.sync_scene_audio()
 
-    def enter_camp(self, defeated=False, returned=False):
-        stop_battle_music()
+    def enter_camp(self, defeated=False, returned=False, *, play_music=True):
+        self.hunt_goal_lines = None
+        self.audio.pending_se = None
         self.dungeon.finale.abort_guardians()
         self.next_guardian_index = None
         quest_failure = []
@@ -319,6 +331,8 @@ class DungeonApp(App):
             self.camp_offer_pending = False
         elif self.camp_offer_pending:
             self.show_amrita_offer()
+        if play_music:
+            self.audio.play_bgm('bgm_hub')
 
     def enter_dungeon(self):
         if self.dungeon.cleared:
@@ -327,6 +341,7 @@ class DungeonApp(App):
             self.exploration.springs.clear()
             self.player_facing = "down"
             self.state, self.notice_timer = "explore", 0
+            self.audio.play_bgm(area_bgm(self.dungeon.floor))
             return
         self.dungeon.enter()
         self.exploration.springs.clear()
@@ -335,9 +350,11 @@ class DungeonApp(App):
         self.explore_message = "入口から出発した"
         if self.exploration.hint():
             self.show_field_event([self.exploration.hint()])
+        self.audio.play_bgm(area_bgm(self.dungeon.floor))
 
     def begin_encounter(self, boss=False, animate=False, guardian_index=None, quest_hunt=False):
         self.final_presentation = None
+        self.hunt_goal_lines = None
         boss = boss or guardian_index is not None
         animate = animate and not boss
         if animate:
@@ -350,12 +367,14 @@ class DungeonApp(App):
         self.fanfare_start_frame = None
         self.battle_position = self.dungeon.floor, self.dungeon.x, self.dungeon.y
         self.battle_is_boss = boss
+        self.battle_background_area = battle_area(self.dungeon.floor)
         self.battle_kind = ('quest_hunt' if quest_hunt else 'guardian' if guardian_index is not None else
                             'demon' if boss and self.dungeon.floor == 14 else
                             'boss' if boss else 'normal')
         enemies = self.exploration.make_hunt_enemy() if quest_hunt else self.dungeon.make_enemies(boss, guardian_index)
         self.battle = self.session.next_battle(enemies, recover=False,
-                                               spark_multiplier=self.dungeon.spark_multiplier, boss=boss)
+                                               spark_multiplier=self.dungeon.spark_multiplier, boss=boss,
+                                               persistent_poison=True)
         self.notice_timer = 0
         self.log = [self.battle.enemies[0].name + "との決戦!" if boss else "敵と遭遇した!"]
         self.pending = deque()
@@ -365,14 +384,14 @@ class DungeonApp(App):
         self.debug_return_state = None
         self.debug_return_overlay = None
         if boss:
-            stop_battle_music()
+            start_battle_music(self.battle_kind)
         elif animate:
             self.state = "battle_transition"
             self.battle_transition_frame = 0
             self.battle_transition_hold = BATTLE_TRANSITION_HOLD_FRAMES
             play_cue("battle_transition")
         else:
-            start_battle_music()
+            start_battle_music(self.battle_kind)
 
     def finish_results(self):
         if self.session.pending_replacements or self.waiting_for_fanfare():
@@ -417,7 +436,12 @@ class DungeonApp(App):
             self.explore_message = "HPは持ち越し。進むか帰るか"
             self.notice_timer = 0
             if self.battle_kind == 'quest_hunt' and self.battle.outcome == 'VICTORY':
-                self.show_field_event(self.exploration.hunt_victory())
+                self.observe_hunt_goal()
+                self.show_field_event(self.hunt_goal_lines or [])
+                if self.hunt_goal_lines:
+                    self.audio.play_se('se_quest_complete')
+                self.hunt_goal_lines = None
+        self.sync_scene_audio()
 
     def next_result_label(self):
         if self.battle_kind == 'elysion':
@@ -440,14 +464,21 @@ class DungeonApp(App):
             self.state, self.overlay = 'guardian_warning', None
             return
         if event == "chest":
+            before_hp = [c.hp for c in self.session.party]
             lines = [message] + self.exploration.chest_effect(self.dungeon.last_reward)
-            play_cue("chest")
+            self.audio.play_se(FIELD_SE[event])
+            if self.dungeon.last_reward['kind'] == 'TRAP' and before_hp != [c.hp for c in self.session.party]:
+                self.audio.play_se('se_trap_damage', delay_frames=12)
             self.show_field_event(lines)
             return
         if event == "poison":
+            before_hp = [c.hp for c in self.session.party]
             self.show_field_event([message] + self.exploration.damage(self.dungeon.exploration_settings["poison_damage"]))
+            if before_hp != [c.hp for c in self.session.party]:
+                self.audio.play_se(FIELD_SE[event])
             return
         if event in ("pit", "switch"):
+            if event == 'pit': self.audio.play_se(FIELD_SE[event])
             self.show_field_event([message])
             return
         if event == "spring":
@@ -457,7 +488,11 @@ class DungeonApp(App):
             else:
                 self.exploration.springs.add(key)
                 self.show_field_event([message] + self.exploration.heal(None))
+                self.audio.play_se(FIELD_SE[event])
             return
+        if event == 'stairs':
+            self.audio.play_se(FIELD_SE[event])
+            self.audio.play_bgm(area_bgm(self.dungeon.floor))
         if event == "stairs" and self.exploration.hint():
             self.show_field_event([message, self.exploration.hint()])
             return
@@ -473,8 +508,51 @@ class DungeonApp(App):
             self.return_lines = []
             self.enter_camp(returned=True)
 
+    def sync_scene_audio(self):
+        state = self.state
+        if state == 'field_event': state = self.field_after
+        if state == 'field_heal': state = self.field_return
+        if state == 'field_return': state = self.return_back_state
+        if state in TITLE_STATES or state in ('title_fade', 'intro'):
+            self.audio.play_bgm('bgm_title')
+        elif state == 'final_story':
+            self.audio.play_bgm('bgm_omen')
+        elif state in HUB_STATES:
+            self.audio.play_bgm('bgm_hub')
+        elif state in FIELD_STATES:
+            self.audio.play_bgm(area_bgm(self.dungeon.floor))
+        elif state == 'guardian_between':
+            self.audio.play_bgm('bgm_boss')
+        elif state in BATTLE_STATES and self.battle and not self.battle.outcome:
+            if self.battle_kind == 'elysion':
+                before_break = (self.battle.elysion_barrier_active or state == 'amrita_effect'
+                                and self.final_visual().frame < AMRITA_BREAK_FRAME)
+                self.audio.play_bgm('bgm_boss' if before_break else 'bgm_final')
+            else:
+                self.audio.play_bgm(BATTLE_BGM.get(self.battle_kind, 'bgm_battle'))
+
+    def observe_hunt_goal(self):
+        q = self.exploration.active_quest
+        if (self.battle_kind == 'quest_hunt' and self.battle and
+                self.battle.outcome == 'VICTORY' and q and not q['completed']):
+            # Existing provisional completion, recorded immediately at the kill.
+            # Only its sound waits until after the fixed victory presentation.
+            self.hunt_goal_lines = self.exploration.hunt_victory()
+
+    def apply_visual_action(self):
+        super().apply_visual_action()
+        self.observe_hunt_goal()
+
     def update(self):
         self.keyboard.update()
+        if self.handle_quit_input():
+            return
+        self.audio.update()
+        self.observe_hunt_goal()
+        self.sync_scene_audio()
+        if self.state == 'resolve' and self.battle_visual().active:
+            self.update_battle_visual()
+            return
         if self.state == 'amrita_effect':
             super().update()
             return
@@ -496,7 +574,7 @@ class DungeonApp(App):
             self.battle_transition_frame += 1
             if self.battle_transition_frame >= BATTLE_TRANSITION_FRAMES:
                 self.state = "command"
-                start_battle_music()
+                start_battle_music(self.battle_kind)
             return
         if self.battle_input_blocked:
             # Require a released frame, then a fresh press for the first command.
@@ -521,12 +599,17 @@ class DungeonApp(App):
             if actor.skills and self.session.skills[actor.skills[self.scroll]].effect == "return":
                 self.open_return_skill(self.info_character, from_skills=True)
                 return
-            if actor.skills and self.session.skills[actor.skills[self.scroll]].effect == "heal":
+            if (actor.skills and self.session.skills[actor.skills[self.scroll]].field_usable
+                    and self.session.skills[actor.skills[self.scroll]].effect in ('heal', 'cure')):
                 self.field_actor = self.info_character
                 self.field_skill = actor.skills[self.scroll]
                 self.field_return = self.state
                 self.state, self.overlay, self.item_cursor = "field_heal", None, 0
                 self.notice_timer = 0
+                if self.session.skills[self.field_skill].target in ('self', 'all_allies'):
+                    self.use_field_skill(self.field_actor)
+                    self.state, self.overlay = self.field_return, 'info'
+                    self.scroll = min(self.scroll, self.info_scroll_limit())
                 return
         # Let the existing UI own all combat/inspection key handling.
         if self.pressed(pyxel.KEY_Q, pyxel.KEY_F9, pyxel.KEY_F12, pyxel.KEY_D, pyxel.KEY_TAB, pyxel.KEY_H):
@@ -777,10 +860,8 @@ class DungeonApp(App):
                 self.state = "menu"
                 self.notice_timer = 0
             elif confirm:
-                item = ("POTION", "PHOENIX ASH", "REMEDY")[self.item_kind_cursor]
-                if item == "REMEDY":
-                    self.tell("今は治す状態異常がありません")
-                elif self.session.inventory.counts[item] == 0:
+                item = ITEMS[self.item_kind_cursor]
+                if self.session.inventory.counts[item] == 0:
                     self.tell("道具がありません")
                 else:
                     self.state, self.item_cursor = "item_target", 0
@@ -789,7 +870,7 @@ class DungeonApp(App):
             if cancel:
                 self.state = "items"
             elif confirm:
-                item = ("POTION", "PHOENIX ASH")[self.item_kind_cursor]
+                item = ITEMS[self.item_kind_cursor]
                 self.tell(self.session.inventory.use(item, self.session.party[self.item_cursor])[1])
         elif self.state == "field_heal":
             self.item_cursor = (self.item_cursor + self.direction()) % 4
@@ -798,10 +879,13 @@ class DungeonApp(App):
                 self.scroll = min(self.scroll, self.info_scroll_limit())
                 self.notice_timer = 0
             elif confirm:
-                used, lines = self.session.field_heal(self.field_actor, self.field_skill, self.item_cursor)
-                if used:
-                    play_cue("mastered" if any("MASTERED!" in line for line in lines) else "skill")
-                self.tell(lines[-1])
+                self.use_field_skill(self.item_cursor)
+
+    def use_field_skill(self, target_index):
+        result = self.session.field_use(self.field_actor, self.field_skill, target_index)
+        if result.used:
+            play_cue("mastered" if any("MASTERED!" in line for line in result.messages) else "skill")
+        self.tell(result.messages[-1])
 
     def draw(self):
         if self.state == "title":
@@ -1002,8 +1086,8 @@ class DungeonApp(App):
                       TILE_SIZE, TILE_SIZE)
         for x, y in self.exploration.visible_points():
             bank, u, v = QUEST_SYMBOLS[self.exploration.active_quest['type']]
-            pyxel.blt(MAP_X + x * TILE_SIZE - camera_x, MAP_Y + y * TILE_SIZE - camera_y,
-                      bank, u, v, TILE_SIZE, TILE_SIZE, 0)
+            draw_quest_symbol(pyxel, MAP_X + x * TILE_SIZE - camera_x,
+                              MAP_Y + y * TILE_SIZE - camera_y, bank, u, v)
         # Map-only facing sprites in Image Bank 0 of game.pyxres.
         if d.floor == 14 and d.finale.guardians_defeated:
             x, y = d.find(14, TILE_GUARDIAN)
@@ -1017,7 +1101,8 @@ class DungeonApp(App):
         pyxel.clip()
         for i, actor in enumerate(self.session.party):
             y = 15 + i * 21
-            text(102, y, actor.name, 3 if actor.alive else 1, 14)
+            text(102, y, actor.name, 3 if actor.alive else 1, 10)
+            draw_status_icons(pyxel, actor, 148, y, limit=1)
             text(102, y + 9, f"{actor.hp}/{actor.max_hp}" if actor.alive else "戦闘不能", 2, 14)
         text(102, 100, f"{d.x},{d.y}", 1, 14)
         self.footer("D-PAD:移動 A:調べる B:メニュー")
@@ -1034,17 +1119,18 @@ class DungeonApp(App):
         for i, item in enumerate(("POTION", "PHOENIX ASH", "REMEDY")):
             text(6, 23 + i * 17, (">" if i == self.item_kind_cursor else " ") +
                  f"{item} x{self.session.inventory.counts[item]}", 3 if i == self.item_kind_cursor else 2, 37)
-        text(6, 87, "REMEDYは現在使用できません", 2, 37)
+        text(6, 87, "REMEDYで毒を治療 / HPは回復なし", 2, 37)
         self.footer("上下:選択 A:対象へ B:戻る")
 
     def draw_item_target(self):
-        item = ("POTION", "PHOENIX ASH")[self.item_kind_cursor]
+        item = ITEMS[self.item_kind_cursor]
         self.title(item + " / 誰に使う?")
         for i, actor in enumerate(self.session.party):
             y = 34 + i * 15
             if i == self.item_cursor:
                 pyxel.rect(3, y - 1, 153, 10, 1)
-            text(5, y, (">" if i == self.item_cursor else " ") + actor.name, 3, 14)
+            text(5, y, (">" if i == self.item_cursor else " ") + actor.name, 3, 11)
+            draw_status_icons(pyxel, actor, 54, y, limit=1)
             text(67, y, f"HP {actor.hp}/{actor.max_hp}", 2, 22)
         text(5, 99, "無効な対象には消費しません", 2, 37)
         self.footer("上下:選択 A:使う B:戻る")
@@ -1080,7 +1166,7 @@ class DungeonApp(App):
         actor = self.session.party[self.field_actor]
         skill = self.session.skills[self.field_skill]
         self.title(f"{skill.name} {actor.skill_uses.get(skill.id, 0)}/{actor.max_uses(skill)}")
-        text(5, 17, f"{actor.name} / 誰を回復?", 2, 37)
+        text(5, 17, f"{actor.name} / 誰を{'治療' if skill.effect == 'cure' else '回復'}?", 2, 37)
         for i, target in enumerate(self.session.party):
             y = 34 + i * 15
             text(5, y, (">" if i == self.item_cursor else " ") + target.name, 3, 14)
@@ -1443,8 +1529,11 @@ class DungeonApp(App):
         if self.exploration.hunt_here():
             self.begin_encounter(quest_hunt=True, animate=contact)
             return
+        was_completed = self.exploration.surveyed
         lines = self.exploration.investigate()
         if lines:
+            if not was_completed and self.exploration.surveyed:
+                self.audio.play_se('se_quest_complete')
             self.show_field_event(lines)
         else:
             self.handle_event(*field_event())
@@ -1655,6 +1744,7 @@ class DungeonApp(App):
         self.dungeon.finale.start_final_event()
         self.state, self.overlay = 'final_story', None
         self.final_story_page = 0
+        self.sync_scene_audio()
 
     def begin_final_battle(self):
         self.final_presentation = None
@@ -1675,7 +1765,7 @@ class DungeonApp(App):
         self.pending = deque()
         self.begin_input()
         self.battle_input_blocked = True
-        start_battle_music()
+        self.audio.play_bgm('bgm_boss')
 
     def update_final_event(self):
         if self.pressed(pyxel.KEY_Q):
@@ -1705,6 +1795,7 @@ class DungeonApp(App):
             elif self.final_choice:
                 stop_battle_music()
                 self.state, self.title_cursor = 'title', 0
+                self.audio.play_bgm('bgm_title')
                 self.opening_input_blocked = True
             else:
                 if self.final_checkpoint is None:
@@ -1724,6 +1815,7 @@ class DungeonApp(App):
                 self.ending_page += 1
             else:
                 self.state, self.title_cursor = 'title', 0
+                self.audio.play_bgm('bgm_title')
                 self.opening_input_blocked = True
 
     def final_story_pages(self):

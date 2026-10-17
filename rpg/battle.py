@@ -4,11 +4,15 @@ import random
 
 from .growth import grow_and_spark, spark, growth_bonus
 from .skill_resources import ensure_attack, MAX_SKILLS
-from .models import Action, Enemy, effect_factor, battle_agility
+from .models import Action, Character, Enemy, FieldSkillResult, effect_factor, battle_agility
+from .skill_targets import target_refs
 from .labels import OUTCOMES, EFFECTS, CURRENCY_NAME
 from .treasure import Treasure
 from .items import Inventory
 from .final_battle import AMRITA_ITEM_ID, LORD_OF_ELYSION_ID, load_final_battle_data
+from .enemy_actions import load_enemy_actions, choose_enemy_action
+from .statuses import (load_statuses, active_statuses, apply_status, clear_statuses,
+                       damage_hp, control_decision, confusion_target, cure_statuses)
 
 
 GUARD_DAMAGE_MULTIPLIER = 0.5
@@ -18,7 +22,8 @@ COUNTER_DAMAGE_MULTIPLIER = 0.5
 class Battle:
     def __init__(self, party, enemies, skills, max_rounds=60, rng=None,
                  skill_slots=MAX_SKILLS, discovered_skills=None, mastered_skills=None,
-                 inventory=None, run_settings=None, boss=False, final_progress=None, final_data=None):
+                 inventory=None, run_settings=None, boss=False, final_progress=None, final_data=None,
+                 enemy_actions=None, status_definitions=None, persistent_poison=False):
         self.party = party
         self.enemies = enemies
         self.skills = skills
@@ -29,6 +34,17 @@ class Battle:
         self.queue = deque()
         self.sound_cue = None
         self.player_hit = False
+        self.enemy_actions = load_enemy_actions() if enemy_actions is None else enemy_actions
+        self.enemy_action_visual = None
+        self.player_skill_visual = None
+        self.last_skill_cured_count = 0
+        self.status_definitions = load_statuses() if status_definitions is None else status_definitions
+        self.status_visual_events = []
+        self.status_messages = []
+        self.turn_plan = None
+        self.enemy_turn_progress = {}
+        self.enemy_round_actions = {}
+        self.enemy_recent_actions = {}
         self.skill_slots = skill_slots
         self.resource_events = []
         self.discovered_skills = discovered_skills if discovered_skills is not None else set()
@@ -38,6 +54,7 @@ class Battle:
         self.boss = boss
         self.run_override = None
         self.is_elysion_battle = boss and any(e.id == LORD_OF_ELYSION_ID for e in enemies)
+        self.persistent_poison = persistent_poison and not self.is_elysion_battle
         self.final_progress = final_progress
         self.final_data = (final_data or load_final_battle_data()) if self.is_elysion_battle else None
         self.elysion_barrier_active = self.is_elysion_battle
@@ -56,8 +73,10 @@ class Battle:
             raise ValueError('アムリタは1ターンに1人だけが使えます。')
         for action in actions:
             actor = self.party[action.actor]
-            if action.kind not in ("SKILL", "ITEM", "GUARD", "DEFEND"):
+            if action.kind not in ("SKILL", "ITEM", "GUARD", "DEFEND", "STATUS"):
                 raise ValueError("Unknown action.")
+            if action.kind == 'STATUS' and 'confusion' not in active_statuses(actor):
+                raise ValueError('STATUS is reserved for confused actors.')
             if action.kind == "SKILL":
                 if self.skills.get(action.skill_id) and self.skills[action.skill_id].effect == "return":
                     raise ValueError("RETURNは探索中だけ使えます。")
@@ -72,7 +91,7 @@ class Battle:
                     if not self.can_use_amrita:
                         raise ValueError('今はアムリタを使えません。')
                     continue
-                if action.item_id not in ("POTION", "PHOENIX ASH") or self.inventory.counts[action.item_id] <= 0:
+                if action.item_id not in ("POTION", "PHOENIX ASH", "REMEDY") or self.inventory.counts[action.item_id] <= 0:
                     raise ValueError("使用できる道具がありません。")
                 if not 0 <= action.target < len(self.party):
                     raise ValueError("対象が不正です。")
@@ -80,7 +99,11 @@ class Battle:
                     raise ValueError("道具の対象が不正です。")
                 if action.item_id == "POTION" and self.party[action.target].hp >= self.party[action.target].max_hp:
                     raise ValueError("HPが満タンの味方には薬を使えません。")
+                if action.item_id == 'REMEDY' and not active_statuses(self.party[action.target]):
+                    raise ValueError('今は治す状態異常がありません')
         self.round += 1
+        self.enemy_turn_progress.clear()
+        self.enemy_round_actions.clear()
         for actor in self.party:
             actor.guarding = False
             actor.counter = None
@@ -95,7 +118,10 @@ class Battle:
             if enemy.alive:
                 entries.append((0, battle_agility(enemy), self.rng.random(), "enemy", i))
         entries.sort(key=lambda item: item[:3], reverse=True)
-        self.queue.extend((side, action) for _, _, _, side, action in entries)
+        for _, _, _, side, action in entries:
+            self.queue.append((side, action))
+            if side == 'enemy' and self.enemies[action].ai.get('actions_per_round', 1) == 2:
+                self.queue.append((side, action))
 
     def _target(self, group, index):
         if 0 <= index < len(group) and group[index].alive:
@@ -109,18 +135,100 @@ class Battle:
             return 0
         guard_factor = (COUNTER_DAMAGE_MULTIPLIER if getattr(target, "counter", None)
                         else GUARD_DAMAGE_MULTIPLIER) if target.guarding else 1
+        if isinstance(target, Enemy) and target.guarding:
+            guard_factor = target.guard_multiplier
         factor = guard_factor * (1.25 if target.berserk else 1) * effect_factor(target, "guard_up")
+        # Characters have no DEF stat. Reuse armor_break as a physical damage
+        # vulnerability; enemies retain their existing flat-DEF reduction rule.
+        if not magic and not isinstance(target, Enemy):
+            factor /= effect_factor(target, "armor_break")
         defense = getattr(target, "magic_defense", 0) if magic else getattr(target, "defense", 0) * effect_factor(target, "armor_break")
         damage = max(1, round(max(1, round(max(1, amount - defense) * factor)) * power_bonus))
-        removed = min(target.hp, damage)
-        target.hp -= removed
+        return self._lose_hp(target, damage)
+
+    def _status_event(self, target, status_id, kind):
+        side, group = ('enemy', self.enemies) if isinstance(target, Enemy) else ('party', self.party)
+        index = next((i for i, unit in enumerate(group) if unit is target), None)
+        if index is not None:
+            self.status_visual_events.append(dict(status_id=status_id, kind=kind, target=(side, index)))
+
+    def _lose_hp(self, target, amount):
+        removed, woke = damage_hp(target, amount)
+        if woke:
+            self.status_messages.append(f'{target.name} は目を覚ました。')
+            self._status_event(target, 'sleep', 'wake')
         return removed
+
+    def apply_status(self, target, status_id, chance=100):
+        applied = apply_status(target, status_id, chance, self.rng, self.status_definitions)
+        if applied:
+            self.status_messages.append(f'{target.name} は{self.status_definitions[status_id].name}になった。')
+            self._status_event(target, status_id, 'apply')
+        return applied
+
+    def prepare_turn(self):
+        """Cache a control check once, before a preview, without popping the queue."""
+        if not self.queue:
+            return None
+        entry = self.queue[0]
+        if self.turn_plan is None or self.turn_plan[0] != entry:
+            side, action = entry
+            unit = self.party[action.actor] if side == 'party' else self.enemies[action]
+            cached = self.enemy_turn_progress.get(action) if side == 'enemy' else None
+            states = cached[0] if cached else active_statuses(unit) if unit.alive else {}
+            decision = cached[1] if cached else control_decision(unit, self.status_definitions, self.rng) if unit.alive else None
+            self.turn_plan = entry, states, decision
+        return self.turn_plan
+
+    def _confusion_action(self, unit, side):
+        definition = self.status_definitions['confusion']
+        allies, foes = (self.party, self.enemies) if side == 'party' else (self.enemies, self.party)
+        target = confusion_target(unit, allies, foes, definition, self.rng)
+        lines = [f'{unit.name} は{definition.name}している！']
+        self._status_event(unit, 'confusion', 'control')
+        if target is None:
+            return lines + [f'{unit.name} は何もしなかった。']
+        power = unit.strength * definition.power * effect_factor(unit, 'power_up') * effect_factor(unit, 'weaken')
+        if unit.berserk:
+            power *= 1.5
+        dealt = self._damage(target, round(power))
+        self.player_hit |= not isinstance(target, Enemy) and dealt > 0
+        self.sound_cue = 'attack'
+        lines.append(f'{unit.name} の{definition.name}攻撃 {target.name} -{dealt}')
+        if not target.alive:
+            lines.append(f'{target.name} 戦闘不能')
+        return lines
+
+    def _finish_status_turn(self, unit, states):
+        lines = []
+        if not unit.alive:
+            clear_statuses(unit)
+            return lines
+        if 'poison' in states and 'poison' in active_statuses(unit):
+            amount = max(1, int(unit.max_hp * self.status_definitions['poison'].damage_fraction))
+            # Preserve the final boss's existing barrier; poison bypasses normal armor/guard.
+            dealt = self._damage(unit, amount) if self.elysion_barrier_active and getattr(unit, 'id', '') == LORD_OF_ELYSION_ID else self._lose_hp(unit, amount)
+            self.player_hit |= not isinstance(unit, Enemy) and dealt > 0
+            lines.append(f'{unit.name} {self.status_definitions["poison"].name} -{dealt}')
+            self._status_event(unit, 'poison', 'tick')
+            if not unit.alive:
+                lines.append(f'{unit.name} 戦闘不能')
+        for ident in states:
+            current = active_statuses(unit)
+            if ident not in current:
+                continue
+            if current[ident] > 1:
+                unit.statuses[ident] -= 1
+            else:
+                unit.statuses.pop(ident)
+                lines.append(f'{unit.name} の{self.status_definitions[ident].name}が消えた。')
+        return lines
 
     def _party_action(self, action):
         actor = self.party[action.actor]
         if not actor.alive:
             return []
-        if action.kind in ("GUARD", "DEFEND"):
+        if action.kind in ("GUARD", "DEFEND", "STATUS"):
             actor.guarding = True
             return [f"{actor.name} はまもる"]
         if action.kind == "ITEM":
@@ -141,11 +249,22 @@ class Battle:
         skill = self.skills[action.skill_id]
         if skill.effect == "return":
             return ["RETURNは探索中だけ使えます。"]
-        group = self.party if skill.target == "ally" else self.enemies
         if skill.effect == "revive" and not (0 <= action.target < len(self.party) and not self.party[action.target].alive):
             return ["戦闘不能の味方がいません"]
-        if skill.effect != "revive" and skill.target != "self" and self._target(group, action.target) is None:
+        if skill.effect == 'cure' and skill.target == 'ally' and not (
+                0 <= action.target < len(self.party) and self.party[action.target].alive):
+            return ['治療できる生存者を選んでください']
+        targets = target_refs(skill, action.actor, self.party, self.enemies, action.target, self.rng)
+        if not targets:
             return []
+        # Recheck at execution: another actor may already have cured the target.
+        # Failed cures spend the queued turn, but never Uses/growth/cooldown.
+        if skill.effect == 'cure' and not any(
+                set(active_statuses(self.party[index])) & set(skill.cure_statuses)
+                for side, index in targets):
+            return ['治療対象なし。技回数は消費しません']
+        if skill.target == 'random_enemy':
+            self.player_skill_visual = dict(effect_id=skill.effect_id, targets=targets)
         self.sound_cue = "attack" if skill.rarity == "BASIC" else "skill"
         actor.skill_uses[skill.id] -= 1
         actor.used_skills[skill.id] = actor.used_skills.get(skill.id, 0) + 1
@@ -154,7 +273,7 @@ class Battle:
             actor.growth_points[stat] = actor.growth_points.get(stat, 0) + contribution
         actor.cooldowns[skill.id] = skill.cooldown + 1
         lines = [f"{actor.name} {skill.name} 残{actor.skill_uses[skill.id]}"]
-        lines.extend(self._skill_effect(actor, skill, action.target))
+        lines.extend(self._skill_effect(actor, skill, action.target, targets))
         if actor.skill_uses[skill.id] == 0:
             actor.forget(skill.id)
             message = f"{actor.name} {skill.name} 使い切り消滅"
@@ -169,36 +288,48 @@ class Battle:
                 self.resource_events.append(message)
         return lines
 
-    def _skill_effect(self, actor, skill, target_index):
-        lines = []
-        if skill.effect in EFFECTS:
-            target = self._target(self.party if skill.target == "ally" else self.enemies, target_index)
-            if target is None:
-                return []
-            target.effects[skill.effect] = (skill.modifier, skill.duration)
-            return [f"{target.name} {EFFECTS[skill.effect]} {skill.duration}T"]
+    def _skill_effect(self, actor, skill, target_index, targets=None):
+        self.last_skill_cured_count = 0
         if skill.effect == "counter":
             actor.guarding = True
             actor.counter = skill
-            return lines + ["防御し、物理攻撃に反撃"]
+            return ["防御し、物理攻撃に反撃"]
         if skill.effect == "berserk":
             actor.berserk = 4  # Includes this setup round and the next 3 rounds.
-            return lines + ["STR x1.5 / 被害 x1.25"]
+            return ["STR x1.5 / 被害 x1.25"]
+        if targets is None:
+            index = next(i for i, unit in enumerate(self.party) if unit is actor)
+            targets = target_refs(skill, index, self.party, self.enemies, target_index, self.rng)
+        lines = []
+        for side, index in targets:
+            target = (self.party if side == 'party' else self.enemies)[index]
+            lines.extend(self._skill_target_effect(actor, skill, target))
+        return lines
+
+    def _skill_target_effect(self, actor, skill, target):
+        lines = []
+        if skill.effect in EFFECTS:
+            target.effects[skill.effect] = (skill.modifier, skill.duration)
+            return [f"{target.name} {EFFECTS[skill.effect]} {skill.duration}T"]
+        if skill.effect == 'status':
+            self.apply_status(target, skill.status_id, skill.status_chance)
+            return []
+        if skill.effect == 'cure':
+            removed = cure_statuses(target, skill.cure_statuses)
+            self.last_skill_cured_count += len(removed)
+            for status_id in removed:
+                self._status_event(target, status_id, 'cure')
+            return [f"{target.name} " + ('状態異常を治療' if removed else '治療対象なし')]
         if skill.effect == "heal":
-            target = self._target(self.party, target_index)
-            if target is None:
-                return lines
             restored = min(target.max_hp - target.hp, skill.power(actor))
             target.hp += restored
             return lines + [f"{target.name} HP +{restored}"]
         if skill.effect == "revive":
-            target = self.party[target_index]
             target.hp = self.inventory.revival_hp(target)
+            clear_statuses(target)
             return [f"{target.name} 復活 HP {target.hp}/{target.max_hp}"]
-        target = self._target(self.enemies, target_index)
-        if target is None:
-            return lines
-        dealt = self._damage(target, skill.power(actor, apply_mastery=False),
+        dealt = self._damage(target, round(skill.power(actor, apply_mastery=False)
+                                          * effect_factor(actor, "weaken")),
                              magic=skill.skill_type == "magic",
                              power_bonus=actor.power_multiplier(skill))
         suffix = f" ({skill.hits}連撃)" if skill.hits > 1 else ""
@@ -209,37 +340,125 @@ class Battle:
             restored = min(actor.max_hp - actor.hp, dealt // 2)
             actor.hp += restored
             lines.append(f"{actor.name} HP +{restored}")
+        if skill.status_id is not None and target.alive:
+            self.apply_status(target, skill.status_id, skill.status_chance)
         return lines
 
     def _enemy_action(self, index):
         enemy = self.enemies[index]
         living = [c for c in self.party if c.alive]
+        self.enemy_action_visual = None
+        self.player_skill_visual = None
+        self.last_skill_cured_count = 0
         if not enemy.alive or not living:
             return []
-        target = self.rng.choice(living)
-        magic = self.rng.random() < enemy.magic_chance
-        self.sound_cue = "skill" if magic else "attack"
-        stat = (enemy.intellect if magic else enemy.strength) * effect_factor(enemy, "weaken")
-        dealt = self._damage(target, round(stat * self.rng.uniform(0.9, 1.1)), magic=magic)
-        self.player_hit = dealt > 0
-        lines = [f"{enemy.name} の{'魔法' if magic else '攻撃'}", f"{target.name} -{dealt}"]
-        if not target.alive:
-            lines.append(f"{target.name} 戦闘不能")
-        elif target.counter and not magic:
-            returned = self._damage(enemy, target.counter.power(target))
-            lines.append(f"反撃 {enemy.name} -{returned}")
-            if not enemy.alive:
-                lines.append(f"{enemy.name} 戦闘不能")
+        # Enemy GUARD survives the round boundary, until its next own action.
+        if index not in self.enemy_turn_progress:
+            enemy.guarding = False
+        if enemy.ai:
+            ident = choose_enemy_action(enemy, self.enemy_actions, self.rng,
+                        self.enemy_round_actions.get(index, ()), self.enemy_recent_actions.get(index, ()))
+        else:
+            ident = choose_enemy_action(enemy, self.enemy_actions, self.rng)
+        if ident is None:
+            # Preserve the legacy target -> magic -> damage RNG sequence.
+            targets = [self.rng.choice(living)]
+            ident = 'magic' if self.rng.random() < enemy.magic_chance else 'attack'
+        else:
+            kind = self.enemy_actions[ident].target
+            targets = living if kind == 'all_players' else (
+                [self.rng.choice(living)] if kind == 'random_player' else [])
+        action = self.enemy_actions[ident]
+        if enemy.ai:
+            self.enemy_round_actions.setdefault(index, []).append(ident)
+            self.enemy_recent_actions[index] = (self.enemy_recent_actions.get(index, []) + [ident])[-3:]
+        magic = action.type.startswith('magic')
+        self.sound_cue = 'attack' if action.type.startswith('physical') else 'skill'
+        lines = [f"{enemy.name} の{action.name}"]
+        if action.type == 'guard':
+            enemy.guarding, enemy.guard_multiplier = True, action.modifier
+        elif action.type in ('buff', 'debuff'):
+            target = enemy if action.type == 'buff' else targets[0]
+            target.effects[action.effect] = (action.modifier, action.duration)
+            lines.append(f"{target.name} {EFFECTS[action.effect]} {action.duration}T")
+        elif action.type == 'status':
+            hit_targets, hits_done = [], 0
+        else:
+            stat = (enemy.intellect if magic else enemy.strength * effect_factor(enemy, 'power_up'))
+            stat *= effect_factor(enemy, 'weaken') * action.power
+            hits_done = 0
+            hit_targets = []
+            for target in targets:
+                for hit in range(action.hits):
+                    if not target.alive or not enemy.alive:
+                        break  # Never transfer remaining hits after KO.
+                    if hit == 0:
+                        hit_targets.append(target)
+                    dealt = self._damage(target, round(stat * self.rng.uniform(0.9, 1.1)), magic=magic)
+                    hits_done = max(hits_done, hit + 1)
+                    self.player_hit |= dealt > 0
+                    lines.append(f"{target.name} -{dealt}")
+                    if not target.alive:
+                        lines.append(f"{target.name} 戦闘不能")
+                    elif target.counter and not magic:
+                        returned = self._damage(enemy, round(target.counter.power(target)
+                                                             * effect_factor(target, 'weaken')))
+                        lines.append(f"反撃 {enemy.name} -{returned}")
+                        if not enemy.alive:
+                            lines.append(f"{enemy.name} 戦闘不能")
+                if not enemy.alive:
+                    break
+        if action.status_id:
+            for target in targets:
+                self.apply_status(target, action.status_id, action.status_chance)
+        # Display-only outcome. Presentation never selects actions or applies damage.
+        damage_action = action.type.startswith(('physical', 'magic'))
+        shown = hit_targets if damage_action else targets
+        self.enemy_action_visual = dict(enemy_id=enemy.id, enemy_index=index,
+            action_id=ident, effect_id=action.effect_id,
+            targets=[('enemy', index)] if action.target == 'self' else
+                [('party', next(i for i, actor in enumerate(self.party) if actor is target)) for target in shown],
+            repeats=hits_done if damage_action else 1)
         return lines
 
     def step(self):
         """Resolve one queued actor; dead actors skip their action."""
         self.sound_cue = None
         self.player_hit = False
+        self.enemy_action_visual = None
+        self.player_skill_visual = None
+        self.last_skill_cured_count = 0
+        self.status_visual_events = []
+        self.status_messages = []
         if self.outcome or not self.queue:
             return []
+        _, states, decision = self.prepare_turn()
         side, action = self.queue.popleft()
-        lines = self._party_action(action) if side == "party" else self._enemy_action(action)
+        self.turn_plan = None
+        unit = self.party[action.actor] if side == 'party' else self.enemies[action]
+        if side == 'enemy' and action not in self.enemy_turn_progress:
+            unit.guarding = False
+        if not unit.alive:
+            clear_statuses(unit)
+            lines = []
+        elif decision in ('sleep', 'paralyze'):
+            name = self.status_definitions[decision].name
+            lines = [f'{unit.name} は{name}中。' if decision == 'sleep' else f'{unit.name} は{name}で動けない！']
+            self._status_event(unit, decision, 'control')
+        elif decision == 'confusion':
+            lines = self._confusion_action(unit, side)
+        else:
+            lines = self._party_action(action) if side == "party" else self._enemy_action(action)
+        # A two-action enemy has one own turn: one control roll and one status
+        # duration/poison tick. Player turns and normal enemies are unchanged.
+        more_enemy_actions = (side == 'enemy' and unit.ai.get('actions_per_round', 1) == 2
+                              and ('enemy', action) in self.queue)
+        if more_enemy_actions:
+            self.enemy_turn_progress[action] = (states, decision)
+        else:
+            lines.extend(self._finish_status_turn(unit, states))
+            if side == 'enemy': self.enemy_turn_progress.pop(action, None)
+        lines.extend(self.status_messages)
         if self.elysion_barrier_hint_pending:
             lines.extend(self.final_data['barrier_hint'])
             self.elysion_barrier_hint_pending = False
@@ -294,8 +513,11 @@ class Battle:
         return ["逃走失敗! 敵の攻撃を受ける"]
 
     def clear_effects(self):
+        self.turn_plan = None
+        keep_poison = self.persistent_poison and self.outcome in ('VICTORY', 'ESCAPE', 'DRAW')
         for unit in self.party + self.enemies:
             unit.effects.clear()
+            clear_statuses(unit, preserve_poison=keep_poison and isinstance(unit, Character))
             unit.guarding = False
             unit.berserk = 0
         for actor in self.party:
@@ -308,6 +530,9 @@ class Battle:
         target = next((i for i, e in enumerate(self.enemies) if e.alive), 0)
         for i, actor in enumerate(self.party):
             if not actor.alive:
+                continue
+            if 'confusion' in active_statuses(actor):
+                actions.append(Action(i, 'STATUS'))
                 continue
             if self.can_use_amrita and not any(a.item_id == AMRITA_ITEM_ID for a in actions):
                 actions.append(Action(i, 'ITEM', item_id=AMRITA_ITEM_ID))
@@ -359,16 +584,18 @@ class Session:
         self.pending_relearn = None
 
     def next_battle(self, enemies=None, recover=True, spark_multiplier=1.0, boss=False,
-                    final_progress=None, final_data=None):
+                    final_progress=None, final_data=None, persistent_poison=False):
         if self.pending_replacements:
             raise ValueError("先に技の入れ替えを決めてください。")
         if self.battle is not None and not self.settled:
             raise ValueError("Finish and settle the current battle first.")
+        persistent_poison = persistent_poison and not recover and not (
+            boss and enemies and any(e.id == LORD_OF_ELYSION_ID for e in enemies))
         for character in self.party:
             character.history.extend(ensure_attack(character, self.skills,
                                                     self.settings["skill_slots"],
                                                     self.discovered_skills))
-            character.recover() if recover else character.reset_battle_state()
+            character.recover() if recover else character.reset_battle_state(preserve_poison=persistent_poison)
         if not any(c.alive for c in self.party):
             raise ValueError("生存者がいません。拠点へ戻ってください。")
         self.auto_recover = recover
@@ -381,17 +608,17 @@ class Session:
                 row = self.rng.choice(pool)
                 hp = row["max_hp"] + round(scale * self.settings["enemy_hp_per_win"])
                 power = round(scale * self.settings["enemy_power_per_win"])
-                enemies.append(Enemy(f"{row['name']} {chr(65 + i)}", hp,
-                                     row["str"] + power, row["agi"], row["int"] + power,
-                                     tuple(row["sprite"]), row["magic_chance"],
-                                     defense=row.get("defense", 0), magic_defense=row.get("magic_defense", 0)))
+                enemies.append(Enemy.from_definition(row,
+                                     name=f"{row['name']} {chr(65 + i)}", max_hp=hp,
+                                     strength=row["str"] + power, intellect=row["int"] + power))
         if not enemies or not any(e.alive for e in enemies):
             raise ValueError("戦闘には生存する敵が必要です。")
         self.battle = Battle(self.party, enemies, self.skills,
                              self.settings["max_rounds"], self.rng,
                              self.settings["skill_slots"],
                              self.discovered_skills, self.mastered_skills,
-                             self.inventory, boss=boss, final_progress=final_progress, final_data=final_data)
+                             self.inventory, boss=boss, final_progress=final_progress, final_data=final_data,
+                             persistent_poison=persistent_poison)
         self.settled = False
         self.results = []
         self.total_battles += 1
@@ -440,7 +667,7 @@ class Session:
         if self.battle.is_elysion_battle:
             self.results.append('旅の結末へ' if outcome == 'VICTORY' else '決戦前からの再挑戦を選べる')
         else:
-            self.results.append("次戦でHP回復・技回数は持越" if self.auto_recover else "探索へ戻る・HPと技回数は持ち越し")
+            self.results.append("次戦でHP回復・技回数は持越" if self.auto_recover else "探索へ戻る")
         self.settled = True
         return self.results
 
@@ -503,7 +730,7 @@ class Session:
             raise ValueError("戦闘・入れ替えを完了してください。")
         skill = self.skills[skill_id]
         if skill not in self.relearn_candidates():
-            raise ValueError("未発見・対象外の技です。基本/通常/RARE補助のみ。")
+            raise ValueError("未発見・再習得対象外の技です。")
         actor = self.party[actor_index]
         if skill_id in actor.skills:
             raise ValueError("すでに所持しています。残数の補充はできません。")
@@ -524,7 +751,7 @@ class Session:
         if self.pending_replacements or (self.battle and not self.settled):
             raise ValueError("戦闘・入れ替えを完了してください。")
         actor = self.party[actor_index]
-        skill = next((self.skills[s] for s in actor.skills if self.skills[s].effect == 'return' and actor.skill_uses.get(s, 0) > 0), None)
+        skill = next((self.skills[s] for s in actor.skills if self.skills[s].effect == 'return' and self.skills[s].field_usable and actor.skill_uses.get(s, 0) > 0), None)
         if not actor.alive or skill is None:
             raise ValueError("生存者の使用可能なRETURNが必要です。")
         actor.skill_uses[skill.id] -= 1
@@ -624,21 +851,48 @@ class Session:
         }
 
     def field_heal(self, actor_index, skill_id, target_index):
-        """Exploration healing spends the same stock; growth is battle-only."""
+        """Compatibility entry point for the existing healing UI/tools."""
+        if self.skills[skill_id].effect != 'heal':
+            return False, ["探索中は回復技だけ使えます"]
+        result = self.field_use(actor_index, skill_id, target_index)
+        return result.used, result.messages
+
+    def field_use(self, actor_index, skill_id, target_index=0):
+        """Heal/cure/return dispatcher; no battle usage/growth/cooldown gains.
+
+        No-op heals/cures do not spend stock. Cure reports removed ailment count.
+        The app owns the actual camp transition for a successful RETURN.
+        """
         if self.pending_replacements or (self.battle and not self.settled):
             raise ValueError("戦闘・入れ替えを完了してください。")
-        actor, target = self.party[actor_index], self.party[target_index]
+        actor = self.party[actor_index]
         if not actor.alive or skill_id not in actor.skills or actor.skill_uses.get(skill_id, 0) <= 0:
-            return False, ["この技を使用できません"]
+            return FieldSkillResult(False, ["この技を使用できません"])
         skill = self.skills[skill_id]
-        if skill.effect != "heal":
-            return False, ["探索中は回復技だけ使えます"]
-        if not target.alive or target.hp == target.max_hp:
-            return False, ["満タン・戦闘不能は消費なし"]
-        restored = min(target.max_hp - target.hp, skill.power(actor))
-        target.hp += restored
+        if not skill.field_usable:
+            return FieldSkillResult(False, ["探索中は使用できません"])
+        if skill.effect == 'return':
+            return FieldSkillResult(True, self.field_return(actor_index), returned=True)
+        if skill.effect not in ('heal', 'cure'):
+            return FieldSkillResult(False, ["探索中は使用できません"])
+        if skill.target == 'ally' and (not 0 <= target_index < len(self.party) or not self.party[target_index].alive):
+            return FieldSkillResult(False, ["満タン・戦闘不能は消費なし"] if skill.effect == 'heal' else ["治療対象なし"])
+        refs = target_refs(skill, actor_index, self.party, [], target_index)
+        targets = [self.party[i] for _, i in refs]
+        targets = [target for target in targets if target.hp < target.max_hp] if skill.effect == 'heal' else [
+            target for target in targets if any(key in skill.cure_statuses for key in active_statuses(target))]
+        if not targets:
+            return FieldSkillResult(False, ["満タン・戦闘不能は消費なし"] if skill.effect == 'heal' else ["治療対象なし"])
+        messages, cured_count = [], 0
+        for target in targets:
+            if skill.effect == 'heal':
+                restored = min(target.max_hp - target.hp, skill.power(actor))
+                target.hp += restored
+                messages.append(f"{actor.name} {skill.name}: {target.name} HP +{restored}")
+            else:
+                cured_count += len(cure_statuses(target, skill.cure_statuses))
+                messages.append(f"{actor.name} {skill.name}: {target.name} 状態異常を治療")
         actor.skill_uses[skill_id] -= 1
-        messages = [f"{actor.name} {skill.name}: {target.name} HP +{restored}"]
         if actor.skill_uses[skill_id] == 0:
             actor.forget(skill_id)
             messages.append(f"{skill.name} 使い切り消滅")
@@ -650,4 +904,4 @@ class Session:
                                       self.settings["skill_slots"],
                                       self.discovered_skills))
         actor.history.extend("探索: " + line for line in messages)
-        return True, messages
+        return FieldSkillResult(True, messages, cured_count)

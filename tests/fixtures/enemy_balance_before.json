@@ -1,0 +1,801 @@
+{
+  "enemies": [
+    {
+      "name": "スライム",
+      "max_hp": 24,
+      "str": 5,
+      "agi": 3,
+      "int": 2,
+      "magic_chance": 0,
+      "sprite": [
+        0,
+        16
+      ],
+      "id": "slime",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "name": "コウモリ",
+      "max_hp": 20,
+      "str": 6,
+      "agi": 10,
+      "int": 2,
+      "magic_chance": 0,
+      "sprite": [
+        16,
+        16
+      ],
+      "id": "bat",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "name": "ゴブリン",
+      "max_hp": 32,
+      "str": 7,
+      "agi": 5,
+      "int": 3,
+      "magic_chance": 0,
+      "sprite": [
+        32,
+        16
+      ],
+      "id": "goblin",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 90
+        },
+        {
+          "id": "heavy_attack",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "name": "鬼火",
+      "max_hp": 25,
+      "str": 3,
+      "agi": 7,
+      "int": 8,
+      "magic_chance": 0.7,
+      "sprite": [
+        48,
+        16
+      ],
+      "id": "wisp",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 30
+        },
+        {
+          "id": "magic",
+          "weight": 70
+        }
+      ]
+    },
+    {
+      "name": "ゴーレム",
+      "max_hp": 44,
+      "str": 9,
+      "agi": 2,
+      "int": 2,
+      "magic_chance": 0,
+      "sprite": [
+        64,
+        16
+      ],
+      "id": "golem",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 85
+        },
+        {
+          "id": "heavy_attack",
+          "weight": 15
+        }
+      ]
+    },
+    {
+      "id": "skeleton",
+      "name": "骸骨兵",
+      "max_hp": 38,
+      "str": 9,
+      "agi": 7,
+      "int": 3,
+      "magic_chance": 0,
+      "sprite": [
+        80,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 100
+        }
+      ]
+    },
+    {
+      "id": "mage",
+      "name": "魔術師",
+      "max_hp": 30,
+      "str": 4,
+      "agi": 6,
+      "int": 11,
+      "magic_chance": 0.8,
+      "sprite": [
+        96,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 20
+        },
+        {
+          "id": "magic",
+          "weight": 80
+        }
+      ]
+    },
+    {
+      "id": "guardian",
+      "name": "迷宮の守護者",
+      "max_hp": 360,
+      "str": 22,
+      "agi": 8,
+      "int": 24,
+      "magic_chance": 0.4,
+      "sprite": [
+        112,
+        16
+      ],
+      "boss": true,
+      "floor": 5,
+      "defense": 4,
+      "magic_defense": 0,
+      "message": [
+        "ここまで来たか。",
+        "技を使いこなす力を見せよ。"
+      ],
+      "after_message": [
+        "守護者を倒した。",
+        "B6Fへの道が開いた！"
+      ]
+    },
+    {
+      "id": "iron_golem",
+      "name": "鉄のゴーレム",
+      "max_hp": 72,
+      "str": 10,
+      "agi": 4,
+      "int": 2,
+      "magic_chance": 0,
+      "sprite": [
+        64,
+        16
+      ],
+      "defense": 16,
+      "magic_defense": 0,
+      "feature": "高DEF。装甲砕き・魔法・高威力物理が有効",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 75
+        },
+        {
+          "id": "guard",
+          "weight": 25
+        }
+      ]
+    },
+    {
+      "id": "berserker",
+      "name": "狂戦士",
+      "max_hp": 70,
+      "str": 29,
+      "agi": 10,
+      "int": 3,
+      "magic_chance": 0,
+      "sprite": [
+        32,
+        16
+      ],
+      "defense": 1,
+      "feature": "高攻撃力。弱体・守りの力で被害を抑える",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 65
+        },
+        {
+          "id": "heavy_attack",
+          "weight": 35
+        }
+      ]
+    },
+    {
+      "id": "assassin",
+      "name": "暗殺者",
+      "max_hp": 65,
+      "str": 18,
+      "agi": 28,
+      "int": 8,
+      "magic_chance": 0,
+      "sprite": [
+        80,
+        16
+      ],
+      "defense": 2,
+      "feature": "高速。スロウで次ターンから先手を取る",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 70
+        },
+        {
+          "id": "double_attack",
+          "weight": 30
+        }
+      ]
+    },
+    {
+      "id": "stone_beast",
+      "name": "石の獣",
+      "max_hp": 88,
+      "str": 16,
+      "agi": 8,
+      "int": 4,
+      "magic_chance": 0,
+      "sprite": [
+        64,
+        16
+      ],
+      "defense": 18,
+      "magic_defense": 0,
+      "feature": "物理に強い。集中した魔法でも攻略可能",
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 65
+        },
+        {
+          "id": "guard",
+          "weight": 20
+        },
+        {
+          "id": "area_attack",
+          "weight": 15
+        }
+      ]
+    },
+    {
+      "id": "skill_keeper",
+      "name": "技の番人",
+      "max_hp": 600,
+      "str": 32,
+      "agi": 24,
+      "int": 30,
+      "magic_chance": 0.35,
+      "sprite": [
+        144,
+        16
+      ],
+      "defense": 14,
+      "magic_defense": 3,
+      "boss": true,
+      "floor": 10,
+      "message": [
+        "多くの技を集めたようだな。",
+        "その使い道を示してみよ。"
+      ],
+      "after_message": [
+        "技の番人を倒した。",
+        "B11Fへの道が開いた！"
+      ]
+    },
+    {
+      "id": "depth_lord",
+      "name": "デーモン",
+      "max_hp": 900,
+      "str": 42,
+      "agi": 34,
+      "int": 44,
+      "magic_chance": 0.5,
+      "sprite": [
+        192,
+        16
+      ],
+      "defense": 20,
+      "magic_defense": 5,
+      "boss": true,
+      "floor": 15,
+      "message": [
+        "アムリタを渡すと思うな。",
+        "地上の者はここで滅びよ。"
+      ],
+      "after_message": [
+        "デーモンを倒した。",
+        "深淵に静けさが戻った。"
+      ]
+    },
+    {
+      "id": "sentinel_armor",
+      "name": "重装の守護者",
+      "max_hp": 500,
+      "str": 30,
+      "agi": 12,
+      "int": 8,
+      "magic_chance": 0,
+      "sprite": [
+        112,
+        16
+      ],
+      "defense": 24,
+      "magic_defense": 2,
+      "boss": true,
+      "floor": 15,
+      "feature": "高DEF。魔法・装甲砕き・高威力物理で技Usesを節約"
+    },
+    {
+      "id": "sentinel_speed",
+      "name": "高速の守護者",
+      "max_hp": 420,
+      "str": 32,
+      "agi": 45,
+      "int": 12,
+      "magic_chance": 0,
+      "sprite": [
+        144,
+        16
+      ],
+      "defense": 8,
+      "magic_defense": 3,
+      "boss": true,
+      "floor": 15,
+      "feature": "高AGI。スロウは有効だが、他の技でも攻略可能"
+    },
+    {
+      "id": "sentinel_mind",
+      "name": "魔導の守護者",
+      "max_hp": 460,
+      "str": 20,
+      "agi": 24,
+      "int": 38,
+      "magic_chance": 0.8,
+      "sprite": [
+        160,
+        16
+      ],
+      "defense": 6,
+      "magic_defense": 10,
+      "boss": true,
+      "floor": 15,
+      "feature": "魔法中心。弱体・守り・物理の高威力技が有効"
+    },
+    {
+      "id": "lord_of_elysion",
+      "name": "ロードオブエリシオン",
+      "max_hp": 990,
+      "str": 50,
+      "agi": 36,
+      "int": 52,
+      "magic_chance": 0.55,
+      "sprite": [
+        112,
+        16
+      ],
+      "defense": 24,
+      "magic_defense": 8,
+      "boss": true,
+      "feature": "アムリタで特殊障壁を解除して戦う最終ボス。性能と画像は仮設定"
+    },
+    {
+      "id": "horn_rabbit",
+      "name": "ツノウサギ",
+      "max_hp": 24,
+      "str": 6,
+      "defense": 0,
+      "agi": 15,
+      "int": 2,
+      "magic_defense": 0,
+      "magic_chance": 0,
+      "sprite": [
+        208,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 90
+        },
+        {
+          "id": "double_attack",
+          "weight": 10
+        }
+      ]
+    },
+    {
+      "id": "poison_snake",
+      "name": "毒蛇",
+      "max_hp": 58,
+      "str": 13,
+      "defense": 2,
+      "agi": 17,
+      "int": 4,
+      "magic_defense": 2,
+      "magic_chance": 0,
+      "sprite": [
+        128,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 75
+        },
+        {
+          "id": "poison_bite",
+          "weight": 25
+        }
+      ]
+    },
+    {
+      "id": "blood_bat",
+      "name": "ブラッドバット",
+      "max_hp": 52,
+      "str": 15,
+      "defense": 1,
+      "agi": 24,
+      "int": 5,
+      "magic_defense": 2,
+      "magic_chance": 0,
+      "sprite": [
+        16,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 75
+        },
+        {
+          "id": "double_attack",
+          "weight": 25
+        }
+      ]
+    },
+    {
+      "id": "ghost",
+      "name": "ゴースト",
+      "max_hp": 56,
+      "str": 8,
+      "defense": 4,
+      "agi": 16,
+      "int": 20,
+      "magic_defense": 12,
+      "magic_chance": 0.6,
+      "sprite": [
+        176,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 20
+        },
+        {
+          "id": "magic",
+          "weight": 60
+        },
+        {
+          "id": "confusion_touch",
+          "weight": 20
+        }
+      ]
+    },
+    {
+      "id": "mummy",
+      "name": "ミイラ",
+      "max_hp": 86,
+      "str": 18,
+      "defense": 8,
+      "agi": 6,
+      "int": 10,
+      "magic_defense": 8,
+      "magic_chance": 0,
+      "sprite": [
+        224,
+        16
+      ],
+      "actions": [
+        {
+          "id": "attack",
+          "weight": 65
+        },
+        {
+          "id": "heavy_attack",
+          "weight": 15
+        },
+        {
+          "id": "paralyze_grab",
+          "weight": 20
+        }
+      ]
+    },
+    {
+      "id": "dark_wisp",
+      "name": "ダークウィスプ",
+      "max_hp": 60,
+      "str": 6,
+      "defense": 3,
+      "agi": 18,
+      "int": 24,
+      "magic_defense": 12,
+      "magic_chance": 1,
+      "sprite": [
+        48,
+        16
+      ],
+      "actions": [
+        {
+          "id": "magic",
+          "weight": 65
+        },
+        {
+          "id": "area_magic",
+          "weight": 20
+        },
+        {
+          "id": "sleep_spell",
+          "weight": 15
+        }
+      ]
+    },
+    {
+      "id": "warlock",
+      "name": "ウォーロック",
+      "max_hp": 68,
+      "str": 8,
+      "defense": 5,
+      "agi": 14,
+      "int": 27,
+      "magic_defense": 10,
+      "magic_chance": 0.45,
+      "sprite": [
+        96,
+        16
+      ],
+      "actions": [
+        {
+          "id": "magic",
+          "weight": 45
+        },
+        {
+          "id": "power_up",
+          "weight": 15
+        },
+        {
+          "id": "weaken",
+          "weight": 15
+        },
+        {
+          "id": "armor_break",
+          "weight": 10
+        },
+        {
+          "id": "slow",
+          "weight": 10
+        },
+        {
+          "id": "sleep_spell",
+          "weight": 5
+        }
+      ]
+    }
+  ],
+  "actions": {
+    "attack": {
+      "name": "攻撃",
+      "type": "physical_single",
+      "power": 1.0,
+      "hits": 1,
+      "target": "random_player",
+      "effect_id": "blunt"
+    },
+    "magic": {
+      "name": "魔法",
+      "type": "magic_single",
+      "power": 1.0,
+      "hits": 1,
+      "target": "random_player",
+      "effect_id": "magic"
+    },
+    "heavy_attack": {
+      "name": "強攻撃",
+      "type": "physical_single",
+      "power": 1.35,
+      "hits": 1,
+      "target": "random_player",
+      "effect_id": "heavy_hit"
+    },
+    "double_attack": {
+      "name": "連撃",
+      "type": "physical_single",
+      "power": 0.6,
+      "hits": 2,
+      "target": "random_player",
+      "effect_id": "slash"
+    },
+    "area_attack": {
+      "name": "全体攻撃",
+      "type": "physical_all",
+      "power": 0.55,
+      "hits": 1,
+      "target": "all_players",
+      "effect_id": "blunt"
+    },
+    "area_magic": {
+      "name": "全体魔法",
+      "type": "magic_all",
+      "power": 0.5,
+      "hits": 1,
+      "target": "all_players",
+      "effect_id": "magic"
+    },
+    "guard": {
+      "name": "まもる",
+      "type": "guard",
+      "target": "self",
+      "modifier": 0.5,
+      "effect_id": "guard"
+    },
+    "power_up": {
+      "name": "力をためる",
+      "type": "buff",
+      "target": "self",
+      "effect": "power_up",
+      "modifier": 1.2,
+      "duration": 3,
+      "effect_id": "buff"
+    },
+    "weaken": {
+      "name": "弱体",
+      "type": "debuff",
+      "target": "random_player",
+      "effect": "weaken",
+      "modifier": 0.85,
+      "duration": 3,
+      "effect_id": "debuff"
+    },
+    "armor_break": {
+      "name": "防御崩し",
+      "type": "debuff",
+      "target": "random_player",
+      "effect": "armor_break",
+      "modifier": 0.85,
+      "duration": 3,
+      "effect_id": "armor_down"
+    },
+    "slow": {
+      "name": "スロウ",
+      "type": "debuff",
+      "target": "random_player",
+      "effect": "slow",
+      "modifier": 0.8,
+      "duration": 3,
+      "effect_id": "slow"
+    },
+    "poison_bite": {
+      "name": "毒の牙",
+      "type": "physical_single",
+      "power": 0.9,
+      "target": "random_player",
+      "effect_id": "slash",
+      "status_id": "poison",
+      "status_chance": 45
+    },
+    "confusion_touch": {
+      "name": "混乱の接触",
+      "type": "magic_single",
+      "power": 0.85,
+      "target": "random_player",
+      "effect_id": "magic",
+      "status_id": "confusion",
+      "status_chance": 35
+    },
+    "paralyze_grab": {
+      "name": "マヒのつかみ",
+      "type": "physical_single",
+      "power": 0.85,
+      "target": "random_player",
+      "effect_id": "blunt",
+      "status_id": "paralyze",
+      "status_chance": 35
+    },
+    "sleep_spell": {
+      "name": "睡眠魔法",
+      "type": "status",
+      "target": "random_player",
+      "effect_id": "magic",
+      "status_id": "sleep",
+      "status_chance": 45
+    }
+  },
+  "hashes": {
+    "assets/sprites.pyxres": "e73b76ae37c4f4ed69b6fc7688d434d870715e7ca40d604bf5405525c59e726b",
+    "assets/sprites.pyxpal": "35f24acf854043e71ef6623b23c24de5e45a429309e2d2d250188cf4aae100a0",
+    "assets/battle_music.pyxres": "39ce8ebd893677b3791f96da27eb86d9f78ece34752617dd5e349ef4279a4d17",
+    "data/dungeon.json": "fd46fa3ff7754756206dd1b3f4b77b60e449be773ec8151fd7eb9bc927052203",
+    "data/statuses.json": "c6e3b57b7baa2aa53190d0fa583cb434724c0008cbe5eb412cba96f443009b3d",
+    "assets/fonts/readme.txt": "429ec2de7a856712203ef80bf86fea49f2f611b9b58b87f7ce7709169bdcf0af",
+    "data/skills.json": "f4b16d874e6fac6204a17e1cbfac7603315a97486aff3ce1e0e2a35d98f8574c",
+    "assets/fonts/misaki_gothic_2nd.bdf": "fddbfdda822dd19ca2da5f509b032192d504e7825eb8215afc8ae9dd2d7e4855",
+    "assets/fonts/misaki.txt": "82929cc3b34c79b6a67f21fe137c7bb165589c9e34ba1441611e493afd67dfca",
+    "data/settings.json": "ad926cc91438ba08b70fddce0755e2d8ccfdec987dc0e2551e64c2ff6fc7da76",
+    "assets/fonts/FONT_LICENSE.txt": "19835c79d55fc3a5e01383a3f9d510a958e66154f634079c26b18164d88ddf62",
+    "data/quest_flavors.json": "f94d63bef50dbbd7fc500ee51623e4d896852804b50cd6a6cde5c5793765cd3e",
+    "data/quests.json": "d47a51b01b84289c23f99851c3ebbf0e234e82260664ca3324c4fbec2f4f01ff",
+    "data/pub_messages.json": "cf2cd72f63224be505da98249276498d504b217905a1c0d511146818691552b3",
+    "data/party.json": "b99590591912922f6cd9ccf009fc25428d3208a86b297158f3fad12b0125c919",
+    "data/items.json": "dce7d7dc386c90d1e161bf1882558b027749b3af950ec824933ee4d54a01b7f8",
+    "data/intro.json": "697e5563a0f04bc920df3f6a169c79bbb7c890d92b8a31cbbf7152db11947d66",
+    "data/final_battle.json": "0d0159d4fec9256a7e4df08842e65c9877dded1961e7c6b179a648f8c1a1413a",
+    "data/finale.json": "ba011ae9e330f924d26a4ddb08d038d1b3598f67181d5d68745934d1cf32f4bf",
+    "data/exploration.json": "570d7e2d3b751694a6db19b8ce72abf18c2198d751d6463db643542bebbc120d",
+    "data/enemy_actions.json": "5367a76909d5a93d72481ef3c529061a98b8be263122db1e64d36abd072ccd36",
+    "data/enemies.json": "8fd877c1931251e49e202f1fc5292fdf3c4354d5cfb440f2e7f9e6d0c158e42f",
+    "rpg/app.py": "4d9a39274a55e07825c4da6b4029702ef69f8bb77035a1f776144fa431993122",
+    "rpg/battle_transition.py": "429e856ec2b6210836a51dea1dca335456d28d7134f21b50022570d14afce869",
+    "rpg/battle.py": "448d39ebddb3fa40c2d7f5df56432e1055f74754f73f5aacad47aa03e1f0f7ae",
+    "rpg/battle_presentation.py": "e5d0ed290adaa234a8b9d05c17fb0ef31c4395a22e1125a767a216dadee1153e",
+    "rpg/art.py": "f318c49fa8ca6a90c1325e6ce278856ebf8bd80901139da3c3c36920e83d5c05",
+    "rpg/dungeon.py": "ee6d8423138b9427a503b37ba5c296c847a600700b4e0ec76a322d0181cc87b6",
+    "rpg/enemy_actions.py": "134d6061668f19a56936e7635638e8479250dd8e18082ed6de87ff5ba814dd45",
+    "rpg/content.py": "92cc20aa71f5742943fa53ed6389affe28eefb4c938dc05b402044b30e7c46b9",
+    "rpg/dungeon_app.py": "03a9c1657b42a53c549968487c3ec50588686b9240643e85fb139c8a55bd0697",
+    "rpg/exploration.py": "93613fea01de32c97c09421f0e46f90426ce18eb61c852ab5324cbb7f0eb6197",
+    "rpg/__init__.py": "cc41bf388798f48523fb63e0fd5832ed5c3aa0b7ea906b249675fa93cfad7a68",
+    "rpg/treasure.py": "a2a98f66c032dbd9cb7964803c4e9f0b3ac93a1d913624929e98dd0bfcef84bf",
+    "rpg/tiles.py": "4d3c00664151a87d4a0975adeb360c09212eda7fbee74138bfcec73849c8916c",
+    "rpg/text.py": "89e65869c6f45f5c92c12dc7722071becb03f5a8868def3fb0f49ba4fb5da8de",
+    "rpg/statuses.py": "d7aeb686279d129c50bba115d4b82b94fab5eeafbe66c4cfed3f55cea8596bf2",
+    "rpg/sound.py": "4928e379f6320ea9a9742ebfa07de98e7b6afec5c9b160e22777090f57ffa49a",
+    "rpg/skill_targets.py": "d1afdea85fa119790572da3cc6a4830f499d6d4c2d1871100a425e5a1d7e3853",
+    "rpg/skill_resources.py": "0358111631fc91f6207e4405e0d8aff5495d351f4cce5ef534bf04cbd1c1da43",
+    "rpg/save.py": "518ee1ebe2605590d867eb4640b9a4aa9f273b86f1d177d2745f874800720c57",
+    "rpg/rare_skill_presentation.py": "6fd88784476fdec6f4a6fd45e63e4b6b6a276c8e98df66088925daec1c0b472f",
+    "rpg/quests.py": "76424b1bb14e67fa36b8f3d51ddbcd48f6bf9b856bec66ee3a35a39c1dc5164f",
+    "rpg/opening.py": "05910cf05d8d2a2f58719655d4c87ebfc8c1c4c03fa9c2705da9c278ba699341",
+    "rpg/models.py": "cefbbfe41311588b8e061ebf50b727b27789494ee96e0a974e8223b65127314d",
+    "rpg/map_resources.py": "aec7afc53ea09c534a1efa2bc69a5b69c324909c690526a3e6bf28c132afef26",
+    "rpg/legend_skill_presentation.py": "8fff8bb8359e2cbd132c7cab4ad7683ec9c3dbdb568ac1ddbd182088a180f114",
+    "rpg/labels.py": "3b56b6644d8b5ebaccc9c8d58d8a80a28fbc3013723f1800810464475e9083aa",
+    "rpg/keyboard.py": "b6b97a9dca5584a5179568cc97a6b75cced462fe6b090bd548628c6b302de57a",
+    "rpg/items.py": "40644dd71ba88847351c28a3bc5e1d114a7bcfc4a0e38ef0df16b5d3e8be71a3",
+    "rpg/hub.py": "5a7f8c63abd68144db5f2cb6f9f82671b989983635621c9e86fa4d204f2f654f",
+    "rpg/growth.py": "a4f170e9a3258b27943ce13dbcb6da8122db249311b0023af85c441828f701f9",
+    "rpg/final_presentation.py": "b52eb5660c42494b633f099f13f64117af1676c2046f988ad928b5a780371d1c",
+    "rpg/final_battle.py": "1a36cbe1ea7341098dbcdae2d9bc7aa3c95b69019b119982c6f4646175c27091",
+    "rpg/finale.py": "f28a359559d8f5f4e8b4dbde5d8be4bc53ab6bdff83897c17b0c38cf9d295b7d",
+    "main.py": "18c367578d308ff7d82b83e402fd643089b261b09c86c9ba0671c360ea1ca6d7",
+    "game.pyxres": "85335674239edb93bc54873d1bd8a1cc01a4fe81550623da5094895d0a7f8385",
+    "area2.pyxres": "22ba8e7cd0f2dea74e08c18ef9bbff72523cca6a73e74af5186c2dd8f4643cdf",
+    "area3.pyxres": "2203f077d7b7e6eec2a2d5e464e7de00f0e23607c85cbfa2df2d4287df245a32",
+    "game.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "area2.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "area3.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "tools/gkd_diagnostic.py": "6988f373acd4d4578692e8ab180db5e9ce847d836b5e3e2890d1788c41d28c43"
+  }
+}

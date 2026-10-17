@@ -43,7 +43,7 @@ class RulesTests(unittest.TestCase):
         return self.resolve(battle, actions)
 
     def test_no_level_or_experience_and_basic_skills(self):
-        self.assertEqual(len(self.skills), 31)
+        self.assertEqual(len(self.skills), 62)
         for c in self.party:
             self.assertTrue(c.skills)
             self.assertGreaterEqual(c.skill_uses[c.skills[0]], 25)

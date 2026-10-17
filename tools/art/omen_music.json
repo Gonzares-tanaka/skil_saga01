@@ -1,0 +1,26 @@
+{
+  "name": "献上――玉座の影",
+  "description": "Original ominous offering-event loop. Slow low drone, semitone tension and sparse minor/tritone motif. Channel 0 is reserved for SE.",
+  "speed": 60,
+  "quarter_bpm": 60,
+  "music": 0,
+  "sequences": [[], [0, 1], [2, 3], [4, 5]],
+  "patterns": [
+    {"slot": 0, "tone": "p", "volume": 3, "effect": "v", "events": [
+      "d3:4", "r:2", "d#3:2", "a2:4", "g#2:2", "r:2",
+      "f3:2", "e3:2", "d#3:2", "c#3:2", "d3:6", "r:2"]},
+    {"slot": 1, "tone": "p", "volume": 3, "effect": "v", "events": [
+      "d3:4", "g#3:2", "a3:2", "f3:4", "e3:2", "d#3:2",
+      "c#3:4", "a2:4", "d#3:2", "d3:4", "r:2"]},
+    {"slot": 2, "tone": "t", "volume": 3, "effect": "n", "events": [
+      "d1:8", "d1:8", "d#1:8", "d1:8"]},
+    {"slot": 3, "tone": "t", "volume": 3, "effect": "n", "events": [
+      "d1:8", "a#1:8", "a1:8", "d1:8"]},
+    {"slot": 4, "tone": "s", "volume": 1, "effect": "f", "events": [
+      "d2:2", "r:2", "a2:2", "d#2:2", "d2:2", "r:2", "a2:2", "g#2:2",
+      "d#2:2", "r:2", "a2:2", "d2:2", "d2:2", "r:2", "c#2:2", "a2:2"]},
+    {"slot": 5, "tone": "s", "volume": 1, "effect": "f", "events": [
+      "d2:2", "r:2", "g#2:2", "a2:2", "a#2:2", "r:2", "f2:2", "e2:2",
+      "a2:2", "r:2", "c#2:2", "e2:2", "d2:2", "r:2", "a2:2", "c#2:2"]}
+  ]
+}

@@ -1,0 +1,1911 @@
+{
+  "hashes": {
+    "rpg/app.py": "edacc70e8bc606b4994dc3e3e933a5faba8d69560998dddf8c01a3af28043094",
+    "rpg/art.py": "f318c49fa8ca6a90c1325e6ce278856ebf8bd80901139da3c3c36920e83d5c05",
+    "rpg/battle.py": "448d39ebddb3fa40c2d7f5df56432e1055f74754f73f5aacad47aa03e1f0f7ae",
+    "rpg/battle_presentation.py": "e5d0ed290adaa234a8b9d05c17fb0ef31c4395a22e1125a767a216dadee1153e",
+    "rpg/battle_transition.py": "429e856ec2b6210836a51dea1dca335456d28d7134f21b50022570d14afce869",
+    "rpg/content.py": "92cc20aa71f5742943fa53ed6389affe28eefb4c938dc05b402044b30e7c46b9",
+    "rpg/dungeon.py": "ee6d8423138b9427a503b37ba5c296c847a600700b4e0ec76a322d0181cc87b6",
+    "rpg/dungeon_app.py": "84e6d92b211aa4c5717d36f501003a50fa00f6ee3d72b7422d4243e9e5518bd1",
+    "rpg/enemy_actions.py": "134d6061668f19a56936e7635638e8479250dd8e18082ed6de87ff5ba814dd45",
+    "rpg/exploration.py": "93613fea01de32c97c09421f0e46f90426ce18eb61c852ab5324cbb7f0eb6197",
+    "rpg/finale.py": "f28a359559d8f5f4e8b4dbde5d8be4bc53ab6bdff83897c17b0c38cf9d295b7d",
+    "rpg/final_battle.py": "1a36cbe1ea7341098dbcdae2d9bc7aa3c95b69019b119982c6f4646175c27091",
+    "rpg/final_presentation.py": "b52eb5660c42494b633f099f13f64117af1676c2046f988ad928b5a780371d1c",
+    "rpg/growth.py": "a4f170e9a3258b27943ce13dbcb6da8122db249311b0023af85c441828f701f9",
+    "rpg/hub.py": "5a7f8c63abd68144db5f2cb6f9f82671b989983635621c9e86fa4d204f2f654f",
+    "rpg/items.py": "40644dd71ba88847351c28a3bc5e1d114a7bcfc4a0e38ef0df16b5d3e8be71a3",
+    "rpg/keyboard.py": "b6b97a9dca5584a5179568cc97a6b75cced462fe6b090bd548628c6b302de57a",
+    "rpg/labels.py": "3b56b6644d8b5ebaccc9c8d58d8a80a28fbc3013723f1800810464475e9083aa",
+    "rpg/legend_skill_presentation.py": "8fff8bb8359e2cbd132c7cab4ad7683ec9c3dbdb568ac1ddbd182088a180f114",
+    "rpg/map_resources.py": "aec7afc53ea09c534a1efa2bc69a5b69c324909c690526a3e6bf28c132afef26",
+    "rpg/models.py": "cefbbfe41311588b8e061ebf50b727b27789494ee96e0a974e8223b65127314d",
+    "rpg/opening.py": "05910cf05d8d2a2f58719655d4c87ebfc8c1c4c03fa9c2705da9c278ba699341",
+    "rpg/quests.py": "76424b1bb14e67fa36b8f3d51ddbcd48f6bf9b856bec66ee3a35a39c1dc5164f",
+    "rpg/rare_skill_presentation.py": "6fd88784476fdec6f4a6fd45e63e4b6b6a276c8e98df66088925daec1c0b472f",
+    "rpg/save.py": "518ee1ebe2605590d867eb4640b9a4aa9f273b86f1d177d2745f874800720c57",
+    "rpg/skill_resources.py": "0358111631fc91f6207e4405e0d8aff5495d351f4cce5ef534bf04cbd1c1da43",
+    "rpg/skill_targets.py": "d1afdea85fa119790572da3cc6a4830f499d6d4c2d1871100a425e5a1d7e3853",
+    "rpg/sound.py": "4d3b4155015e8357309d8344372e14ece410ca6b80293050789b4c9434b332be",
+    "rpg/statuses.py": "d7aeb686279d129c50bba115d4b82b94fab5eeafbe66c4cfed3f55cea8596bf2",
+    "rpg/text.py": "89e65869c6f45f5c92c12dc7722071becb03f5a8868def3fb0f49ba4fb5da8de",
+    "rpg/tiles.py": "4d3c00664151a87d4a0975adeb360c09212eda7fbee74138bfcec73849c8916c",
+    "rpg/treasure.py": "a2a98f66c032dbd9cb7964803c4e9f0b3ac93a1d913624929e98dd0bfcef84bf",
+    "rpg/__init__.py": "cc41bf388798f48523fb63e0fd5832ed5c3aa0b7ea906b249675fa93cfad7a68",
+    "data/dungeon.json": "fd46fa3ff7754756206dd1b3f4b77b60e449be773ec8151fd7eb9bc927052203",
+    "data/enemies.json": "8fd877c1931251e49e202f1fc5292fdf3c4354d5cfb440f2e7f9e6d0c158e42f",
+    "data/enemy_actions.json": "5367a76909d5a93d72481ef3c529061a98b8be263122db1e64d36abd072ccd36",
+    "data/exploration.json": "570d7e2d3b751694a6db19b8ce72abf18c2198d751d6463db643542bebbc120d",
+    "data/finale.json": "ba011ae9e330f924d26a4ddb08d038d1b3598f67181d5d68745934d1cf32f4bf",
+    "data/final_battle.json": "0d0159d4fec9256a7e4df08842e65c9877dded1961e7c6b179a648f8c1a1413a",
+    "data/intro.json": "697e5563a0f04bc920df3f6a169c79bbb7c890d92b8a31cbbf7152db11947d66",
+    "data/items.json": "dce7d7dc386c90d1e161bf1882558b027749b3af950ec824933ee4d54a01b7f8",
+    "data/party.json": "b99590591912922f6cd9ccf009fc25428d3208a86b297158f3fad12b0125c919",
+    "data/pub_messages.json": "cf2cd72f63224be505da98249276498d504b217905a1c0d511146818691552b3",
+    "data/quests.json": "d47a51b01b84289c23f99851c3ebbf0e234e82260664ca3324c4fbec2f4f01ff",
+    "data/quest_flavors.json": "f94d63bef50dbbd7fc500ee51623e4d896852804b50cd6a6cde5c5793765cd3e",
+    "data/settings.json": "ad926cc91438ba08b70fddce0755e2d8ccfdec987dc0e2551e64c2ff6fc7da76",
+    "data/skills.json": "f4b16d874e6fac6204a17e1cbfac7603315a97486aff3ce1e0e2a35d98f8574c",
+    "data/statuses.json": "c6e3b57b7baa2aa53190d0fa583cb434724c0008cbe5eb412cba96f443009b3d",
+    "assets/battle_music.pyxres": "39ce8ebd893677b3791f96da27eb86d9f78ece34752617dd5e349ef4279a4d17",
+    "assets/sprites.pyxres": "e73b76ae37c4f4ed69b6fc7688d434d870715e7ca40d604bf5405525c59e726b",
+    "game.pyxres": "653a83bc935f74a9d8e8c41631e891b1842f760df69ac88e4af1c105ffbd916c",
+    "game.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "area2.pyxres": "22ba8e7cd0f2dea74e08c18ef9bbff72523cca6a73e74af5186c2dd8f4643cdf",
+    "area3.pyxres": "2203f077d7b7e6eec2a2d5e464e7de00f0e23607c85cbfa2df2d4287df245a32",
+    "area2.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "area3.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "tools/gkd_diagnostic.py": "6988f373acd4d4578692e8ab180db5e9ce847d836b5e3e2890d1788c41d28c43",
+    "tools/run_gkd.sh": "942d269d965fc19abc0cd210985ed3ea74a2a3b2d4fcddac6baa5d19c060c4f2"
+  },
+  "image_hashes": [
+    "5924a1cc45b704b9ecb4c31d36deb3cc00ff50b726895682bf7c0500af2569e2",
+    "3979cd535c0d160b78d2e5cac0091176d8a3c552c50c5c906e0dc377d1ca9199",
+    "98a5217ad895c00c23cad1a11b15469646316735c650616c90d5685be8883e3d"
+  ],
+  "map_hash": "b5b72b617f7d5058fabbae62a9a4fe82b017ee7f4a9f368896cf628f1dbcd880",
+  "game_audio": {
+    "sounds": [
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      }
+    ],
+    "musics": [
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  "battle_audio": {
+    "sounds": [
+      {
+        "notes": [
+          28,
+          28,
+          35,
+          28,
+          41,
+          40,
+          -1,
+          35,
+          28,
+          28,
+          31,
+          33,
+          35,
+          -1,
+          41,
+          40,
+          28,
+          35,
+          40,
+          -1,
+          41,
+          40,
+          35,
+          -1,
+          43,
+          42,
+          40,
+          35,
+          33,
+          31,
+          30,
+          27
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          28,
+          35,
+          40,
+          -1,
+          41,
+          40,
+          35,
+          -1,
+          43,
+          42,
+          40,
+          35,
+          33,
+          31,
+          30,
+          27,
+          28,
+          28,
+          35,
+          28,
+          41,
+          40,
+          -1,
+          35,
+          28,
+          28,
+          31,
+          33,
+          35,
+          -1,
+          41,
+          40
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          24,
+          24,
+          31,
+          24,
+          39,
+          40,
+          -1,
+          31,
+          24,
+          24,
+          28,
+          30,
+          31,
+          -1,
+          39,
+          40,
+          24,
+          31,
+          36,
+          -1,
+          39,
+          40,
+          43,
+          -1,
+          42,
+          40,
+          38,
+          36,
+          35,
+          31,
+          39,
+          40
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          24,
+          31,
+          36,
+          -1,
+          39,
+          40,
+          43,
+          -1,
+          42,
+          40,
+          38,
+          36,
+          35,
+          31,
+          39,
+          40,
+          24,
+          24,
+          31,
+          24,
+          39,
+          40,
+          -1,
+          31,
+          24,
+          24,
+          28,
+          30,
+          31,
+          -1,
+          39,
+          40
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          21,
+          21,
+          28,
+          21,
+          35,
+          36,
+          -1,
+          28,
+          21,
+          21,
+          24,
+          26,
+          28,
+          -1,
+          35,
+          36,
+          33,
+          40,
+          45,
+          -1,
+          43,
+          42,
+          40,
+          -1,
+          39,
+          40,
+          43,
+          40,
+          36,
+          35,
+          33,
+          34
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          33,
+          40,
+          45,
+          -1,
+          43,
+          42,
+          40,
+          -1,
+          39,
+          40,
+          43,
+          40,
+          36,
+          35,
+          33,
+          34,
+          21,
+          21,
+          28,
+          21,
+          35,
+          36,
+          -1,
+          28,
+          21,
+          21,
+          24,
+          26,
+          28,
+          -1,
+          35,
+          36
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          23,
+          23,
+          30,
+          23,
+          36,
+          35,
+          -1,
+          30,
+          23,
+          23,
+          27,
+          28,
+          30,
+          -1,
+          36,
+          35,
+          35,
+          36,
+          39,
+          -1,
+          42,
+          43,
+          45,
+          -1,
+          43,
+          42,
+          40,
+          39,
+          36,
+          35,
+          30,
+          27
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          35,
+          36,
+          39,
+          -1,
+          42,
+          43,
+          45,
+          -1,
+          43,
+          42,
+          40,
+          39,
+          36,
+          35,
+          30,
+          27,
+          23,
+          23,
+          30,
+          23,
+          36,
+          35,
+          -1,
+          30,
+          23,
+          23,
+          27,
+          28,
+          30,
+          -1,
+          36,
+          35
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          6,
+          4,
+          3,
+          4,
+          5,
+          4,
+          3,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          4,
+          4,
+          -1,
+          4,
+          11,
+          4,
+          4,
+          -1,
+          4,
+          4,
+          11,
+          4,
+          4,
+          -1,
+          11,
+          4,
+          4,
+          4,
+          -1,
+          4,
+          11,
+          4,
+          4,
+          -1,
+          4,
+          4,
+          11,
+          4,
+          4,
+          -1,
+          11,
+          4
+        ],
+        "tones": [
+          0
+        ],
+        "volumes": [
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          0,
+          0,
+          -1,
+          0,
+          7,
+          0,
+          0,
+          -1,
+          0,
+          0,
+          7,
+          0,
+          0,
+          -1,
+          7,
+          0,
+          0,
+          0,
+          -1,
+          0,
+          7,
+          0,
+          0,
+          -1,
+          0,
+          0,
+          7,
+          0,
+          0,
+          -1,
+          7,
+          0
+        ],
+        "tones": [
+          0
+        ],
+        "volumes": [
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          9,
+          9,
+          -1,
+          9,
+          16,
+          9,
+          9,
+          -1,
+          9,
+          9,
+          16,
+          9,
+          9,
+          -1,
+          16,
+          9,
+          9,
+          9,
+          -1,
+          9,
+          16,
+          9,
+          9,
+          -1,
+          9,
+          9,
+          16,
+          9,
+          9,
+          -1,
+          16,
+          9
+        ],
+        "tones": [
+          0
+        ],
+        "volumes": [
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          11,
+          11,
+          -1,
+          11,
+          18,
+          11,
+          11,
+          -1,
+          11,
+          11,
+          18,
+          11,
+          11,
+          -1,
+          18,
+          11,
+          11,
+          11,
+          -1,
+          11,
+          18,
+          11,
+          11,
+          -1,
+          11,
+          11,
+          18,
+          11,
+          11,
+          -1,
+          18,
+          11
+        ],
+        "tones": [
+          0
+        ],
+        "volumes": [
+          6,
+          5,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          0,
+          48,
+          48,
+          48,
+          24,
+          48,
+          0,
+          48,
+          0,
+          48,
+          48,
+          48,
+          24,
+          48,
+          0,
+          48,
+          0,
+          48,
+          48,
+          48,
+          24,
+          48,
+          0,
+          48,
+          0,
+          48,
+          48,
+          48,
+          24,
+          48,
+          0,
+          48
+        ],
+        "tones": [
+          3
+        ],
+        "volumes": [
+          6,
+          2,
+          2,
+          2,
+          5,
+          2,
+          4,
+          2,
+          6,
+          2,
+          2,
+          2,
+          5,
+          2,
+          4,
+          2
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [
+          0,
+          48,
+          48,
+          48,
+          24,
+          48,
+          0,
+          48,
+          0,
+          48,
+          48,
+          48,
+          24,
+          48,
+          0,
+          48,
+          0,
+          48,
+          0,
+          48,
+          24,
+          48,
+          0,
+          48,
+          24,
+          24,
+          48,
+          48,
+          24,
+          24,
+          24,
+          24
+        ],
+        "tones": [
+          3
+        ],
+        "volumes": [
+          6,
+          2,
+          2,
+          2,
+          5,
+          2,
+          4,
+          2,
+          6,
+          2,
+          4,
+          2,
+          5,
+          4,
+          5,
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 12
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [
+          40,
+          44,
+          47,
+          47,
+          45,
+          42,
+          47,
+          51
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          4,
+          5,
+          5,
+          5,
+          4,
+          4,
+          5,
+          5
+        ],
+        "effects": [
+          0
+        ],
+        "speed": 18
+      },
+      {
+        "notes": [
+          28,
+          28,
+          32,
+          28,
+          21,
+          21,
+          23,
+          23
+        ],
+        "tones": [
+          0
+        ],
+        "volumes": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4
+        ],
+        "effects": [
+          0
+        ],
+        "speed": 18
+      },
+      {
+        "notes": [
+          0,
+          -1,
+          48,
+          -1,
+          24,
+          -1,
+          48,
+          -1
+        ],
+        "tones": [
+          3
+        ],
+        "volumes": [
+          3,
+          0,
+          2,
+          0,
+          3,
+          0,
+          1,
+          0
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 18
+      },
+      {
+        "notes": [
+          52
+        ],
+        "tones": [
+          2
+        ],
+        "volumes": [
+          5
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 99
+      },
+      {
+        "notes": [
+          28
+        ],
+        "tones": [
+          0
+        ],
+        "volumes": [
+          4
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 144
+      },
+      {
+        "notes": [
+          -1
+        ],
+        "tones": [
+          3
+        ],
+        "volumes": [
+          0
+        ],
+        "effects": [
+          0
+        ],
+        "speed": 144
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [
+          12,
+          -1,
+          12,
+          -1,
+          12,
+          -1
+        ],
+        "tones": [
+          3
+        ],
+        "volumes": [
+          5,
+          0,
+          5,
+          0,
+          4,
+          0
+        ],
+        "effects": [
+          3
+        ],
+        "speed": 4
+      },
+      {
+        "notes": [
+          19,
+          16,
+          12,
+          7,
+          4,
+          0,
+          0
+        ],
+        "tones": [
+          3
+        ],
+        "volumes": [
+          7,
+          7,
+          7,
+          6,
+          5,
+          3,
+          1
+        ],
+        "effects": [
+          1,
+          1,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "speed": 5
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [
+          43,
+          36,
+          31,
+          31,
+          31,
+          31,
+          31,
+          31,
+          32,
+          32,
+          34,
+          37,
+          39,
+          37
+        ],
+        "tones": [
+          3,
+          3,
+          3
+        ],
+        "volumes": [
+          7,
+          6,
+          4,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6,
+          6
+        ],
+        "effects": [
+          2,
+          2,
+          3,
+          3,
+          3,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "speed": 5
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      },
+      {
+        "notes": [],
+        "tones": [],
+        "volumes": [],
+        "effects": [],
+        "speed": 30
+      }
+    ],
+    "musics": [
+      [
+        [],
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          8,
+          8,
+          9,
+          9,
+          10,
+          10,
+          11,
+          11
+        ],
+        [
+          12,
+          12,
+          12,
+          13,
+          12,
+          12,
+          12,
+          13
+        ]
+      ],
+      [
+        [],
+        [
+          20,
+          23
+        ],
+        [
+          21,
+          24
+        ],
+        [
+          22,
+          25
+        ]
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      []
+    ]
+  },
+  "visual_traces": {
+    "heal": "33e1645865915bd1ede76d07c05a3b5a3eb0a6907ee2a53313f55e81ecc0b830",
+    "triple_slash": "303cd6d2141177551634aeb24e0a311e8933178e1f24a6bb326ddd08c0688818",
+    "drain": "a3fe055979069d719cfb32367ae4c911e0fc6b48e426de350d95c628d4876072",
+    "heavy_break": "7ed6b5f6f8eb24d84e93fafd08e29628bf92bbb6d324a2ecc633e6364588dbbb",
+    "flare": "2721892c28f9156b9c3895ec0055c76362c55e6d137b995c1a386f2bab0e9456",
+    "rapid_edge": "4ec9a8bd5080a2f2b6d0510e7afc40791e03f53e9e5a9527ab886be7961158f4",
+    "renew": "1c8f25a3170768fd65f00add82890c9d3b5db1fb152570d18d6e5fb76bb86fb7",
+    "seven_slash": "2e27f7b90adf5c03d38c51d9f970057914c594fe8bfa07ec49ab6f2922cf8154",
+    "meteor": "8b46d38604f14c8b96a51d76db5e540ba62a77dbfc5c1c14d10ca0ed4b329ce8",
+    "full_heal": "ed99950e6319c84fe5629cd19ff2a8f34d575421c2fe357bf443ef7773d53d7e",
+    "armor_break": "0334119e42b67ebf600e7c72f2417e9abec60ad9920f7d24e3f011d89169a985",
+    "focus": "0d378e577e84d539376a0e722fb352ef28ad613ff671240c45754cbda5b5715a",
+    "revive": "c2e9c3ab98ec44ead8a1b7eae940c0f9437606629e98cf9891c8d7c6e1844a05",
+    "cure": "6cdd85bb24b557926d56da7766cfe3acff213a19082dd8d77da4d3e9b5a8f893",
+    "cleaving_storm": "30761e639d710491cf2f7ae5749026b1952ef96c47e20bc3092c3758517f9113",
+    "inferno": "5bc449ff9a928715d97447e3c11d2cc8977044620153ee6a46402509aef3eabb",
+    "plague_edge": "34dc9da6f033b7f1263b366000a728a31e9050574d3d88d632a06a9eea8b84cd",
+    "thunder_bind": "87c3ec0e30ae67764532a8542271cefd06c713ac2f390fbad6785e2a3af5b02a",
+    "nightmare": "33dcdc9ca0d522bb9b90f7b0e290a23b7f36a1999ce527844187d629f02b2d5f",
+    "chaos_spell": "f2f6066ca91fd1e2e43b71a2e7bf88bb18382efcd7f4cace111346cad63d6e59",
+    "armor_wave": "6181fbe7f86972c158a2536314d8235c7bb789163638c75dad7aeb422b5e7108",
+    "focus_field": "63d0e34ef2682b92f29c2eb540dc0bd225df29967c4ac2fb6de897fe0ce0a675",
+    "purify_wind": "3c39e881e105294f8162c8cf11c50d09252860ca6d43be93c202461a2e2a4fe0",
+    "ragnarok": "11d939846368c9e0317c092ddd74c0eeb9246ac79284307fabd8bf730802a2ce",
+    "starfall": "ecc4ff54c52adba53c788367161fe97d8cd88132c5dcadb2f7ddd58b81615d56",
+    "miracle": "00abffb028bd0326b33c6f04906f9b5fe0f90c26770d6d89d64da6dd367dc3bd",
+    "sanctuary": "19629b893189cea5422a79c1b4984cc2315e23b2d95b3134562affc27f952996",
+    "time_stop": "f4b6cf69109ac3bc0a6725ad440149242b8b134d78bc1f5e6cd92f07dc1b6166"
+  }
+}
