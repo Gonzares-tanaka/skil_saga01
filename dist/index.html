@@ -3,30 +3,171 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>SPARK | Game Boy風RPG Prototype</title>
-  <style>
-    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0f380f; color: #e5edc4; }
-    body { margin: 0; min-height: 100svh; display: grid; place-items: center; }
-    main { width: min(100%, 900px); padding: 14px; box-sizing: border-box; text-align: center; }
-    h1 { margin: 0 0 8px; font-size: clamp(1.35rem, 5vw, 2.1rem); }
-    p { line-height: 1.55; }
-    .notice { color: #bbce86; font-size: .9rem; }
-    button { border: 2px solid #e5edc4; border-radius: 8px; padding: 12px 28px; background: #9bbc0f; color: #0f380f; font-weight: 800; font-size: 1rem; cursor: pointer; }
-    #game { display: none; width: 100%; height: min(78svh, 680px); margin-top: 10px; border: 2px solid #9bbc0f; background: #0f380f; box-sizing: border-box; }
-    #game:focus { outline: 2px solid #9bbc0f; }
-    .controls { margin: 14px auto 0; max-width: 620px; font-size: .9rem; }
-    @media (pointer: coarse) { main { padding: 7px; } #game { height: 80svh; margin-top: 6px; } .intro { font-size: .85rem; margin: 6px 0; } .playing .intro { display: none; } }
-  </style>
+  <meta name="description" content="使い切るスキルと、思いがけないひらめき。4人の冒険者を育て、秘宝アムリタを追うレトロRPG『Skill Seekers!! ～深淵のアムリタ～』外部αテスト版。PC・スマートフォンのブラウザで遊べます。">
+  <meta name="theme-color" content="#ffffff">
+  <title>Skill Seekers!! ～深淵のアムリタ～ | αテスト版</title>
+  <link rel="stylesheet" href="site.css">
 </head>
 <body>
+  <a class="skip-link" href="#play-area">ゲームをプレイへ移動</a>
   <main>
-    <h1>SPARK</h1>
-    <p class="notice">GAME BOY風 RPG PROTOTYPE</p>
-    <p class="intro">ダンジョン最奥のボスを倒そう。技を閃いてスキル収集率100%を目指せ。使い切ってMASTEREDした攻撃技は、再取得すると威力が上がる。</p>
-    <button id="play" type="button">PLAY / ゲームを開始</button>
-    <iframe id="game" title="SPARK RPG PROTOTYPE" allow="fullscreen"></iframe>
-    <p class="controls">スマートフォン：画面下の十字キーで移動・選択、Aで決定・調べる、Bで戻る・探索メニュー。<br>PC：矢印キーで移動・選択、ZキーがA、XキーがBです。</p>
-    <p class="notice">GUILDのSAVEで保存し、タイトルの「つづきから」で再開できます。保存は端末・ブラウザごとで、自動同期されません。サイトデータを削除すると保存も消えます。感想・不具合はGitHub Issuesへお願いします。</p>
+    <header class="page-header">
+      <p class="edition">RETRO RPG <span aria-hidden="true">/</span> α TEST VERSION</p>
+      <h1><img class="title-logo" src="assets/title_logo.png" width="128" height="32" alt="Skill Seekers!! ～深淵のアムリタ～"></h1>
+      <p class="tagline">技を使い切り、ひらめきで進む。</p>
+      <a class="text-link" href="#play-area">ブラウザでプレイする <span aria-hidden="true">↓</span></a>
+    </header>
+
+    <section class="story" aria-labelledby="story-title">
+      <p class="section-label">STORY</p>
+      <h2 id="story-title">奪われた秘宝を、取り戻せ。</h2>
+      <p>ある王国に伝わる秘宝――「アムリタ」が、デーモン率いる魔物の一派に奪われた。</p>
+      <p>王国を聖なる光で守る秘宝を取り戻すため、王は各地の冒険者たちにデーモン討伐の命を下す。デーモンが逃げ込んだとされるダンジョンの周囲には、その呼びかけに応じた多くの冒険者が集まっていた。</p>
+      <p>数々の依頼を解決してきた歴戦の冒険者チーム、<strong>「SKILL SEEKERS」</strong>も、その一つ。</p>
+      <p>彼らはダンジョンの最深部に潜むデーモンを倒し、王国の秘宝アムリタを取り戻すことができるのか……。</p>
+    </section>
+
+    <figure class="party-illustration">
+      <img src="assets/skill_seekers_party.png" width="2172" height="724" alt="緑のレトロゲーム風に描かれた、剣・槍と盾・杖・弓を携える4人の冒険者たち">
+      <figcaption>冒険者パーティ「SKILL SEEKERS」</figcaption>
+    </figure>
+
+    <section class="play-section" aria-labelledby="play-area">
+      <p class="section-label">GAME PLAY</p>
+      <h2 id="play-area">ゲームをプレイ</h2>
+      <p class="play-intro">インストール不要。PCでも、スマートフォンでも。<br>下のボタンから冒険を始められます。</p>
+      <div class="game-container">
+        <button id="play" type="button">PLAY / ゲームを開始</button>
+        <iframe id="game" title="Skill Seekers!! ～深淵のアムリタ～ ゲーム画面" allow="fullscreen" aria-describedby="quick-controls"></iframe>
+      </div>
+      <p class="controls" id="quick-controls">スマートフォン：画面下の十字キーで移動・選択、Aで決定・調べる、Bで戻る・探索メニュー。<br>PC：矢印キーで移動・選択、ZキーがA、XキーがBです。</p>
+      <p class="save-reminder">セーブは拠点のGUILDから。保存は端末・ブラウザごとです。<a href="#save-notes">保存について</a></p>
+    </section>
+
+    <nav class="page-nav" aria-label="遊び方の目次">
+      <a href="#about">ゲームの特徴</a><a href="#controls">基本操作</a><a href="#base">拠点</a><a href="#menu">メニュー</a><a href="#battle">戦闘</a><a href="#tips">ヒント</a><a href="#characters">登場人物</a>
+    </nav>
+
+    <section aria-labelledby="about">
+      <p class="section-label">ABOUT</p>
+      <h2 id="about">覚える、使い切る、またひらめく。</h2>
+      <p>4人のパーティでダンジョンを探索し、最奥のボスを目指すレトロRPGです。レベルや経験値はなく、戦闘後に能力が成長。ときには、今の能力では使いこなせない強力な技をひらめくこともあります。</p>
+      <aside class="feature" aria-labelledby="skill-cycle">
+        <h3 id="skill-cycle">冒険の中心は、6枠のSKILL。</h3>
+        <ul>
+          <li><strong>通常攻撃はありません。</strong></li>
+          <li>攻撃・回復・補助は、すべてSKILLで行います。</li>
+          <li>SKILLには、それぞれ使用回数があります。</li>
+          <li>使い切ったSKILLは失われます。</li>
+          <li>戦闘後には、新しいSKILLをひらめくことがあります。</li>
+          <li>一人が同時に持てるSKILLは<strong>6個まで</strong>。</li>
+          <li>何を残し、何を手放すか。その選択が冒険を変えていきます。</li>
+        </ul>
+      </aside>
+      <p>思いがけないひらめきから、新しい育て方を見つけよう。<strong>スキル収集率100%</strong>、そしてMASTEREDのコンプリートも冒険の目標です。</p>
+    </section>
+
+    <section aria-labelledby="controls">
+      <p class="section-label">CONTROLS</p>
+      <h2 id="controls">基本操作</h2>
+      <div class="control-table"><table>
+        <thead><tr><th scope="col">ボタン</th><th scope="col">PCキー</th><th scope="col">操作</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">十字キー</th><td>矢印キー</td><td>移動・選択</td></tr>
+          <tr><th scope="row">A</th><td><kbd>Z</kbd></td><td>決定・調べる</td></tr>
+          <tr><th scope="row">B</th><td><kbd>X</kbd></td><td>キャンセル</td></tr>
+          <tr><th scope="row">MAPでB</th><td>MAPで<kbd>X</kbd></td><td>探索メニューを開く</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section aria-labelledby="base">
+      <p class="section-label">BASE</p>
+      <h2 id="base">城下町で、次の冒険の準備を。</h2>
+      <p>冒険者が集う城下町が、あなたたちの拠点です。仲間や技を確認し、依頼と道具をそろえてダンジョンへ向かいましょう。</p>
+      <div class="facility-list">
+        <article><h3>GUILD <span>ギルド</span></h3>
+          <p>PARTY STATUSで仲間の状態を確認。QUEST RECORD、SAVE、HELPもここから利用できます。</p>
+          <p class="note" id="save-notes"><strong>セーブについて：</strong>スマートフォン版を含むWeb版のデータは、端末・ブラウザごとに保存され、自動同期されません。サイトデータやブラウザのデータを削除すると、セーブが失われる場合があります。</p>
+        </article>
+        <article><h3>TRAINING <span>訓練場</span></h3>
+          <p>これまで発見したスキルを確認できます。またTRZを支払うと、一度習得したことのある一部の基本スキルを再習得できます。</p>
+        </article>
+        <article><h3>PUB <span>酒場</span></h3>
+          <p>城下町の人々から、探索・調査・討伐の3種類のクエストを受注。条件を達成して無事に帰還するとTRZを獲得できます。</p>
+          <p>TRZを支払って町のうわさを聞くことも。冒険のヒントが得られるかもしれません。</p>
+        </article>
+        <article><h3>SHOP <span>道具屋</span></h3>
+          <p>TRZで冒険に役立つアイテムを購入できます。</p>
+          <ul class="compact-list"><li><strong>POTION</strong>：HP回復</li><li><strong>PHOENIX ASH</strong>：戦闘不能から復活</li><li><strong>REMEDY</strong>：状態異常回復</li></ul>
+        </article>
+        <article><h3>DUNGEON <span>ダンジョン</span></h3>
+          <p>準備が整ったら、デーモン討伐の冒険へ。ダンジョンの奥へ進んでいきましょう。</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="menu">
+      <p class="section-label">MENU</p>
+      <h2 id="menu">ダンジョンメニュー</h2>
+      <p>探索中に<strong>Bボタン（Xキー）</strong>で開きます。</p>
+      <dl class="command-list">
+        <div><dt>STATUS</dt><dd>HP、能力値、成長傾向などを確認します。</dd></div>
+        <div><dt>SKILL</dt><dd>保有するスキルと残り使用回数を確認。一部のスキルは探索中にも使用できます。</dd></div>
+        <div><dt>ITEM</dt><dd>アイテムの確認・使用を行います。</dd></div>
+        <div><dt>RETURN</dt><dd>RETURNスキルを持っていれば、城下町へ安全に帰還できます。最初から使える機能ではなく、戦闘後の「ひらめき」で習得するスキルです。</dd></div>
+        <div><dt>HELP</dt><dd>操作方法などを確認できます。</dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="battle">
+      <p class="section-label">BATTLE</p>
+      <h2 id="battle">戦いが、仲間の可能性を広げる。</h2>
+      <p>ダンジョンではモンスターとのコマンド式戦闘が発生します。戦闘を重ねることで能力が成長し、戦闘後には新しいスキルをひらめくことがあります。</p>
+      <p>スキル枠は一人6個。7個目をひらめいたら、どのスキルを残すか選びましょう。</p>
+      <dl class="command-list">
+        <div><dt>SKILL</dt><dd>保有するスキルを使用します。</dd></div>
+        <div><dt>GUARD</dt><dd>まもることで、受けるダメージを軽減します。</dd></div>
+        <div><dt>ITEM</dt><dd>アイテムを使用します。</dd></div>
+        <div><dt>RUN</dt><dd>戦闘からの逃走を試みます。</dd></div>
+      </dl>
+    </section>
+
+    <section aria-labelledby="tips">
+      <p class="section-label">ADVENTURE TIPS</p>
+      <h2 id="tips">冒険に役立つヒント</h2>
+      <ol class="tips-list">
+        <li><h3>自分だけのパーティを育てよう</h3>
+          <p>メンバーには力・速度・知力など、それぞれ得意分野があります。ただし、成長方向は完全固定ではありません。戦闘中に使うスキルによって、成長しやすい能力も変化します。</p>
+          <p>STATUS画面で成長傾向を確認しながら、自分だけのSKILL SEEKERSを育ててください。</p>
+        </li>
+        <li><h3>使い切ったSKILLは、MASTEREDへ</h3>
+          <p>使用回数が0になったSKILLは失われますが、最後まで使い切った記録はMASTEREDとして残ります。<strong>MASTEREDした攻撃SKILLを再び習得すると、威力は1.2倍。</strong></p>
+          <p>目指せ、<strong>SKILL COLLECTION ＆ MASTERED 100%！</strong></p>
+        </li>
+        <li><h3>QUESTにも挑戦</h3>
+          <p>最初に受けられるのはLv1 QUEST。階層ボスを倒すと、より高いLvのQUESTが開放されます。探索・調査・討伐から依頼を選び、達成した記録はGUILDのQUEST RECORDで確認しましょう。</p>
+        </li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="characters">
+      <p class="section-label">CHARACTERS</p>
+      <h2 id="characters">登場人物</h2>
+      <div class="character-grid">
+        <article class="character"><p class="character-role">SKILL SEEKERS / LEADER</p><h3>ロウ</h3><p>数々の依頼を解決してきた歴戦の戦士にして、パーティのリーダー。力を生かした物理攻撃を得意とする。</p></article>
+        <article class="character"><p class="character-role">SKILL SEEKERS / SHINOBI</p><h3>カイ</h3><p>東洋の密偵「シノビ」の末裔。素早さを生かしたスキルを得意とする。</p></article>
+        <article class="character"><p class="character-role">SKILL SEEKERS / MAGE</p><h3>ミオ</h3><p>黒魔術を得意とする天才魔導士。高い知力を生かした魔法で活躍する。</p></article>
+        <article class="character"><p class="character-role">SKILL SEEKERS / ELF</p><h3>セン</h3><p>迷いの森出身のエルフ。華奢な見た目とは裏腹に、高いパワーを生かした戦いを得意とする。</p></article>
+        <article class="character demon"><p class="character-role">DEMON</p><h3>デーモン</h3><p>王国から秘宝アムリタを盗み出したとされる高位悪魔。非常に強力な魔力を持ち、王国に強い憎しみを抱いている。</p></article>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <p>Skill Seekers!! ～深淵のアムリタ～ <span>外部αテスト版</span></p>
+      <p>ご感想・不具合の報告は<a href="https://github.com/Gonzares-tanaka/skil_saga01/issues">GitHub Issues</a>へお願いします。</p>
+      <a href="#play-area">ゲームをプレイへ戻る ↑</a>
+    </footer>
   </main>
   <script>
     const play = document.querySelector('#play');
