@@ -11,10 +11,11 @@ BGM_IDS = {
     'bgm_area3': ('scene', 4), 'bgm_battle': ('battle', 0),
     'bgm_boss': ('scene', 5), 'bgm_final': ('scene', 6),
     'bgm_omen': ('omen', 0),
+    'bgm_credits': ('postgame', 0),
 }
 BATTLE_BGM = {'normal': 'bgm_battle', 'quest_hunt': 'bgm_battle',
               'boss': 'bgm_boss', 'guardian': 'bgm_boss',
-              'demon': 'bgm_boss', 'elysion': 'bgm_boss'}
+              'demon': 'bgm_boss', 'elysion': 'bgm_boss', 'dragon': 'bgm_boss'}
 SE_IDS = {'se_stairs': 50, 'se_treasure': 51, 'se_trap_damage': 52,
           'se_healing_spring': 53, 'se_pitfall': 54, 'se_quest_complete': 55}
 FIELD_SE = {'stairs': 'se_stairs', 'chest': 'se_treasure',
@@ -27,7 +28,7 @@ CUE_SOUNDS = {'battle_transition': SOUND_BATTLE_TRANSITION, 'attack': ATTACK_SOU
 BGM_CHANNELS = (1, 2, 3)
 COMMON_SOUNDS = (30, 31, 50, 51, 52, 53, 54, 55, 59, 60, 61, 62, 63)
 RESOURCE_BANKS = {'scene': ROOT / 'game.pyxres', 'battle': ROOT / 'assets/battle_music.pyxres',
-                  'omen': ROOT / 'assets/omen_music.pyxres'}
+                  'omen': ROOT / 'assets/omen_music.pyxres', 'postgame': ROOT / 'assets/postgame.pyxres'}
 TITLE_STATES = ('title', 'title_no_save')
 HUB_STATES = ('title_fade', 'intro', 'hub_preview', 'hub_intro', 'camp', 'facility',
               'archive', 'shop', 'pub', 'quest_board', 'quest_type', 'quest_preview',

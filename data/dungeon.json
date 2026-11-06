@@ -2,9 +2,7 @@
   "width": 24,
   "height": 24,
   "spark_multipliers": [1.0, 1.05, 1.10, 1.15, 1.20, 1.30, 1.35, 1.40, 1.45, 1.50, 1.60, 1.70, 1.80, 1.90, 2.00],
-  "encounter_chance": 0.09,
-  "debug_encounter_chance": 0.45,
-  "safe_steps": 2,
+  "encounter_step_ranges": [[7, 16], [9, 22], [9, 22]],
   "items": {"initial_potions": 2, "max_potions": 9, "potion_heal": 30},
   "floors": [
     {"enemy_ids": ["slime", "bat", "goblin"], "weights": [6, 3, 1], "count": [1, 2], "hp_scale": 0.9, "power_scale": 0.8},

@@ -1,0 +1,896 @@
+{
+  "hashes": {
+    "main.py": "18c367578d308ff7d82b83e402fd643089b261b09c86c9ba0671c360ea1ca6d7",
+    "game.pyxres": "6ecbda5214ec6792adc806ed825ae07ad379d1b6846a4b0e9225480677160511",
+    "game.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "area2.pyxres": "22ba8e7cd0f2dea74e08c18ef9bbff72523cca6a73e74af5186c2dd8f4643cdf",
+    "area2.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "area3.pyxres": "2203f077d7b7e6eec2a2d5e464e7de00f0e23607c85cbfa2df2d4287df245a32",
+    "area3.pyxpal": "8ca80d8289584953714eeb8a50ac20177837e3f28f2b4428fd3b8677e44a78bd",
+    "dist/index.html": "ee577d524d6be588e9ce73c52f18c7be73e7895331e6a90561d2706ff3dc164a",
+    "tools/build_web.py": "b89309b6bffd430f6f88bf28d5ea1bded57b8abe4fc7694a3be587d487ad9a84",
+    "tools/web_audio_guard.js": "c8542381300c95afe4f7213ef5e4b35e68c48ff915ad139c45e8691ee369af5e",
+    "tools/web_suspend_store.js": "7bffbd0cab2e5082efadf868acf7561acad9b999962fafb2b3b51fe6a5c336d9",
+    "tools/run_gkd.sh": "942d269d965fc19abc0cd210985ed3ea74a2a3b2d4fcddac6baa5d19c060c4f2",
+    "tools/gkd_diagnostic.py": "6988f373acd4d4578692e8ab180db5e9ce847d836b5e3e2890d1788c41d28c43",
+    "rpg/app.py": "434ec66b47aef8f4a75dbe63de7928b70e180b368db81def00cfbbcde1ced886",
+    "rpg/art.py": "f318c49fa8ca6a90c1325e6ce278856ebf8bd80901139da3c3c36920e83d5c05",
+    "rpg/battle.py": "3048ad54f242c1da304ab676874ef3d0fb081b458aeb030662bd2f4d87987505",
+    "rpg/battle_presentation.py": "e5d0ed290adaa234a8b9d05c17fb0ef31c4395a22e1125a767a216dadee1153e",
+    "rpg/battle_transition.py": "429e856ec2b6210836a51dea1dca335456d28d7134f21b50022570d14afce869",
+    "rpg/content.py": "990e7487512a4969cd16860f2e246ab0c791df860a6351c2249532b2f4205cf4",
+    "rpg/dungeon.py": "49635dd6ed6bd94d842b1d8a00aaecc8d77b235c231e8dc6daea45bfd33c50b8",
+    "rpg/dungeon_app.py": "e8598efbc4a01734ff51f33462e05582d22c5fca207c0dd00576b1361469cecf",
+    "rpg/elevator.py": "905d114655f4d755285eb94d2a516102960176be14b2801c3936c48084f07a5b",
+    "rpg/enemy_actions.py": "7e98d9fde677c2f4e830e7d6be18ee2fe1b6123587df1c1cbd1dff7741226308",
+    "rpg/exploration.py": "93613fea01de32c97c09421f0e46f90426ce18eb61c852ab5324cbb7f0eb6197",
+    "rpg/finale.py": "f28a359559d8f5f4e8b4dbde5d8be4bc53ab6bdff83897c17b0c38cf9d295b7d",
+    "rpg/final_battle.py": "1a36cbe1ea7341098dbcdae2d9bc7aa3c95b69019b119982c6f4646175c27091",
+    "rpg/final_presentation.py": "2f95fb7fb512c472c704f192622a3e7b935efe84a999cf61a418c39baaacdf50",
+    "rpg/growth.py": "a4f170e9a3258b27943ce13dbcb6da8122db249311b0023af85c441828f701f9",
+    "rpg/hub.py": "310aefe30d44e9649d40a7f3787b63763f9d2f29a9a7ad473e8542b9862c4c50",
+    "rpg/items.py": "4b725116e8321754dfb7b497672c96f6f3e4fa5290254f9a25979bd3fb5e4918",
+    "rpg/keyboard.py": "b6b97a9dca5584a5179568cc97a6b75cced462fe6b090bd548628c6b302de57a",
+    "rpg/labels.py": "3b56b6644d8b5ebaccc9c8d58d8a80a28fbc3013723f1800810464475e9083aa",
+    "rpg/legend_skill_presentation.py": "8fff8bb8359e2cbd132c7cab4ad7683ec9c3dbdb568ac1ddbd182088a180f114",
+    "rpg/map_resources.py": "aec7afc53ea09c534a1efa2bc69a5b69c324909c690526a3e6bf28c132afef26",
+    "rpg/models.py": "e0e3cbc78ecdaf4abbb725119040574abe3f01d53846452e10fe35a46ae4cc02",
+    "rpg/opening.py": "05910cf05d8d2a2f58719655d4c87ebfc8c1c4c03fa9c2705da9c278ba699341",
+    "rpg/quests.py": "76424b1bb14e67fa36b8f3d51ddbcd48f6bf9b856bec66ee3a35a39c1dc5164f",
+    "rpg/rare_skill_presentation.py": "6fd88784476fdec6f4a6fd45e63e4b6b6a276c8e98df66088925daec1c0b472f",
+    "rpg/save.py": "33eb54c57768402c9f414dfe3f5c5315878893102da0bd51a006c5ba9494eccb",
+    "rpg/skill_resources.py": "0358111631fc91f6207e4405e0d8aff5495d351f4cce5ef534bf04cbd1c1da43",
+    "rpg/skill_targets.py": "d1afdea85fa119790572da3cc6a4830f499d6d4c2d1871100a425e5a1d7e3853",
+    "rpg/sound.py": "75db4157debb56e668922efe7702eb549972de93a133eec163cf08154ce44a58",
+    "rpg/statuses.py": "d7aeb686279d129c50bba115d4b82b94fab5eeafbe66c4cfed3f55cea8596bf2",
+    "rpg/suspend.py": "290db5efddfd110d02baaaf76ee0f8426656ecd1baea0da36e7869205a0b1abf",
+    "rpg/text.py": "89e65869c6f45f5c92c12dc7722071becb03f5a8868def3fb0f49ba4fb5da8de",
+    "rpg/tiles.py": "4d3c00664151a87d4a0975adeb360c09212eda7fbee74138bfcec73849c8916c",
+    "rpg/treasure.py": "a2a98f66c032dbd9cb7964803c4e9f0b3ac93a1d913624929e98dd0bfcef84bf",
+    "rpg/__init__.py": "cc41bf388798f48523fb63e0fd5832ed5c3aa0b7ea906b249675fa93cfad7a68",
+    "rpg/save/save.json": "5b814a6d6e30f6c27b8f600d49d75c6c3f7ec1a381fd0b8eae22dcb6b5b12ff3",
+    "data/dungeon.json": "fd46fa3ff7754756206dd1b3f4b77b60e449be773ec8151fd7eb9bc927052203",
+    "data/enemies.json": "46b0fa16b6dd14830714fe916a33a77fc6baa3947021f84c00c5b8b0a481cc37",
+    "data/enemy_actions.json": "5367a76909d5a93d72481ef3c529061a98b8be263122db1e64d36abd072ccd36",
+    "data/exploration.json": "570d7e2d3b751694a6db19b8ce72abf18c2198d751d6463db643542bebbc120d",
+    "data/finale.json": "ba011ae9e330f924d26a4ddb08d038d1b3598f67181d5d68745934d1cf32f4bf",
+    "data/final_battle.json": "0d0159d4fec9256a7e4df08842e65c9877dded1961e7c6b179a648f8c1a1413a",
+    "data/intro.json": "697e5563a0f04bc920df3f6a169c79bbb7c890d92b8a31cbbf7152db11947d66",
+    "data/items.json": "a5486e42f66c8f30edabf4fe49c19a9a594a5e2dfbf58300455389605b5250a5",
+    "data/party.json": "b99590591912922f6cd9ccf009fc25428d3208a86b297158f3fad12b0125c919",
+    "data/pub_messages.json": "ed18e38fee783636c1045ca1391580ccac4ee75a9338989849ddad99d5a8ab39",
+    "data/quests.json": "d47a51b01b84289c23f99851c3ebbf0e234e82260664ca3324c4fbec2f4f01ff",
+    "data/quest_flavors.json": "f94d63bef50dbbd7fc500ee51623e4d896852804b50cd6a6cde5c5793765cd3e",
+    "data/settings.json": "ad926cc91438ba08b70fddce0755e2d8ccfdec987dc0e2551e64c2ff6fc7da76",
+    "data/skills.json": "f4b16d874e6fac6204a17e1cbfac7603315a97486aff3ce1e0e2a35d98f8574c",
+    "data/statuses.json": "c6e3b57b7baa2aa53190d0fa583cb434724c0008cbe5eb412cba96f443009b3d",
+    "assets/battle_music.pyxres": "39ce8ebd893677b3791f96da27eb86d9f78ece34752617dd5e349ef4279a4d17",
+    "assets/omen_music.pyxres": "8539e3651e2aa535a36a1504a3186be3ab87e602110991b4554b83b2880ffc93",
+    "assets/sprites.pyxpal": "35f24acf854043e71ef6623b23c24de5e45a429309e2d2d250188cf4aae100a0",
+    "assets/sprites.pyxres": "e73b76ae37c4f4ed69b6fc7688d434d870715e7ca40d604bf5405525c59e726b",
+    "assets/fonts/FONT_LICENSE.txt": "19835c79d55fc3a5e01383a3f9d510a958e66154f634079c26b18164d88ddf62",
+    "assets/fonts/misaki.txt": "82929cc3b34c79b6a67f21fe137c7bb165589c9e34ba1441611e493afd67dfca",
+    "assets/fonts/misaki_gothic_2nd.bdf": "fddbfdda822dd19ca2da5f509b032192d504e7825eb8215afc8ae9dd2d7e4855",
+    "assets/fonts/readme.txt": "429ec2de7a856712203ef80bf86fea49f2f611b9b58b87f7ce7709169bdcf0af",
+    "dist/assets/skill_seekers_party.png": "9fb4457d734f9cab2d12c20dbdaf5b46e12dd17a84b8a76df37c3627da1cef5c",
+    "dist/assets/title_logo.png": "a98cdcb8757ab8031f649b0ac8f1b022ee0a6ba8378b11cee02a4a79af7d0e0b"
+  },
+  "methods": {
+    "rpg/app.py": {
+      "App.__init__": "98779b4ed0cbdbc660415d58c0b089d67d044424cbc6e77057afb5abcf5edcb6",
+      "App.start_battle": "227a95e06b50377b272239feda98530df17afa80f7761e0bf275cbb17e26051c",
+      "App.finish_results": "9264a4ba859ae536dc359589603f67714561ae615c5fcf76591c9330b7d76097",
+      "App.waiting_for_fanfare": "b335500f12bb8a17162178ec4066dd34a2172659d82d70d6328a50890c5d3cc2",
+      "App.trace": "b028d104d343c643c3209c232ba72634670dc5d50718689575b34639adb45b0d",
+      "App.audio_state": "2ab49a3899a8af95d4d8ba77738cd10d01a39b696e6fb18cce2561a718217848",
+      "App.next_result_label": "c5063f549b2564b3ffb4cb17cc0ad89e5e24a93a39a9713edbab706f7661fbd8",
+      "App.begin_input": "62cce89d82ebbd726ecd20d8b3ce44194f474ea86af3055871a471ffc3521f27",
+      "App.skip_confused_commands": "2122805ea54c39c11b9cf48050270d27a35a4ddc31ed5f9258fc177193099c11",
+      "App.actor_index": "e2c63fa07c88b6aca2986788e699320c8e3819ac20bd3ea60c9ee3255638ea2b",
+      "App.actor": "358b4c1f1fa37d19112726e8f166ef738c54cd9d3585a604c055f3b9198c414f",
+      "App.pressed": "7cf91c17cb7f7d616aab68ee9674d0146fd108fcbb2ab627c5f66bba6f4316c8",
+      "App.confirm": "1a6b22fcb62f31c1f785efbda4becd13a0379dd33800f61a4b914e03f7d8e98a",
+      "App.cancel": "8454af24d5c2253fc57896fdf94e455d61bd7213b05a5c2548d6f123343dcca0",
+      "App.confirm_held": "3810edcf4e20e939b96f62a1a58e6af80937d3463e401631ebb9de5c5ee1ad01",
+      "App.button_pressed": "237156e9e8e2989004935244c8d7ab3feb6405af75530b1b1738479bfda4c706",
+      "App.direction": "87330a9a9f93092019236d7302805f85ac48682ae4fa5055ef873ffebabe8fa8",
+      "App.handle_quit_input": "ce57c01974cad9c617d68d3aaa4c5e2a2329b67e49a1afe740e07d8e90be9029",
+      "App.tell": "40bdabdcb2e5623bb6417212a9d015baf3523c5b0cf62ea4cd8c5710b18e362d",
+      "App.targets": "521beed7962957571fcdf8979e2aeea6746faf13faf5c297e4431cb8123f321b",
+      "App.battle_items": "d95d2f2f4fcb0f430348ea7a728ae6afd9ba92384fc90bf5c3da17869f64eac7",
+      "App.commit": "dc50601196166baed7b24fdd05490a5c79d80ea1a90d2bc7217f79e3b73eb287",
+      "App.update_status_debug": "cbdd83efe10f03b532753b1a38b8e100fcbb6f6d4334364b97f304dd8d2b7eb7",
+      "App.draw_status_debug": "f47993d529e3f7934cf0aaefec0017659f8d5b5cd3b3e77242a1225b709d1e84",
+      "App.update": "6db6106743384b680b0ec8ccebb3eeba7026b4f84e0897c006655b8079d41257",
+      "App.panel": "1745b6293187be9ed66ed17dd93ec1a687bc4e99ed3c2390385bcfa2b3566f4a",
+      "App.footer": "72ead9d8dbe5681d3a11ffbf8f4b476507f522b0ee51d8e66500b3667f39f73a",
+      "App.title": "b11f5b257faabe870ed2a27b5d9e99b0eb84bc336d8c9e9d63f18e5488d17664",
+      "App.draw": "79e8961af84983b24403a82e915edd3609d477b5771249fd57f5d12727353678",
+      "App.draw_battle": "c5f38dac08a31d20b17deb77e0b67fe882706127a151b8b0f0f07f8989da18ce",
+      "App.battle_visual": "9100775505715928b8be3851bf1701adef070da0b278ad4331a62ea5e7561f47",
+      "App.apply_visual_action": "584e3063b7366a8807e40d45c1683124da541b7ac9ee838b7b368cde6851eafa",
+      "App.update_battle_visual": "9203317656a835dbfeffdb44442620de01d29072b5f0a6fa5a8de6ebdba12b71",
+      "App.set_result_pages": "df584cee152097a291826609855ad05d3c8276b34b6cdc1652876440fcf8dd71",
+      "App.final_visual": "0978e31ae9a293d9afef5fae7de3d7137fcaee9a70f198813f9fd83dc2dd857e",
+      "App.draw_lord_of_elysion": "a7b52b5712c4ce986e2ea7a35a10f0ded71f845214494bd5be753d7b7148c6c6",
+      "App.start_amrita_effect": "9493b54af1b1a1bc4ea22ea210b9bedba5d296e6ac9f2403690dcbcc3b152623",
+      "App.finish_amrita_effect": "308bf557a26d587d2139aa6ea20d8d3dbddbffd1c054d675c7049941d764cc56",
+      "App.update_amrita_effect": "8650da4b83511dbc4ba7bfd5242c9d23027254667b119cb5444da8e2761e4aca",
+      "App.skill_details": "ec1f63d993a42ad780dcd5f7dcb006e0cf6be0ae8c75e32ae46c20f17731d285",
+      "App.draw_skills": "6a2bd4534b5669b920bee0f5cc0ea8fe0a1020a182a8f7114b6b0a14610c025d",
+      "App.draw_battle_items": "08f61a5d49c101786278b42c957678cea309062bb7e1da13c042775a9b0439bd",
+      "App.draw_result": "9747f0e2c609e3ed2de431b949b08664aca280703df05aa601fb9eb63acc2325",
+      "App.info_scroll_limit": "e270dbabbb87f6927596ace545ae3129431c2fbd8def2e8349667d413d4be1e0",
+      "App.draw_info": "52e922e232ded9ee0bbf69176667975f3e41aca74a698ad2b1f49097ac751872",
+      "App.draw_help": "c1f9ab4a37fdee97cacb16ff44a5ee457eb7757ace0547686c3734381b9d14d2",
+      "App.update_replacement": "db9e02781b5979affbfa24f0342a8b3fa73c887e6008831415d37ff53d541c5e",
+      "App.draw_replacement": "f8a403b29cbcb6bc0408df9fa3573c4af695fc83f4d8c5aa3ed4c9011a646617",
+      "App.update_debug_skills": "7dfc50997d675bd71499bcb312b61158bc8018660339bdd2f4909f0de0a150af",
+      "App.draw_debug_skills": "088abce7181d608cef803d70a8974b99eebdf6eb19eedf53021e841a2e89fb8c"
+    },
+    "rpg/art.py": {
+      "draw_quest_symbol": "1c6021535703e5deb4936f97b570df683acea0a99318ef0f09adaeee287af073",
+      "draw_defaults": "f2079b605e1ae430c12324902f7d29a30bcf89a4bd4091318c7beca75a7d6a33",
+      "load_art": "69b3a9fb573b356d7798b68091eed940619bbe0155c69efb43a7ab227851e09e"
+    },
+    "rpg/battle.py": {
+      "Battle.__init__": "966701e2955011c7e507ca437efbb2afa182556d33f5bb892d7597500dea68ef",
+      "Battle.begin_round": "4874465918231d01a736d3e8dbd86d08a813806a1f2df6ce6353dd0422044885",
+      "Battle._target": "c371d487b12b1a1aa7859a9dbb2ed1da665bb4e039e77217f85e5ca71a2abc3f",
+      "Battle._damage": "3c42b1fb307b594a71f20a14a342fc78b6aa9d8fbcbeefd3a07c1aa3e9c51506",
+      "Battle._status_event": "ea5da8dd1702612fdf1f0064609f277291c06cc75df2d963036a3a044fd12a1c",
+      "Battle._lose_hp": "d72f554f19809dc4d6832c7d712077ad277b07acc9d2774127d61fb22532d0d0",
+      "Battle.apply_status": "70cdc9addb8e3f405495683646cc38774b0f44613e372f803237265955d09a54",
+      "Battle.prepare_turn": "965a896852f9e16fdfd452adc0683d98500def2187521f3597fbb032cd0d29ac",
+      "Battle._confusion_action": "22297a72029b916a927bc736670718cb806c464c44cd400c0e7037b001d37d2f",
+      "Battle._finish_status_turn": "317643f744e2105da82c8e2a6f3acc968844df23f78a8fb06fd65a76f4142106",
+      "Battle._party_action": "8728c91aae22024776d1f5c58fdefe560b5d744d2b7844ad16f549a0dca7a059",
+      "Battle._skill_effect": "485f82abd5feedfe3c6bb95aa5b1b72e29237dd9ceb5d544782b7306f099e8d2",
+      "Battle._skill_target_effect": "91bcf1fb10f26d9a922a406693052d3b450e2c80b45b3863ab2764fe934664ad",
+      "Battle._enemy_action": "d6776c26103ebf167f7044d314eb046cb1bd82081ab15e5cc42e053ab7a7877b",
+      "Battle.step": "28443365418d253d7040872ee8009a34069cc49d8f85b83300d910e327c2c7da",
+      "Battle.run_chance": "43b25e0486a828b8861e4ae2dcfec3d81fd6fdf97571c7b549243c713053f12e",
+      "Battle.attempt_run": "9673951542c7c5d4aa80d4087aa539884307bafd962ba439843b42c177679b77",
+      "Battle.clear_effects": "eb2205b9a027fdd705ffba0de573807868e3c4f752f3559523db55d0a8e9f810",
+      "Battle.auto_actions": "9bb081765c64209d611924ed53ecc079219f492973e0d5063a55c85d5e1c3087",
+      "Battle.can_use_amrita": "8df782d69a1c7ff6afc73ba80c2240daf7ff764b9a6f4577c2b661e5fafedbbc",
+      "Session.__init__": "82fa79085841dc0fc02f2a24c25d6af279c4eb542b55dd2737d081b127281b8c",
+      "Session.next_battle": "3885dec0e084e849298146c29a8163092546371d334f336889b0034c8581463a",
+      "Session.settle": "873adcd25626928a4130c21e849a2d53f35ff0c7e38a778a3e0980b6d9445e0b",
+      "Session.pending_replacements": "a61d1b23d20b74748666c7b81674050a455f018e27a98a08e95523d68793d434",
+      "Session.resolve_replacement": "4852cb3ae599182217017c573a320ad6b12aaad235fa7e3a1889092c03f871dc",
+      "Session.relearn_candidates": "fb4b47441c218353c9d9cc51d00fbecb5f33e48b8f408f384f643993e131c660",
+      "Session.relearn": "2e88863650d7eb82fb6257203f6fb735172d381291f62bbbf143f993ddb96332",
+      "Session.field_return": "6c4de818eaa67f8d6e217ecff9bb471941e716adeeae80ea3c951d60d180cd8c",
+      "Session.debug_skills": "ddafca9256ce2eaf1f7de18c3d8272a285ea742f08c114a9aaadba66d7ea54d5",
+      "Session.debug_acquire": "522606482edd137b24aa9d6d4d8e8a6fcb8bb70424759a958ad3d00df9f8014d",
+      "Session.debug_set_one": "7b5333e161cfb1a0b66d6273d961e5dcb4e5ff8a79c3af6001c9c07c9b7a79fa",
+      "Session.archive_summary": "9462ae03e6a0904e5a901a5a2ca415488cc658e6ab9f09c3a0ae7e4792574907",
+      "Session.field_heal": "d6e7f01c013c8d99453d6ef710041985423b0eebb1ef4a89b29c20ac7714509a",
+      "Session.field_use": "ec742045b7ec7a4168e743b845f7f9e6844a772056a1024577f01de5aee84ae4"
+    },
+    "rpg/battle_presentation.py": {
+      "enemy_position": "1acb08d204c30071976aa947e7fa23e4d91aadba4c92882f0a28b0830108c0e3",
+      "battle_area": "8fca8824b317a5afe2ddf429f16049b5e43c2ed950d76ddd6e5dd532e9d234c6",
+      "draw_battle_background": "8f207866aec856562951a0ba9025108391d9640dacfde66a90aa62a86f2c856a",
+      "effect_id": "0e790322dd4ea73550a019c299fc9c1164fa3968676d58f370a4d4730ee683e9",
+      "draw_status_icons": "7489289c162ebd055014af0c2cddffe5ab886f3bfa49168a852a8d0387de53a7",
+      "dungeon_floor_color": "b46b1bfdeb94ac7a7d994bee44cfd00efb527f5702ee23764a5272a6b13d91a0",
+      "result_pages": "14e6b05281187a42d38f292ab755199a6b0d4a9777cb9ff7eaa7817d73444b12",
+      "BattlePresentation.__init__": "8c69a26a95d3903a493cd07f9268178c91fd7e5f2e611f29d24841a266ebb331",
+      "BattlePresentation.active": "c2ffca8e4b1e31cdd467873690ef2dff57b75735383fcfd4ffd92301692aa719",
+      "BattlePresentation.start": "7beb5f5d868b5bd9d259c1350af2f62f8b140fa15f28a517c56d9bbfefb7e108",
+      "BattlePresentation.enter": "22b10fb98c5f6c6d5636f2719b141b6f6868be58f679bf5fe7e0c4a4e9b34f36",
+      "BattlePresentation.start_run": "8752d7197841fea294834ad231e1ca89514cd1b43dd4759fdccd988981f4b76c",
+      "BattlePresentation.after_action": "f9c7e2faccc2ace6cc1f1d3eef4d413cec22337b0a0baa8cc5346e07cef9cc7c",
+      "BattlePresentation.reset": "6cb8cfd0231ad11b78b5cc83d50f817c8d74b3999218221594ea6a3f4ea66d1d",
+      "BattlePresentation.after_effects": "149277f1233b61a1300f5c31a06ec6955506801a962a115a3849b306da93998b",
+      "BattlePresentation.enemy_effect_frames": "856f1a3b5429cf17df447113c92961170451b45bb39564f978ddbc62dba0bb45",
+      "BattlePresentation.advance": "751d4b0ae7af531adb3a7b819f5b8e03acf63cef36d67844e7f4c0f1ac5674f6",
+      "BattlePresentation.actor_offset": "effc6312529072866ba77df3d7653d6046a0b2a81feb48ac2bcac5353dcb228a",
+      "BattlePresentation.enemy_offset": "e01c7719393b787ec6ea69e2d54baa8304973974c9020bf574f7964b0ac5b50f",
+      "BattlePresentation.shake_offset": "bbbf98e2da78facafd64f17fe2f5c8c5541a08365c724cb8757cf497c3ed5b05",
+      "BattlePresentation.party_recoiling": "6cd8c0b39e842b12ab136f9e9cd4c4df946dc9737e25b668855296febefa4263",
+      "BattlePresentation.holds_party_sprite": "4562d4310f7c14b2616ab09ddaaa54dacbeba61dfc1f4cd1ea8d9f3cfd8872f3",
+      "BattlePresentation.displayed_hp": "3f9114eea3d4e91974fe3a7c05512a07dc078c97fde16594df46254d4b17b7a2",
+      "BattlePresentation.enemy_visual": "4b1f149b317aaef4e5a866c5fc7002e4022ae703351ac70e47ea5510b4a5c03a",
+      "BattlePresentation.target_flashing": "e7ba0328de72407124d5a997b32c78fe81e11db9df76250c31103a1a857eb5fb",
+      "BattlePresentation.effect_position": "5743bee9502489b25779496b8daee8cb6c1a392fc26bc1c2739f1d9fbe5ff306",
+      "BattlePresentation.draw_rare_effect": "5413b9c87cdcb3954a31b28fc71f5d21c983fb80f22c64e7c618777044ecf463",
+      "BattlePresentation.draw_effect": "9af88303a09b989ff5102122622a7ad5cc845faa454e4aec8160ada736f7c1df"
+    },
+    "rpg/battle_transition.py": {
+      "draw_pieces": "9ebf10fbf7069286a3cdf4d90cd4a70033403d3f13c288369d20c516627dc03d"
+    },
+    "rpg/content.py": {
+      "validate_skill": "fbf138cb6117897a69f430dc870b8e12a22f856cf345f99420fb553dd838a189",
+      "load_content": "bcb4bfcf3e8836a0cd573f1ee610ff48e517f70eb5a7a8b91ae3f1a97f1eeb11"
+    },
+    "rpg/dungeon.py": {
+      "load_dungeon_settings": "8ad341c393d9ee74fa289d968b78f043aa01e999672b6d5e8ca7880c354bfd8c",
+      "Dungeon.__init__": "9b9b5d76e5aa43d1e8ea7f231376defef5eba480b543a4dd6614db679e5ee380",
+      "Dungeon.cleared": "7df021024cb4782806d041d0be15b920fdbbe72e1c3fb13910ec336d21943f68",
+      "Dungeon.potions": "3e723eaa81c457970251791ce5e4b5e89ecae088efd90c044b572cc6ad5e13aa",
+      "Dungeon.spark_multiplier": "6c45cb57a86ac4e13e81bef1e7f581812bd4cfe136fb716ab584a6d7a7102bd2",
+      "Dungeon.boss_data": "35f4b51a18a14c16778e580ce152d97498460bc000e41ff40de1b75e1798aa38",
+      "Dungeon.defeat_boss": "4376f7a69fe1b8eec49de6849da22bd1c53e4318d7d13a85254ff148daf97f1c",
+      "Dungeon.validate_settings": "69a5dbee8a0a4214c1490c2dab44cc2dc5720cbc79d4acf9b7027d58000f2b43",
+      "Dungeon.map_bounds": "fe67d6d95f44a6e75a7b9e5a99d97e9450b9c41b5a096497cf777afd710850b5",
+      "Dungeon.tile": "a7e87b396490520d67579fe9f59af3122a31904ebc26e415abc588b470be2ad6",
+      "Dungeon.positions": "9cdddd3da2da6085fff66af16857e7186a2428a7f918937e37710cb28c87eee6",
+      "Dungeon.floor_appearance": "7b58e7a23f70c6187a690434b2545918e3698f6125b1b890c0e9cd094213de63",
+      "Dungeon.find": "1060e759c9d22d492fd8e481971bd9211bdfc46f04c051ac6deca3655722cb49",
+      "Dungeon.validate_maps": "f1a84e696dbc97fd7793bb142fee04dd27c96dbfd9700c2a783670c202438ad7",
+      "Dungeon.reachable": "d894eba2b5f3a5ac62ac67a92508e5cc8d5146dbca78c68b0228e805e945f96c",
+      "Dungeon._reachable": "f1e402613c572a05f493d2e5bbe37a81e85972ae93183801becbaf292425edea",
+      "Dungeon.can_enter": "f9746d4e42eab877ecc5e87396b42602f6906b26d8df25a4d3b10d9eb5dc9e0c",
+      "Dungeon.grant_chest": "e17c05e865e03f7d14168cba12848e58e7ab7987b4529879987e792de5b00dfd",
+      "Dungeon.fall_in_pit": "f200c68904abdc873d1170525d471306fbd8d114faecf834fcc3651cb57db4fd",
+      "Dungeon.enter": "71bcec50fdaf68389d4236a369d87d13dda89fdf3b0f0058cbd5daf21afb4bef",
+      "Dungeon.change_floor": "34bf7cd2cf3f7fa3199be689614b617b32397fdccdeae88816ffacb1b7a4d33a",
+      "Dungeon.debug_floor": "5f9a4dc1af6d47d12632017f3019c6c1b1f061df998f01bd77fe0233f4d484ea",
+      "Dungeon.interact": "06887f2d998006de881fbb901b8fd8ed1fd766ed5f9b4f0f642640af249d598c",
+      "Dungeon.move": "7559fb5be342a2cec33985a161e7bc3d0e6503747a391a613c669e54a4ef99d1",
+      "Dungeon.make_enemies": "7d189140e01d3427d17bd5014bf30d1f5cbfade47c3028287161ac39b247a7c8",
+      "Dungeon.use_potion": "0015683ca3de6f2c8d75bec520adbd73a02394ed37730537948d32eb4a1ae7c8"
+    },
+    "rpg/dungeon_app.py": {
+      "DungeonApp.__init__": "aae4dcaf9b64f9e665bea14d9c42e9e902b4beab97ac86a7d1368daa3216720e",
+      "DungeonApp.start_new_game": "771ee18defa43b9f740403b49b1f00e82daaef08708b58e924d839e356c799c6",
+      "DungeonApp.update_opening": "4578ad6b01c7fb5a6c0e4538c37f6929638ffd699e4239f227a5bc62059ea9de",
+      "DungeonApp.draw_title_logo": "2f56a029b524467c48cc17d88dffb75ebcf827f6b96e887859c0a518c286ab2c",
+      "DungeonApp.draw_title_menu": "232606a462c90e8ebc590fdc573788dfc5c50f501d1196459e4fe7c6de318f13",
+      "DungeonApp.draw_title": "23eeb5393474a7ebff4240422e23e640bfbf1a03a872d1a3434b4d5bafabda4a",
+      "DungeonApp.draw_title_no_save": "d5ae88fe10f888df3656afeac61a54adc7672d7da70971086ff5039fc9f1f719",
+      "DungeonApp.draw_opening_page": "2d995f06617d20be848fc45bbf033fd771b9303dcf53f6a49c01a887b2ff7443",
+      "DungeonApp.draw_intro": "2034b7939e78e1d54be43c336a564d0026c7e6a3d1a7241c764379da30466b78",
+      "DungeonApp.draw_hub_intro": "afcc905c3f1301eeea7c75f00b3c4c38c2c8639e9e3d82d2b9c79d27232fcd53",
+      "DungeonApp.can_save_game": "a4d2b711c153ededb4ce08bdb90467a196bf2b7224b73d7fd43077c1000d5ff6",
+      "DungeonApp.title_options": "a41eaf57da831663ad6cd22dc13be9f88797341f3b8ad64c2ec3c366dbea49c0",
+      "DungeonApp.refresh_suspend": "34e487a944bce1dfb12c55bc764d27da13f5dc86a8efc31b1824757e77821b0c",
+      "DungeonApp.can_suspend_game": "1beb86e96ebcacd296270f8506abc2f3dbb372b7726cfaf596bb708b52a3ae92",
+      "DungeonApp.update_suspend_io": "64eb822d0c68438bf1605505490a32de42ed85800979dbfe87f58287dee890d1",
+      "DungeonApp.activate_suspended_game": "43bc668273877af93d77bb1a42cbd5fe3c4bcfaaedacbfd70860a2abfda270f3",
+      "DungeonApp.update_suspend_confirm": "84c1854c4062cc9b27215f4c4c84681ee97cd0aaff7a3e800e2e340b3cf3c3eb",
+      "DungeonApp.draw_suspend": "a87f3d18e032fcc9812123fc975c5a425eb9b6086ad8621ee7183883a8897697",
+      "DungeonApp.continue_game": "872856f4e299c5e0762b9870e55b5fc9fdc4425a9ffac8506672982d229577ee",
+      "DungeonApp.enter_camp": "0d119fa429e6e8c3f9c213c3ffdf1f8b92196f8687c4a5c199637dbd7752fc3a",
+      "DungeonApp.enter_dungeon": "07034bf201a64421ebc0d27f6cfc351a6fc656043fcc6a57aeed11a9c6b67118",
+      "DungeonApp.travel_elevator": "8fa66c234c19014b0e1ad4cc51c0eb9c2a8da616cf9a3b09617924b9266bed1d",
+      "DungeonApp.safe_return": "b4463da23a7286303ee339d85223cc5f0018a692fc50129e04ed13e14fc121c9",
+      "DungeonApp.can_use_return_feather": "7e43ef7b32b453994698e0b08bb32cb1466f6c1b7dcd8207f6cb5dbd02631fb1",
+      "DungeonApp.use_return_feather": "8641da508ecf2208a4832a75ee2790b8396e599276d5185453f341c6fefd6e5a",
+      "DungeonApp.update_travel": "569f6cf0468272a39c9697bac03d3ad47bb118f8e65762e962782c64acab1d6a",
+      "DungeonApp.draw_travel": "1e2a075aff26753658ff368ea889feb48a3b5f4ab993bcea506e8f235fad1444",
+      "DungeonApp.begin_encounter": "f5eb5367256e8c8c1623684d8486e20bceb674b146ae2b28c786ff6343f37188",
+      "DungeonApp.finish_results": "6454b46bcf0230ae9948b3545a872461e487f91d52a5158e4154ea9ff7c8d250",
+      "DungeonApp.next_result_label": "5d23b698d4d34e74c6a63baf3cea2ecbbb071859e9993a2c087cf8c3cc5f87b8",
+      "DungeonApp.handle_event": "df20c903033fbf5e0a2cc6fac014ef8bc3ad8600d9c29b2bb5d0055e903558e4",
+      "DungeonApp.sync_scene_audio": "29e182a81b7e4a8a114018a59a7b72d76ffbc0e903f14de999f0e334f2f249f8",
+      "DungeonApp.observe_hunt_goal": "f6a2b6344c3266ba04f48094f3fa2f5237016f194941f1acbc0725de9ea1fad5",
+      "DungeonApp.apply_visual_action": "74800885f1cec6e321021f0a4a46a135ede7f8dfa4c2c40c59760291a665a9b6",
+      "DungeonApp.update": "88329b0ea7909fe9ba2d3d6cf69811d389f88cffe8877f625cb18de7d438b772",
+      "DungeonApp.use_field_skill": "e50964c8a308b0caa82ad68002c2a7c2f8cfe257aadc6c51e4f6174828dcf4ad",
+      "DungeonApp.draw": "eb0740d58d4b905932bb3b1a105828b1586cd89c4c628f427602d7ac52631c01",
+      "DungeonApp.draw_camp": "53d475b5eb2892a2dbeb91f15656efd4058fdca11f5776408a9575f50fddc805",
+      "DungeonApp.draw_facility": "b0ca8f625b3a932c6ad65e0425731df8719c007046965ca8a7bb2d92d53519fb",
+      "DungeonApp.draw_banked_trz": "7ae685cedd0811aec9d1758af8400a42ebe2cab40df3766f7cb40c003eb16dc0",
+      "DungeonApp.draw_archive": "47b50a207d5c31d04a5605287a562fa4d9e1e98abb11b226f2a31a7b27b03186",
+      "DungeonApp.draw_explore": "a98b1ca18d657f75fa9cd0ce756a3ff8376667b6426d786dd75ff12abe4de750",
+      "DungeonApp.draw_menu": "2ea562a9ff7d8f3ab1d3dedd7951d28ca6ceb211c8dbc0daf4314dac4c79e408",
+      "DungeonApp.draw_items": "30a76aa015cac2fb06255f00de85e0d931e4e24a7be83225c6c98399dd3c374e",
+      "DungeonApp.draw_item_target": "f6e8519ed0bc16870e21e3688edf493e727f0bff8357fc58b268d7219696a455",
+      "DungeonApp.draw_shop": "9e6dc2935bed0eafead134cd8592cc1b2924edeb8aa992e0604c32f3e4e8f34f",
+      "DungeonApp.draw_pub": "e3ea77e7f2648dac24c4c1d7b80036d52ba1ee95b9d595f89636362f3c1516de",
+      "DungeonApp.draw_clear": "3c6cf6ffea44fbe11c312ff8e5597fcce5b7c93a6babdf955b34434ef93daca5",
+      "DungeonApp.draw_field_heal": "bb1441021f6ec2d437cd2785228ee5e9ff58d7b0ae88faebf3e3298e5bfd7f54",
+      "DungeonApp.draw_result": "6dd566aad0046dfe3bd3af9a1c8e659f6a09ee39795a0d59a1e0161b429f746f",
+      "DungeonApp.draw_catalog": "d40cf713ff457a2d16daf9fb50c49f475e783954fee6ab4385cd4f8012712311",
+      "DungeonApp.open_return_skill": "2eb0930b64a7c9bb2994f060e8bf02ee4d177094f60a927c84b865b857e74191",
+      "DungeonApp.update_camp_resources": "2000c48a1b60f5c717d1b6601a3f7df71b4172a2876de3f11fbb888f38218960",
+      "DungeonApp.draw_camp_resources": "dc40361b0045e30dcaf671d25de92eb40bfaeab64519ad28c8bf7a97fe0ba81c",
+      "DungeonApp.quest_thanks_pages": "a771c74deba854a95d728de5bb32a48298f806bfb665aab859594361a4c53a8f",
+      "DungeonApp.show_field_event": "5ced779204d7719e9e120b4422ecb237198d15f4e0df6d578d852257500113de",
+      "DungeonApp.update_field_ui": "ca97d03c8032ba2637ec855a7b874fefa8e578df947e34703aa47478368228ba",
+      "DungeonApp.quest_flavor_pages": "4abe98334f187d94c3b99b573244d308b93ffa259c40a93b14749b629c35e0c0",
+      "DungeonApp.draw_field_ui": "2c574b2edcc086408ba518573d0e611b04c02728b419ccf6ffc7dbcfa856e164",
+      "DungeonApp.quest_or_field_event": "3ede85c7a7de76f695f467fae4adc776e627c1d7db8dfb1b82ff116f3fc0f306",
+      "DungeonApp.feedback_options": "97c04c29a2af421cd20488d58698b9f050df6f56dc0be57108b5da9e39588440",
+      "DungeonApp.update_feedback_debug": "76a3c649f9861782d1b891257989599bde00f76b2dbcd51d51179dbda2493114",
+      "DungeonApp.draw_feedback_debug": "1003186727630854db342158d1cd77a93716e5adb0573fa009dce4f6ba3f1588",
+      "DungeonApp.update_treasure_debug": "c35acde659713ba1c8d9e1283a325441de66a3a15a831ef87b72d30b21163d68",
+      "DungeonApp.draw_treasure_debug": "184a2dfe93df400fd55a644712e84756e15afb04911f0f71c420ce390aab2509",
+      "DungeonApp.draw_boss_message": "6d52725da490949bd0f22f0efe73fee47fd501fa1c03a9f7cb16fc89df53b97d",
+      "DungeonApp.update_guardians": "6ec84f51e4c107b74d947622443d9c0731efc8156e20778354a7c24971879a93",
+      "DungeonApp.draw_guardians": "1996989231f81048e53792a69cf970e29dc81caef510a476e7d3c959e15906ac",
+      "DungeonApp.show_amrita_offer": "c45b574689f3e3f8bd1ad34fff23c124939bf88a59b54a30045823ff2ef3c0e7",
+      "DungeonApp.start_final_story": "eed51dc7d8831c1888f79edb486ab465399dda2cd706370d697604373e3880c2",
+      "DungeonApp.begin_final_battle": "2bc91dd169184ef8c4ca5de2c4b97761ab905dde4effd0dfc2c932237fbccbe1",
+      "DungeonApp.update_final_event": "ee24d89cd89332b3b4b022ae9b1e189f45df87365b4b0ec399b3ba4f6476463e",
+      "DungeonApp.final_story_pages": "2b9e0ddc72ebab27bfe6cefd2f101c79cbd3a4112688578db7b600c30a5992f6",
+      "DungeonApp.final_question_pages": "1a287463b2aeb65aca445c1698879d6a40d29d982e5fac790ac6968353f90f61",
+      "DungeonApp.final_ending_pages": "c31c8c8be5f7e7407836e8160e9a750706f80b31b08e478eaaa35a642d21e20a",
+      "DungeonApp.draw_final_event": "0c5456bf33adcda8fef08b3d566e5b8fc59ff6f97c7f85547ea009c201c74398",
+      "DungeonApp.debug_final_stage": "906b323929d1875e7ff43426687c7b16f046481ac3194a3a40966b0525725335",
+      "DungeonApp.update_dungeon_debug": "645b6195419b72fb323deb8bde840cbdda5840205090b3ec3e852950e47e29d8",
+      "DungeonApp.draw_dungeon_debug": "05657184013997e08693e9ca32bef171eac4eb119f5ea2b5071618d2407ccb22",
+      "DungeonApp.draw_effects": "c4e70191f4f84bc4b3610b84d887ff3cb5ee9b7d6f5ed719927dc9ae769cd51f",
+      "DungeonApp.draw_help": "de060ed8e5ff1a9ae2f8fd93fd2c091711c0445b869cbffc8de33c5e85c622b2"
+    },
+    "rpg/elevator.py": {
+      "unlocked_destinations": "78e5b871b7b87893c3f00885c021b33e81fbf7af1c9b52617c8fdee888956930",
+      "b15_elevator_point": "72b0860962f3025700457bb0bb1dc2f70aa416a7e643525b99945958c00cecb7",
+      "arrival_point": "aa961ed84c56fac669e3fdf766f63fad4f4d39235c0c3e5c2242b3c5ef6aeb52",
+      "at_b15_elevator": "b278eb4f3731060770c8375c0d28b153201349a703d0ac7bf28f3a07324ab554",
+      "unlock_notice": "b026b7108786502b83a538e48e6bf43fbfd7f11d6a3437a4a3e5735eba8a43c3"
+    },
+    "rpg/enemy_actions.py": {
+      "positive": "ae6824ad6c0504beb587635ee0a1f188206328fde2110475bb06093268c55dac",
+      "usable": "8059a13ed34ae1da03ff31a916ad84756b1b9305835a536c2a4f5b9d4ab2cb53",
+      "load_enemy_actions": "9130fe7db5687f2bf6e29ac79bf1c3a951261bf554ac69f3a02a4775ff3ae95b",
+      "action_categories": "f1f3237e98cf211d8cc80bdea0111cc88bb5f877070e27a3f5c2eae0f458e05d",
+      "enemy_action_rows": "e6ba28cb64249d02a4a110e631c4b58e9b4044176868a907a132cff31610faf9",
+      "choose_enemy_action": "3b9e2c609b1422d9f1e734de013699138b00891a867f409d49f07de239c605eb",
+      "validate_enemy_action_lists": "691d243c90ff8c2ed6a44c6a2e1440e66e7fdd745ade80df6e7c5a1f0863397b"
+    },
+    "rpg/exploration.py": {
+      "load_exploration_settings": "c0abcbff54db451d8b14e37c70ade4a2255dd2144ae8cd76368ae3f93008ddd8",
+      "Exploration.__init__": "0147a77f2d08729fb0bae5202dc2fcccc935e6a5568b72adec81dc1dc6a2bbe4",
+      "Exploration.unlocked": "80f0154b311875cea2b9331737b09ab70c2365e2579d3ff7456f31ae7e72a862",
+      "Exploration.active": "a35e6ff6cfedad12d4d593285d1a27c052799c2ce573a6f5c7d70c19392c4763",
+      "Exploration.target": "904d43aced2d520a1c4c573b782768906ec100b35e11acd47cb3dac8d3b265c0",
+      "Exploration.surveyed": "3478e2f6215c68f641225eb424dce105fc786491465712717b5b21a5b3a2a57e",
+      "Exploration.reset_progress": "38eb8097c437a892f7b28e040769b52f842139eefb310bbfe468defb243a5249",
+      "Exploration.quest_name": "2fdc28a1e636c2f88f55c11c53dd00b7dbe213c319fa90c16c97848c17bfd06d",
+      "Exploration.message": "6c968bff2e68ff5170fbe2ea75311ec50880ca9df2df2ad12d15c9c57b730eb2",
+      "Exploration.available": "e0fa84ebfce1fdbd3ce03404ee5db3c92af44ee0c1aa8fddfcb86799492672ef",
+      "Exploration.choose_flavor": "0736f2ff9840701d81faccbc1806bc4a62c4e0960e027c0187b83ff26c1c981d",
+      "Exploration.quest_flavor": "4ab62bcc596934524699d1ff6178a3234cc45f1fac68d3f776fbc6b0312872bf",
+      "Exploration.make_quest": "853b376147a16d5226a679a72ae3aa6fd62f9ff32e7fd693d64774c5c7d24d00",
+      "Exploration.activate_quest": "0fd8869b4daf77bb5ddee8e8e147be14dd856dfe380a8706292c1de5644af158",
+      "Exploration.accept": "49b22ab49ed0a05589cb99eff9441f666175a249ff9b278b3233f464890f7df0",
+      "Exploration.preview_quest": "d1752da109e144d0d00cdeda24c0635c8c779bccd97acf8ecb7433ad378998d6",
+      "Exploration.accept_preview": "e700d43b8fc23672accf497460fa5e19708b366ca70b98997b40f672b06a48c8",
+      "Exploration.decline_preview": "7a091fb897dbc9646a7443e06cc733deaf5fc73e60895eec774f4651c9ccdf37",
+      "Exploration.hint": "4791cb30dccd67dacc58a8d060b9a775a9d977c7ea6e69ed4a72587304cd3f80",
+      "Exploration.visible_points": "8b0c22643e7409aa6136c02423e56ec94b874fff5d31583d163ca6c6f88ce539",
+      "Exploration.hunt_here": "f71c13e99be4fc4a0d6119cb870204e0af04b09f898e4052b0e91a2f16b2f1f7",
+      "Exploration.investigate": "0838b4032b3302e22c43176c2f07bacc8709fbe59e1fbc12ecebd06fcaf51cb8",
+      "Exploration.make_hunt_enemy": "697f1ba8a47f8220cd38ea4e1d9b2fd149e17c665a13f27060acea1e307d2c18",
+      "Exploration.hunt_victory": "91c0662482dc4e15d17d022a3b24edfb69c5120964ec205f7f34ab4cc2ec1d9e",
+      "Exploration.return_to_camp": "b5b3649adb553839294dea51b1b35514d22444aeeb14ddbb735fc8a0813f0862",
+      "Exploration.finalize_quest_completion": "18fe1dbdd21828db6cfc32b98b6256481c7978f377aef7b4242e459509160cdf",
+      "Exploration.quest_record": "c4048f57a720a80e6dafeb3e503e39634868e46f92bc7aca76a922d3d95ba5d7",
+      "Exploration.damage": "b3157fa126921c76429a15e809ab6809f28b6cd504821c8dc33ecf3495c27719",
+      "Exploration.heal": "5e1697bfbc094967e51f2647df44434b9f47328dd934ab41885df4df3e5806db",
+      "Exploration.chest_effect": "4105e3c64e90e1bfdbcaa168169c995ed7e12de98c08e6dc3dcf54f5fcd1acb4"
+    },
+    "rpg/finale.py": {
+      "load_finale_data": "ed7c5d5fa6aa30c652de55010209c2821964af849134c149142605f0de4cdf36",
+      "FinaleProgress.__init__": "404ef31bbdda09aa0a43aeea661e01fbcec378afb2c857cd0384988333a84099",
+      "FinaleProgress.can_offer_amrita": "d4e43f4ed5149a9fef2f81dde8b855f15c8efe45ffdd3babe0ca64af115dc281",
+      "FinaleProgress.start_final_event": "258013d22651f1aa88b2befa0da999a42b4cbf3bb5fae4dedffffc7728c80001",
+      "FinaleProgress.final_victory": "b4eb97db91b696a8acd8e5c068c8f0df09041ce8d5f006a8de3eb1db84f575dc",
+      "FinaleProgress.snapshot": "307c1cc4f99e406b5e459e7fae4c3ed41e57d5f70bc1d3bf712885c33bee36e7",
+      "FinaleProgress.restore": "a44573b3129325a175c0863dafb4f4e7fbcfa6cf661a50d25ce3cd26c48d46db",
+      "FinaleProgress.start_guardians": "6bd2b503118f829af43c5ab636007f5970bde6bc81abe9db21cc3fe432f9bb5f",
+      "FinaleProgress.guardian_victory": "180b30ed1b6aadf1dab5d6a45895f90b6b612ff080439a786c79e901d1812f6d",
+      "FinaleProgress.abort_guardians": "7e608c730a8811c3cc64d0b11ea5ad80167c0cf96b6fb21d0dd9e8c89b29a6c8",
+      "FinaleProgress.claim_amrita": "047c1e3765e5a6947afc0e71183f5a4778e6e62b9df06657f64df13d8e8e1a3a",
+      "FinaleProgress.lore_at": "cfc5f0aa4f736e87ec7291fbd0b8c1584266a751d95cca58dfe3a9f35196f973",
+      "FinaleProgress.read": "cb6157683b12f2b069f309c9ea368e39f110a811dc9a1204fdedda55002602c9"
+    },
+    "rpg/final_battle.py": {
+      "load_final_battle_data": "607306c548e5ce921af8c40d23a201703a1c9732e04632e67e0af3731a75fa51",
+      "make_final_enemy": "27618cd52d0b6ef0b54689a5b15346c5e921161ed7a2c4199fe7f8604d95324a",
+      "FinalBattleCheckpoint.capture": "961a722f67a74f6637a49c39aa7b47c553fb02b776a3d29dbfe10752890f3381",
+      "FinalBattleCheckpoint.restore": "812b0ca16a8618f2cefa99fc0c62bfd069c1c87c69ff73df559da2f2b156b4c8"
+    },
+    "rpg/final_presentation.py": {
+      "FinalPresentation.__init__": "40fd2d00d843af2f53bfc3c59f75449ea2c5c2e365c8e50aa44337c35ef56fdb",
+      "FinalPresentation.active": "9e31c8fdb5e4f8cd8c5384455b541dc90767a99ec8cd73acd6bac83e48385dd8",
+      "FinalPresentation.start": "68f7e852258e1fe5b6492e7aa7529c1421988125bfab3748946149696b144b38",
+      "FinalPresentation.reset": "a1aa2bbb240952aa232b9a112a4f0ca57738e0bf3a62e77a0e55dd21650c15fe",
+      "FinalPresentation.advance": "e62c6a4d55433ec4b2a69eadc7418f4863a53a5968664cde4d3e51b8fb095864",
+      "FinalPresentation.bounds": "2f9167c33b9cc8a4ce269b5b85fec7d6f6477a4b240de00ef22857d6f7813b9d",
+      "FinalPresentation.shake_offset": "964f161438f935afccfcff746376ad3fc75c4e6223beefbd8a48c60bce133a97",
+      "FinalPresentation.barrier_points": "044a3e736ba122e8b1adcdca7673b26d3f35677573b51bcf0332350b0cd051f7",
+      "FinalPresentation.draw_boss": "c880980f336b19f75a4db64c809287f8059a02b30f7a25208dfe2c56294b53a5",
+      "FinalPresentation.draw_light": "812900df1cbe858ec72238c64a1b2c537f83add3ae5ec23bc61e5bb64260d65b"
+    },
+    "rpg/growth.py": {
+      "growth_bonus": "046dd248380e941754d211c864160d987b54994f445ef54725b8e5f48aef1aba",
+      "spark": "84abd5ae2100f5a1bfb1f8946cefdcd9e25fe3f436ded93748bc649f70fdbdf8",
+      "grow_and_spark": "d8ca9f84994d1bb0988506a878d97a9c5a6d23e0de8e9f4c3bac53fb8968f19a",
+      "spark_probability": "2dc3df3c40d0d3f85137665afb718a65cb41172758d4286728621fb1b759cabe"
+    },
+    "rpg/hub.py": {},
+    "rpg/items.py": {
+      "load_items": "f5887087ca49416222093abcbf3a44ab544b5b17df252503590215057401d24f",
+      "Inventory.__init__": "e5af8b778e4bf3ec69cd1d5d069abb7804fe72ffe2575039ef29833c70ee7807",
+      "Inventory.add": "69c3fb120dfaa6a6ed3037778102abbb6ee4f13b7b52e09719fbcf77bbc2e493",
+      "Inventory.revival_hp": "3fb34fd74d13dcc633ab4acdce55eb179ebac88850240d2e301f5ce722819282",
+      "Inventory.use": "c4f6c3e3a456a1c16405b4bef201f5e18590fcc1fb3e8fb7e41965c74d8552aa",
+      "Inventory.buy": "dc9da1af52970ad39b500a973794f9efec03c6a32fcbaff31bd6e58ba7525bf1",
+      "Inventory.label": "21af07cf16f087aa2254a4b14ca65a69f704895dfe3a8794362e784d314fea68"
+    },
+    "rpg/keyboard.py": {
+      "GameKeyboard.__init__": "7b292e6ea507480a222dc508b0eaaad541daf54d886ba5c2198aba3473c8f9a2",
+      "GameKeyboard.update": "c66f858e1e0a6f3a0de54b03dd71a375bd9a6986cdac38f464092d5a74037d37"
+    },
+    "rpg/labels.py": {},
+    "rpg/legend_skill_presentation.py": {
+      "legend_presentation_id": "4351683f6e0d264fe6aeeb72c8d540cf647d951415a06e94f4f3a113f0afa4cd",
+      "LegendPresentation.__init__": "86568f2a11f20a39f84b1789e8c500356fcb83f10240e45989997ada52b7354a",
+      "LegendPresentation.reset": "e4c3f44b653052efbb396216fcd3905b2ee735baec44e55fdcaac5a857cbbbde",
+      "LegendPresentation.begin": "eee49e541fb9afe6711eb1fe83417140c992844ecb7fcc78e7657a21ca546f3b",
+      "LegendPresentation.resolved": "dab72389c461bda6e20da264ce35af715bcfd247e43fbe23a69a540bc0b7125f",
+      "LegendPresentation.limit": "f4a23a654213a25b6fe2a81dd6c8d5fb085b81bf99aa2cc9f6e7918fd5bb9a77",
+      "LegendPresentation.flashing": "467caca1a1d5f1fffe0e79b737cec64cdaa919ba3346a60673091304bc0cd875",
+      "LegendPresentation.shake": "fa9935e70c6633524fcf06190499c9fbd695111f5522c85cfe304afc7c6fd3c4",
+      "LegendPresentation.sprite": "31d2c56a502cb6a591bbb20101757d763d00cc01eb556a00509e8b0183e5c4c3",
+      "LegendPresentation.draw_name": "7f13bf8979ae718295c0786b9e08d228cf6015c0c969530c06c7518b4d958016",
+      "LegendPresentation.draw": "b4da31f9075b27bb0d48e80d897605322870f93d4b5ec13b22832ba9fcb51e74"
+    },
+    "rpg/map_resources.py": {
+      "load_maps": "a036025dfbdf186785a1f73826f1df49f30d64aa23c7ae5ffbd14acaad2f4150"
+    },
+    "rpg/models.py": {
+      "Skill.__post_init__": "708a050545b3898bc803df293ec5b38263eb4997fe13d109020ed5fff2661562",
+      "Skill.can_relearn": "3ef820b05c3c1a37d8933840c1bf6b5931b37ed4aeeb27b2288e4bd2b51e6310",
+      "Skill.mastery_label": "60c14714dfe74afb009bfe099ce8897d26cdbb034afd3132d452e23f659d180e",
+      "Skill.power": "ace7e7cc41fc65286962496d55ed9ab1c221630b0467b17f8927e318d4675d0a",
+      "Skill.formula": "dee685431dc01579fbb1577735ca822d2ce268a728fd465a41496a5e72621860",
+      "Character.__post_init__": "a32f17a4c719545648f1343c356da38a3e1de81783c0138f5eeead5f5e5fa19b",
+      "Character.alive": "df9c228547a9f0620921183447a937d709544056540923b26195a26fec38efb2",
+      "Character.recover": "fdadbff969bc157458afba84537eda78cf2e02486fb70c1d93ccba6fc2a233ea",
+      "Character.learn": "23aa5200dd256c81630db53d744bbab8c0c7b23b4ecde8a8205bcac090c85ac2",
+      "Character.next_max_uses": "5ee9a6224ce7606c722c448cff5e8f071f66b7bea5ecedbee8c4a1321830fbe3",
+      "Character.max_uses": "0b09907748a8a0d048b2776ad423459b275ab57195f5f8c5f839f3420c4adc69",
+      "Character.relearn_uses": "734c4962efac03f6967f9cf3f7efcf7a2304aba137cb2cb06e66ca347720656c",
+      "Character.next_power_multiplier": "496c2ad6825efa9fdf5a43964e56b753d5e8912d6902fe4cef782c63f333e01b",
+      "Character.power_multiplier": "054298f5adb1a5b71ee4160d34998c561be69bfcb879979733895d583623adec",
+      "Character.forget": "2e0852355ab89f432772e3fcf012ec79e3b18dc8008c1a74ff0ce5ada967e1d7",
+      "Character.remember_skill": "8714f8e106e9cd1165b111506e75a1b3dce678dca8cc8908ea75a3595e4604d7",
+      "Character.remembered_skill_index": "ef82bbff1fe40ef75bce7ecddafb4ecc2a02f5dc5266ed2160a7b5ce938c2e42",
+      "Character.reset_battle_state": "a534ffc9e38ac7dca7a042831eb4ac8bed221cc664a6310cb645c2bcbec66221",
+      "Enemy.from_definition": "299caf16ff66b72f12e18666e0f67efaf9d4aa0c993e7ca5c469d0f39fad2ffa",
+      "Enemy.__post_init__": "a32f17a4c719545648f1343c356da38a3e1de81783c0138f5eeead5f5e5fa19b",
+      "Enemy.alive": "df9c228547a9f0620921183447a937d709544056540923b26195a26fec38efb2",
+      "effect_factor": "a2400c648d86bc14aa58a34cc45a924e1402c04c9bf5e7bffda6a2cb2d2fdade",
+      "battle_agility": "d506cfdd49ef00bdc352f0d0137205a7466cb81a566183034582f3d8d0b38a6b"
+    },
+    "rpg/opening.py": {
+      "load_intro_pages": "5d1a71e977928e75a9360e613fa5f5d14c452b014988f713164e4cdb491e8c1b",
+      "load_hub_intro_lines": "aaac681826074edb3b9e970ad951e73c30507b478feb831c2f0ed9fd56f8ca17"
+    },
+    "rpg/quests.py": {
+      "load_quest_flavors": "c6b40867877d65a385b63df9f5b03a7201c3ff731672724341b73b4eb1d0bbd7",
+      "load_quest_settings": "34b96d77e33ea0591f66bad2371936e4829911f6ebfda4e2de208818e116210b",
+      "quest_spawn_report": "e34cc025042572cbd7b10b5f5158f5872d313f1ab7676f812b2fc464f1888b5b",
+      "spawn_candidates": "59d22d8005da466ea65de9979562b7a780291bce5a0357c2d0dcccc79d1056cd",
+      "log_spawn_failure": "150f843c7b5ab84c8f5f90b79753b1ab6a81d0fb6b008c448c7fd5667cbdfc1c"
+    },
+    "rpg/rare_skill_presentation.py": {
+      "rare_presentation_id": "4349a99c44574c941e355491ff1b6ff02dd266c4a6139f999140a0b9999ceb31"
+    },
+    "rpg/save.py": {
+      "FileSaveBackend.__init__": "89ef25ff38d934ef6d6cbcb03949cf0e54d0154f2f5545d8babd0ffc3ea0993d",
+      "FileSaveBackend.read": "6b3709f01dfe64dde876f6f752a249675558b3e609049fe2c677df4b7a037cc6",
+      "FileSaveBackend.write": "b2463d27ef35c35c84634334b7762e9be92816ab18b380b893ba0e8c7bf0cf88",
+      "BrowserSaveBackend.__init__": "0ded83a73c81a0ab027459fc64917e58f50ec774499cb0519d5588159394e945",
+      "BrowserSaveBackend._storage": "dc49a84f71c37f980ed5c4313e6b8f7c5a430a0eec56ec7848f16b47cf1bfd40",
+      "BrowserSaveBackend._read_text": "346914ae80db4cda1be35403f1eef3d2814070c064bbeaa83cce9f892ecda38f",
+      "BrowserSaveBackend.exists": "209a9f1e3765d7c36521dd9d48ba7517d4a6dd7faaa943f9fc5731174cc62592",
+      "BrowserSaveBackend.read": "828f982125668079e69acb0e4d79ff1ed86860149371c369a33eeb598b42092d",
+      "BrowserSaveBackend.write": "ec9776174ca82ca5ef57ce885143e2b5b5b860f1375db5c32200368ae501fa15",
+      "default_backend": "4405921a196b2b724ae5b2679caa91fd72ca2a8e52e6d3de64abe51f04347f11",
+      "migrate_save_data": "c487414bf97a70a37cff7536e70c1f12c940f4d554a3eeed892f0d8352463598",
+      "require": "2fe8a828e4a9236e7853efbab365f473d4501303903908b0eb745239fbdcea37",
+      "integer": "9a952ac8ca681326dcb42c9f1ca1b43e15541836664eb8e03c1b0f4bbff998c5",
+      "strings": "2f5540325a54a64e5a4aafa939dc3098775a157ed6d4ac14c86c8b5dc15c06b0",
+      "make_save_data": "36020e1f6ff912e5f08e55784fcefeb7c75f8c0960e862c9ee6299ff516ce5ba",
+      "prepare_saved_game": "19a3e76b4a12ff315a16c4969dcdf187e2aa6e63764cc415c29f076e79299023",
+      "apply_save_data": "0db9ca29cb5e91f47d80c0e302ec4ac5ab55879c657e6975a74ab3c5c7060ea9",
+      "SaveManager.__init__": "0e61773fdc4e0b89bd2cc6f564bf49c925f98db211bc364c55133ddd29e30c4a",
+      "SaveManager.save": "32f69e2eb01cab6e4469884e4d495707d98aeb7faa05ad46d3e6efe93a62ed80",
+      "SaveManager.load": "68acb76087467715d6e81fd33c607693741bf35aff04461149e3e282ac9dc0c1"
+    },
+    "rpg/skill_resources.py": {
+      "ensure_attack": "c900a9ed3203f7a68a9940e10e57cfb780a3c7a8b6416ee118996bf6e91bf46f"
+    },
+    "rpg/skill_targets.py": {
+      "target_refs": "020286bc69da5d80d1e5d03a6a781cc6359fdd8e489bb4503c6520393fbbae07"
+    },
+    "rpg/sound.py": {
+      "area_bgm": "b6b412abe85472cf4154a601ade361d57b0a087cdfba9f376dd1c341189f3cf4",
+      "_play_music": "8ea2cb98f06c298c018c6bc904307ce414b4245afc95c732855aaa8256971b92",
+      "AudioManager.__init__": "e0525f5cc697a93b368601280df808302f6357224c27da413de150bd113c371c",
+      "AudioManager.load": "b36b40e9eb249117926599381432c9c320a69d354a3dd97d8cb22763a5883ad6",
+      "AudioManager._install_bank": "92bed305a5134c5dcfe1b07a7e6f1ed44e52660e34a77b29c2b01e97962d0a52",
+      "AudioManager.play_bgm": "bc4f3675f8dbeed3bc056297e2bc892b86f9eb866e9176884fc5b0a19e8c94c0",
+      "AudioManager.stop_bgm": "ade668c170a0ce07c79e6b9016381992a2d414c01501cd8d6ea16cbfc3064e9e",
+      "AudioManager.play_victory": "7a8656c94a944d959022ad686f5f02a065afc3d319b11fdd3989142248e2e1df",
+      "AudioManager.play_se": "bba9f627d5ea28149b25f6addbc30979e8f94587681662c348b6cdfa0c5a720b",
+      "AudioManager.update": "5a7196bd980da786abdda8149d8e806056d9240252ebef1ed6b775826d6b7eec",
+      "init_sound": "5d586e90af2ab55e621305415de8f2e6a0e06d92f1b3eebe43abc21d9615fffa",
+      "play_cue": "affcb38a49c6f5bc492b4531ac15ec006182c164a332992a4d85883d0f872040",
+      "start_battle_music": "9ddd4eebdad2e125ccb95281a68e44d3f6d3ae8c25ea167c95240a7f12243f66",
+      "play_victory_music": "5091ab1651de89bfcc21642f6a1053a7b3e65a9cced1c471f613dc1132b78a75",
+      "music_is_playing": "8c45070b144cbbe1e5aba6230fc61acb8a14c408e7a1a676b509a8759db4daf8",
+      "stop_battle_music": "6a68309ae518ac609de20e2debe0f6182431330521d7e638071aedf22cf91ada"
+    },
+    "rpg/statuses.py": {
+      "percentage": "6d343dd3744b3a2982335901f475d5aee34b973dada40309a265e22ac061617d",
+      "load_statuses": "ba20503ad5105592cf302e48fb31cedd4025b70165552db344d5976b1ccd1887",
+      "default_statuses": "7ee0153aeef670b174204962745420b553856ca6472db936f86920d3d797004c",
+      "active_statuses": "d92be33500997ade9967f5045323dd126710f3bca2a3303dc2cdf9114e1902c5",
+      "clear_statuses": "5f848a2c40a5f2a68fe9a4c5f0e708b26a0571dcaf9fc3c830ee683f81fc6aa1",
+      "cure_statuses": "605e3943e5434df51ea53e5f87b70716e96b4bdd41669941a5636799e8d3638e",
+      "apply_status": "7b746119aaed47a0668d361a67af11663d0443c2e3ab4d761557fa03b265ddf4",
+      "damage_hp": "5186943533e81af67c31f1d52124d356291e5a0b3ba7cd8e7bdea1ab628a3b5c",
+      "control_decision": "0e422f7d8d596ae9201413b06b90881c84ab7ca2e7eb68071306c6456208ddc7",
+      "confusion_target": "3f835fa92f4d2d45273ca3e8b6c3c8db3492238bf772240220a350a7513debda"
+    },
+    "rpg/suspend.py": {
+      "StorageJob.__init__": "11713ad55338b21d54139636507312e9167574f75714d467a053117a69b5260b",
+      "FileSuspendBackend.__init__": "d86968da529dfc7dde954273e4005edfe20367d7b7310c7df880a58eaf760025",
+      "FileSuspendBackend._source": "ba5586a189ad48624bb986a0e77694287ea843314cee804e0d0294d2e997d889",
+      "FileSuspendBackend._consume": "d263cf884adc76524bc824b37ba9dcd6c3196c4433e44c923ee035b08badb54b",
+      "FileSuspendBackend.start": "a65ae49f9bca64fc410b5d462a9b2b63345775fe54adc8d861064557f711ad53",
+      "BrowserSuspendBackend.start": "b5c4ea0e8adb03aff74d91592223330af95172655474dc4330925ceabf95f1ce",
+      "job_result": "b78ee4f5e7c3a38e80b4e4c4c96ee4b4262f3593c9020ecf9792da24c60d72eb",
+      "_authored_maps": "d28d6ec9d53bdc000307633382808249305c9fefcd0baadde9fcfb724eb911d3",
+      "make_suspend_data": "58cf416651f47c081d5b66f67086cec4ec621e9e991597870391ae5a0d618e52",
+      "_set_rng": "25f0f3ab74b1cc162e59ac1e40bb6274457fa4b534c0432b06d03ea4d8423555",
+      "prepare_suspend_game": "4e6e2ec048ab6680a1bf4f8a98fd24c5288a24ed2fad545a6639d782f2490b71",
+      "SuspendManager.__init__": "57ee976a30a797826c34871a6950ee605e5363daa95a4146a6073ffd8246d531",
+      "SuspendManager.save": "90229490575958eade33234143b3313d7350f200286af93ac5456ebd7f9d19bd",
+      "SuspendManager.prepare": "e00f492fa6dce3ac4dcee1d67c21dc26a52bd2aee4884084dc060ff71ec5c95f"
+    },
+    "rpg/text.py": {
+      "font": "be5f152f8d6955e1f36b2275ad4527e9ac8d19bdefab1cf5c342a0fd8be4b97e",
+      "text_width": "c6fcca050c34c715aa66e883c120a3721f9f3c45fd96151734554d10051126b3",
+      "fit": "0e03d38e37a0010c46b5326335077fcbf372b465f5782d41570e1c6dcc22e6a7",
+      "text": "c310f4296ed81a8bec66df14b90968b4c1907f81583ddaafa00a8ef726d2250d",
+      "wrap_lines": "3ee2ef7eff065a1b959ddcde70ea21e1874654c2eea226aa6f5e23a9c5c87b5e"
+    },
+    "rpg/tiles.py": {},
+    "rpg/treasure.py": {
+      "Treasure.secure": "f0054206cb62e30a8a73d502af2c7f8f5754d7c19abcc0ec5d45c5f5276c4347",
+      "Treasure.lose": "5bb37effd6c000ae5330c9660ab90fcebcc4a7617377cad963c5b8236074e321"
+    },
+    "rpg/__init__.py": {}
+  },
+  "settings": {
+    "width": 24,
+    "height": 24,
+    "spark_multipliers": [
+      1.0,
+      1.05,
+      1.1,
+      1.15,
+      1.2,
+      1.3,
+      1.35,
+      1.4,
+      1.45,
+      1.5,
+      1.6,
+      1.7,
+      1.8,
+      1.9,
+      2.0
+    ],
+    "items": {
+      "initial_potions": 2,
+      "max_potions": 9,
+      "potion_heal": 30
+    },
+    "floors": [
+      {
+        "enemy_ids": [
+          "slime",
+          "bat",
+          "goblin"
+        ],
+        "weights": [
+          6,
+          3,
+          1
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "hp_scale": 0.9,
+        "power_scale": 0.8
+      },
+      {
+        "enemy_ids": [
+          "slime",
+          "bat",
+          "goblin",
+          "wisp",
+          "horn_rabbit"
+        ],
+        "weights": [
+          2,
+          2,
+          4,
+          2,
+          1
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.0,
+        "power_scale": 1.0
+      },
+      {
+        "enemy_ids": [
+          "goblin",
+          "wisp",
+          "skeleton",
+          "mage",
+          "horn_rabbit"
+        ],
+        "weights": [
+          2,
+          2,
+          3,
+          2,
+          2
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.15,
+        "power_scale": 1.15
+      },
+      {
+        "enemy_ids": [
+          "golem",
+          "skeleton",
+          "mage",
+          "wisp"
+        ],
+        "weights": [
+          5,
+          3,
+          4,
+          1
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.3,
+        "power_scale": 1.3
+      },
+      {
+        "boss_id": "guardian"
+      },
+      {
+        "enemy_ids": [
+          "iron_golem",
+          "skeleton",
+          "mage",
+          "poison_snake"
+        ],
+        "weights": [
+          4,
+          2,
+          2,
+          2
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "hp_scale": 1.0,
+        "power_scale": 1.0
+      },
+      {
+        "enemy_ids": [
+          "berserker",
+          "iron_golem",
+          "wisp",
+          "poison_snake",
+          "blood_bat"
+        ],
+        "weights": [
+          4,
+          3,
+          1,
+          2,
+          2
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "hp_scale": 1.0,
+        "power_scale": 1.0
+      },
+      {
+        "enemy_ids": [
+          "assassin",
+          "stone_beast",
+          "mage",
+          "blood_bat"
+        ],
+        "weights": [
+          4,
+          3,
+          2,
+          2
+        ],
+        "count": [
+          1,
+          2
+        ],
+        "hp_scale": 1.0,
+        "power_scale": 1.0
+      },
+      {
+        "enemy_ids": [
+          "iron_golem",
+          "berserker",
+          "assassin",
+          "stone_beast",
+          "poison_snake",
+          "blood_bat",
+          "ghost"
+        ],
+        "weights": [
+          2,
+          2,
+          2,
+          2,
+          2,
+          2,
+          1
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.0,
+        "power_scale": 1.0
+      },
+      {
+        "boss_id": "skill_keeper"
+      },
+      {
+        "enemy_ids": [
+          "iron_golem",
+          "berserker",
+          "mage",
+          "ghost",
+          "dark_wisp"
+        ],
+        "weights": [
+          3,
+          3,
+          2,
+          2,
+          2
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.3,
+        "power_scale": 1.2
+      },
+      {
+        "enemy_ids": [
+          "assassin",
+          "stone_beast",
+          "mage",
+          "ghost",
+          "mummy"
+        ],
+        "weights": [
+          3,
+          3,
+          2,
+          2,
+          2
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.35,
+        "power_scale": 1.25
+      },
+      {
+        "enemy_ids": [
+          "stone_beast",
+          "berserker",
+          "iron_golem",
+          "mummy",
+          "dark_wisp",
+          "warlock"
+        ],
+        "weights": [
+          3,
+          3,
+          2,
+          3,
+          2,
+          1
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.4,
+        "power_scale": 1.3
+      },
+      {
+        "enemy_ids": [
+          "assassin",
+          "berserker",
+          "stone_beast",
+          "ghost",
+          "mummy",
+          "dark_wisp",
+          "warlock"
+        ],
+        "weights": [
+          3,
+          2,
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "count": [
+          2,
+          4
+        ],
+        "hp_scale": 1.45,
+        "power_scale": 1.35
+      },
+      {
+        "boss_id": "depth_lord",
+        "width": 24,
+        "height": 32,
+        "quest_spawn_points": [
+          [
+            2,
+            27
+          ],
+          [
+            7,
+            27
+          ],
+          [
+            2,
+            30
+          ],
+          [
+            7,
+            30
+          ]
+        ]
+      }
+    ],
+    "encounter_rates": [
+      0.14,
+      0.12,
+      0.11
+    ],
+    "post_battle_safe_steps": 6,
+    "safe_steps": 2,
+    "debug_encounter_chance": 0.45
+  },
+  "legacy_move": "def move(self, dx, dy, debug=False):\n        if abs(dx) + abs(dy) != 1:\n            return \"\", \"\"\n        x, y = self.x + dx, self.y + dy\n        if not self.can_enter(self.floor, x, y):\n            if self.tile(self.floor, x, y) == TILE_GUARDIAN:\n                return 'guardian', self.finale.data['guardian_warning'][0]\n            if self.tile(self.floor, x, y) == TILE_DOOR:\n                return \"\", \"閉じた扉。同じ階のスイッチを探そう\"\n            return \"\", \"壁で進めません\"\n        self.x, self.y = x, y\n        self.steps += 1\n        # One completed grid move consumes one safe step, including event tiles.\n        # Check the previous value so move #6 is safe and #7 may roll.\n        safe = self.grace > 0\n        if safe:\n            self.grace -= 1\n        tile = self.tile(self.floor, x, y)\n        if tile == TILE_POISON:\n            return \"poison\", \"毒沼に足を踏み入れた\"\n        if tile in PIT_TILES:\n            return self.fall_in_pit()\n        if tile == TILE_SWITCH:\n            return \"\", \"スイッチ: Aで操作\" if self.floor not in self.activated_switches else \"スイッチはON\"\n        if tile in LORE_TILES:\n            return '', '石碑: Aで読む'\n        if tile not in FLOOR_TILES and tile not in (TILE_CHEST_OPEN, TILE_BOSS_CLEAR, TILE_QUEST,\n                        TILE_DOOR, TILE_DOOR_OPEN, TILE_SWITCH_ON, TILE_GUARDIAN):\n            return self.interact()\n        # Only B15 is a dedicated finale floor without random encounters.\n        # B5/B10 still roll while exploring, before and after their bosses.\n        if self.floor == 14:\n            return \"\", \"\"\n        if safe:\n            return \"\", \"\"\n        chance = (self.settings['debug_encounter_chance'] if debug else\n                  self.settings['encounter_rates'][self.floor // 5])\n        if self.rng.random() < chance:\n            return \"battle\", \"敵と遭遇した!\"\n        return \"\", \"\"",
+  "provenance": "Received PASS03 resource hashes; exact PASS03 move reconstructed by reversing the minimal PASS04 diff."
+}

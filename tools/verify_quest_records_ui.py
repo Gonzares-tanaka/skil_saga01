@@ -93,6 +93,10 @@ def main():
         press(A)
         assert app.state == 'quest_preview' and not e.active
         offered = deepcopy(e.pending_quest)
+        # User-edited requests may span more than one preview page.
+        for _ in range(len(app.quest_flavor_pages(offered)) - 1):
+            press(A)
+            assert app.state == 'quest_preview' and not e.active
         press(A)
         assert e.active == offered
         press(B); press(B)
@@ -109,16 +113,21 @@ def main():
         assert app.state == 'quest_thanks'
         assert e.quest_clear_counts == counts and e.completed_quest_ids == ids
         assert s.treasure.banked == bank and e.active
-        before = len(draws)
-        app.draw()
-        values = [v for state, v in draws[before:]]
-        assert flavor['requester'] in values
-        assert all(line in values for line in flavor['complete_lines'])
         if name:
             shot(name + '_thanks')
         press(B)
         assert app.state == 'quest_thanks' and e.quest_clear_counts == counts
-        press(A)
+        pages = app.quest_thanks_pages()
+        for index, page in enumerate(pages):
+            before = len(draws)
+            app.draw()
+            values = [v for state, v in draws[before:]]
+            assert flavor['requester'] in values
+            assert all(line in values for line in page)
+            assert s.treasure.banked == bank and e.active
+            press(A)
+            if index + 1 < len(pages):
+                assert app.state == 'quest_thanks' and e.quest_clear_counts == counts
         assert app.state == 'quest_reward' and not e.active
         assert s.treasure.banked == bank + q['reward']
         expected = dict(counts)

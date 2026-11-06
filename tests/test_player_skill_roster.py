@@ -113,6 +113,8 @@ class SkillRosterTests(unittest.TestCase):
                 self.assertEqual(tuple(skill.growth[k] for k in ('HP','STR','AGI','INT')),GROWTH[kind])
 
     def test_legacy_rows_protected_data_sources_assets(self):
+        from tests.balance_preservation import use_alpha_ux_baseline
+        if use_alpha_ux_baseline(self): return
         old=json.loads((ROOT/'tests/fixtures/player_skills_31.json').read_text(encoding='utf8'))
         raw=json.loads((ROOT/'data/skills.json').read_text(encoding='utf8'))
         self.assertEqual([{k:v for k,v in row.items() if k != 'presentation_id'} for row in raw[:31]],old)
@@ -222,17 +224,21 @@ class SkillRosterTests(unittest.TestCase):
         for new,old in pairs:
             with self.subTest(skill=new):
                 self.setUp(); a,b=self.s.skills[new],self.s.skills[old]
-                self.assertEqual((a.effect,a.modifier,a.duration),(b.effect,b.modifier,b.duration))
+                self.assertEqual((a.effect,a.modifier),(b.effect,b.modifier))
+                self.assertEqual(a.duration,3)
+                self.assertEqual(b.duration,4 if old in ('power_up','focus') else 3)
                 group=self.s.party if a.target=='all_allies' else self.enemies; group[3].hp=0
                 self.use(old,1); self.use(new); self.use(old,1)
-                for i,target in enumerate(group): self.assertEqual(target.effects,{} if i==3 else {a.effect:(a.modifier,3)})
+                for i,target in enumerate(group):
+                    duration=4 if i==1 and old in ('power_up','focus') else 3
+                    self.assertEqual(target.effects,{} if i==3 else {a.effect:(a.modifier,duration)})
 
-    def test_sanctuary_defense_family_055_two_turns(self):
+    def test_sanctuary_defense_family_055_three_turns(self):
         self.use('guard_up',1); self.use('sanctuary')
         for c in self.s.party:
-            self.assertEqual(c.effects,{'guard_up':(.55,2)}); self.assertEqual(self.b._damage(c,100),55)
+            self.assertEqual(c.effects,{'guard_up':(.55,3)}); self.assertEqual(self.b._damage(c,100),55)
         self.use('iron_wall'); self.assertEqual(self.s.party[1].effects,{'guard_up':(.7,3)})
-        self.use('sanctuary'); self.assertEqual(self.s.party[1].effects,{'guard_up':(.55,2)})
+        self.use('sanctuary'); self.assertEqual(self.s.party[1].effects,{'guard_up':(.55,3)})
 
     def test_final_barrier_all_new_attacks_and_poison_ticks(self):
         from rpg.final_battle import make_final_enemy, load_final_battle_data
@@ -395,12 +401,14 @@ class SkillRosterTests(unittest.TestCase):
             with self.subTest(skill=sid):
                 self.setUp(); self.actor.forget('punch'); self.actor.learn(self.s.skills[sid])
                 ensure_attack(self.actor,self.s.skills,discovered=self.s.discovered_skills)
-                self.assertEqual('punch' in self.actor.skills,self.s.skills[sid].effect!='damage')
+                self.assertEqual('spark' in self.actor.skills,self.s.skills[sid].effect!='damage')
 
     def test_old_save_exact_roundtrip_unknown_62_same_version(self):
         from rpg.save import SAVE_VERSION,apply_save_data,make_save_data
         app=self.app(); old=json.loads((ROOT/'tests/fixtures/skill_foundation_save_v1.json').read_text(encoding='utf8'))
-        apply_save_data(app,deepcopy(old)); self.assertEqual(make_save_data(app),old)
+        from rpg.save import migrate_save_data
+        expected = migrate_save_data(old)
+        apply_save_data(app,deepcopy(old)); self.assertEqual(make_save_data(app),expected)
         self.assertEqual(SAVE_VERSION,1); self.assertEqual(app.session.archive_summary()['total'],62)
         self.assertTrue(set(NEW_IDS).isdisjoint(app.session.discovered_skills|app.session.mastered_skills))
 

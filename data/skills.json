@@ -10,7 +10,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "弱い拳。大量に使える。",
+    "description": "冒険者の基礎。徒手空拳。",
     "max_uses": 30,
     "skill_type": "physical",
     "growth": {
@@ -34,7 +34,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "素早さを鍛える基本技。",
+    "description": "速さを重さに変える一撃。",
     "max_uses": 30,
     "skill_type": "speed",
     "growth": {
@@ -58,7 +58,7 @@
     "int_scale": 1.2,
     "hits": 1,
     "cooldown": 0,
-    "description": "知力を鍛える小さな魔法。",
+    "description": "基礎的な魔力集中バースト。",
     "max_uses": 28,
     "skill_type": "magic",
     "growth": {
@@ -101,12 +101,12 @@
     "rarity": "COMMON",
     "effect": "damage",
     "target": "enemy",
-    "str_scale": 0.9,
+    "str_scale": 1.15,
     "agi_scale": 0,
     "int_scale": 0,
     "hits": 2,
     "cooldown": 1,
-    "description": "一度の行動で二回斬る。",
+    "description": "素早い動きで二回斬る。",
     "max_uses": 15,
     "skill_type": "physical",
     "growth": {
@@ -154,7 +154,7 @@
     "int_scale": 2,
     "hits": 1,
     "cooldown": 1,
-    "description": "知力を炎に変える魔法。",
+    "description": "魔力で炎を描く魔法。",
     "max_uses": 15,
     "skill_type": "magic",
     "growth": {
@@ -178,7 +178,7 @@
     "int_scale": 1.8,
     "hits": 1,
     "cooldown": 0,
-    "description": "続けて使える氷の魔法。",
+    "description": "魔力で氷を生み出す魔法。",
     "max_uses": 20,
     "skill_type": "magic",
     "growth": {
@@ -202,7 +202,7 @@
     "int_scale": 2.5,
     "hits": 1,
     "cooldown": 2,
-    "description": "味方を回復。蘇生は不可。",
+    "description": "魔力で味方単体を回復する基礎治癒術。",
     "max_uses": 6,
     "skill_type": "healing",
     "growth": {
@@ -220,12 +220,12 @@
     "rarity": "RARE",
     "effect": "damage",
     "target": "enemy",
-    "str_scale": 0.8,
+    "str_scale": 1.0,
     "agi_scale": 0,
     "int_scale": 0,
     "hits": 3,
     "cooldown": 2,
-    "description": "三回連続で斬りつける。",
+    "description": "見えない速さで三回連続で斬りつける。",
     "max_uses": 8,
     "skill_type": "physical",
     "growth": {
@@ -248,7 +248,7 @@
     "int_scale": 3,
     "hits": 1,
     "cooldown": 2,
-    "description": "敵一体に雷を落とす。",
+    "description": "魔力で敵一体に雷を落とす魔法。",
     "max_uses": 12,
     "skill_type": "magic",
     "growth": {
@@ -270,7 +270,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "防御し物理攻撃に反撃。",
+    "description": "防御中に時期を見計らい物理攻撃で反撃する。",
     "max_uses": 12,
     "skill_type": "support",
     "growth": {
@@ -292,7 +292,7 @@
     "int_scale": 1.6,
     "hits": 1,
     "cooldown": 2,
-    "description": "与えた被害の半分を吸収。",
+    "description": "与えた被害の半分を吸収する魔法。",
     "max_uses": 7,
     "skill_type": "magic",
     "growth": {
@@ -315,7 +315,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 4,
-    "description": "力1.5倍。受ける被害も増加。",
+    "description": "力1.5倍。受ける被害も増加する狂暴化。",
     "max_uses": 10,
     "skill_type": "support",
     "growth": {
@@ -337,7 +337,7 @@
     "int_scale": 0.5,
     "hits": 1,
     "cooldown": 1,
-    "description": "力・速さ・知力を使う刃。",
+    "description": "力と速さ、魔力を合わせた風の一撃。",
     "max_uses": 12,
     "skill_type": "speed",
     "growth": {
@@ -359,7 +359,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "力で敵を打ち砕く一撃。",
+    "description": "岩も砕く強力な一撃。",
     "max_uses": 6,
     "skill_type": "physical",
     "growth": {
@@ -382,7 +382,7 @@
     "int_scale": 4.5,
     "hits": 1,
     "cooldown": 3,
-    "description": "高い知力を求める大火炎。",
+    "description": "魔力の大バーストを起こす高位魔法。",
     "max_uses": 5,
     "skill_type": "magic",
     "growth": {
@@ -400,12 +400,12 @@
     "rarity": "RARE",
     "effect": "damage",
     "target": "enemy",
-    "str_scale": 0.4,
-    "agi_scale": 0.5,
+    "str_scale": 0.35,
+    "agi_scale": 0.65,
     "int_scale": 0,
     "hits": 4,
     "cooldown": 3,
-    "description": "素早さを活かす四連撃。",
+    "description": "分身攻撃で四連撃を放つ。",
     "max_uses": 6,
     "skill_type": "speed",
     "growth": {
@@ -419,7 +419,7 @@
   },
   {
     "id": "renew",
-    "name": "大回復",
+    "name": "ハイパーヒール",
     "rarity": "RARE",
     "effect": "heal",
     "target": "ally",
@@ -428,7 +428,7 @@
     "int_scale": 4.5,
     "hits": 1,
     "cooldown": 3,
-    "description": "味方一人を大きく回復。",
+    "description": "味方一人を大きく回復する治癒術。",
     "max_uses": 4,
     "skill_type": "healing",
     "growth": {
@@ -442,16 +442,16 @@
   },
   {
     "id": "seven_slash",
-    "name": "七連斬",
+    "name": "セブンソード",
     "rarity": "LEGEND",
     "effect": "damage",
     "target": "enemy",
     "str_scale": 0.55,
-    "agi_scale": 0,
+    "agi_scale": 0.15,
     "int_scale": 0,
     "hits": 7,
     "cooldown": 4,
-    "description": "STRの0.55倍で七連撃。",
+    "description": "速さと力の究極技で繰り出す７連撃。",
     "max_uses": 4,
     "skill_type": "physical",
     "growth": {
@@ -461,7 +461,7 @@
       "INT": 0
     },
     "effect_id": "legend",
-    "presentation_id":"legend_seven_slash"
+    "presentation_id": "legend_seven_slash"
   },
   {
     "id": "meteor",
@@ -474,7 +474,7 @@
     "int_scale": 7,
     "hits": 1,
     "cooldown": 4,
-    "description": "INTの7倍。初戦から閃く。",
+    "description": "魔力で隕石を生み出す究極魔法。",
     "max_uses": 3,
     "skill_type": "magic",
     "growth": {
@@ -484,7 +484,7 @@
       "INT": 5
     },
     "effect_id": "legend",
-    "presentation_id":"legend_meteor"
+    "presentation_id": "legend_meteor"
   },
   {
     "id": "first_aid",
@@ -497,7 +497,7 @@
     "int_scale": 1.5,
     "hits": 1,
     "cooldown": 0,
-    "description": "小回復。知力とHPに寄与。",
+    "description": "旅の基礎知識を使い簡単な傷をいやす。",
     "max_uses": 12,
     "skill_type": "healing",
     "growth": {
@@ -512,7 +512,7 @@
   },
   {
     "id": "full_heal",
-    "name": "大治癒",
+    "name": "フェアリーヒール",
     "rarity": "LEGEND",
     "effect": "heal",
     "target": "ally",
@@ -521,7 +521,7 @@
     "int_scale": 10,
     "hits": 1,
     "cooldown": 0,
-    "description": "INTの10倍を回復。残り2回。",
+    "description": "大妖精の力で味方の傷を大きく癒す高位の治癒術。",
     "max_uses": 2,
     "skill_type": "healing",
     "growth": {
@@ -531,7 +531,7 @@
       "INT": 4
     },
     "effect_id": "heal",
-    "presentation_id":"legend_full_heal"
+    "presentation_id": "legend_full_heal"
   },
   {
     "effect": "armor_break",
@@ -556,7 +556,7 @@
     "rarity": "RARE",
     "max_uses": 6,
     "modifier": 0.7,
-    "description": "敵DEFを30%下げる。3ターン。",
+    "description": "敵の走行を砕き、敵DEFを3ターン30%下げる。",
     "effect_id": "debuff",
     "presentation_id": "rare_support"
   },
@@ -581,7 +581,7 @@
     "rarity": "COMMON",
     "max_uses": 8,
     "modifier": 0.8,
-    "description": "敵の攻撃・魔法威力を20%下げる。",
+    "description": "敵をかく乱して敵の攻撃・魔法威力を20%下げる。",
     "relearn_cost": 2,
     "relearn_uses": 4,
     "effect_id": "debuff"
@@ -607,7 +607,7 @@
     "rarity": "COMMON",
     "max_uses": 8,
     "modifier": 0.5,
-    "description": "敵AGI半減。行動順は次ターンから。",
+    "description": "魔力で敵1体の行動順を遅くする。",
     "relearn_cost": 2,
     "relearn_uses": 4,
     "effect_id": "debuff"
@@ -627,13 +627,13 @@
       "AGI": 0,
       "INT": 1
     },
-    "duration": 3,
+    "duration": 4,
     "id": "power_up",
     "name": "力の鼓舞",
     "rarity": "COMMON",
     "max_uses": 8,
     "modifier": 1.4,
-    "description": "味方STRを40%上げる。3ターン。",
+    "description": "味方を応援することで4ターンの間STR1.4倍にする。",
     "relearn_cost": 2,
     "relearn_uses": 4,
     "effect_id": "buff"
@@ -653,7 +653,7 @@
       "AGI": 0,
       "INT": 1
     },
-    "duration": 3,
+    "duration": 4,
     "id": "focus",
     "relearn_cost": 4,
     "relearn_uses": 3,
@@ -661,7 +661,7 @@
     "rarity": "RARE",
     "max_uses": 6,
     "modifier": 1.5,
-    "description": "味方INTを50%上げる。3ターン。",
+    "description": "魔力集中を行い4ターンの間INT1.5倍。",
     "effect_id": "buff",
     "presentation_id": "rare_support"
   },
@@ -686,12 +686,12 @@
     "rarity": "UNCOMMON",
     "max_uses": 8,
     "modifier": 0.7,
-    "description": "味方の被ダメージ30%軽減。3ターン。",
+    "description": "魔法のシールドを貼り3ターンの間、味方の被ダメージ30%軽減。",
     "effect_id": "buff"
   },
   {
     "id": "revive",
-    "name": "REVIVE",
+    "name": "リバイブ",
     "rarity": "RARE",
     "effect": "revive",
     "target": "ally",
@@ -700,7 +700,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "戦闘不能の味方を最大HPの25%で蘇生。",
+    "description": "戦闘不能の味方を最大HPの25%で復活させる蘇生魔法。",
     "max_uses": 3,
     "skill_type": "healing",
     "growth": {
@@ -714,7 +714,7 @@
   },
   {
     "id": "return",
-    "name": "RETURN",
+    "name": "リターン",
     "rarity": "COMMON",
     "effect": "return",
     "target": "self",
@@ -723,7 +723,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "探索から安全に帰還。TRZを確定する。",
+    "description": "探索から安全に帰還にする魔法。",
     "max_uses": 3,
     "skill_type": "support",
     "growth": {
@@ -747,7 +747,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 1,
-    "description": "全体にダメージ。",
+    "description": "武器を大きく振り回し全体にダメージを与える。",
     "max_uses": 12,
     "skill_type": "physical",
     "growth": {
@@ -772,7 +772,7 @@
     "int_scale": 0.85,
     "hits": 1,
     "cooldown": 1,
-    "description": "全体にダメージ。",
+    "description": "魔法で火炎の渦を生み出し全体にダメージ。",
     "max_uses": 10,
     "skill_type": "magic",
     "growth": {
@@ -797,7 +797,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 1,
-    "description": "一撃の後、状態異常を狙う。",
+    "description": "一撃の後、毒の状態異常を狙う。",
     "max_uses": 12,
     "skill_type": "physical",
     "growth": {
@@ -824,7 +824,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "敵の状態異常を狙う。",
+    "description": "敵単体を眠りにいざなう魔法。",
     "max_uses": 8,
     "skill_type": "support",
     "growth": {
@@ -842,7 +842,7 @@
   },
   {
     "id": "group_aid",
-    "name": "応急陣",
+    "name": "オールヒール",
     "rarity": "COMMON",
     "effect": "heal",
     "target": "all_allies",
@@ -851,7 +851,7 @@
     "int_scale": 0.8,
     "hits": 1,
     "cooldown": 2,
-    "description": "生存している味方全員のHPを回復。",
+    "description": "生存している味方全員のHPを回復する治癒術。",
     "max_uses": 6,
     "skill_type": "healing",
     "growth": {
@@ -876,7 +876,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "歌による鼓舞で味方全体の攻撃力をUpする。",
     "max_uses": 4,
     "skill_type": "support",
     "growth": {
@@ -903,7 +903,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "敵全体を弱体化させる魔法。",
     "max_uses": 4,
     "skill_type": "support",
     "growth": {
@@ -930,7 +930,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "ランダムな敵に一撃。",
+    "description": "ランダムな敵に一撃を与える乱撃。",
     "max_uses": 16,
     "skill_type": "speed",
     "growth": {
@@ -955,7 +955,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "全体にダメージ。",
+    "description": "武器を大きく振り回して全体にダメージ。",
     "max_uses": 8,
     "skill_type": "speed",
     "growth": {
@@ -980,7 +980,7 @@
     "int_scale": 1.4,
     "hits": 1,
     "cooldown": 2,
-    "description": "全体にダメージ。",
+    "description": "凍れる吹雪で全体にダメージを与える魔法。",
     "max_uses": 7,
     "skill_type": "magic",
     "growth": {
@@ -1005,7 +1005,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "一撃の後、状態異常を狙う。",
+    "description": "攻撃とともに敵をマヒさせる一撃。",
     "max_uses": 10,
     "skill_type": "speed",
     "growth": {
@@ -1032,7 +1032,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "敵の状態異常を狙う。",
+    "description": "敵を混乱させる魔法。",
     "max_uses": 6,
     "skill_type": "support",
     "growth": {
@@ -1059,7 +1059,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "状態異常を狙う。敵ごとに判定。",
+    "description": "魔力で独義理を発生させ敵全体に毒異常。",
     "max_uses": 6,
     "skill_type": "support",
     "growth": {
@@ -1086,7 +1086,7 @@
     "int_scale": 1.4,
     "hits": 1,
     "cooldown": 2,
-    "description": "生存している味方全員のHPを回復。",
+    "description": "味方全員のHPを回復させる回復技。",
     "max_uses": 5,
     "skill_type": "healing",
     "growth": {
@@ -1111,7 +1111,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "味方全体に魔法の盾を貼り、防御を上昇させる魔法",
     "max_uses": 4,
     "skill_type": "support",
     "growth": {
@@ -1138,7 +1138,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "魔法で敵全体の行動順を遅くする。",
     "max_uses": 4,
     "skill_type": "support",
     "growth": {
@@ -1165,7 +1165,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "HPを変えず、毒・麻痺・睡眠・混乱を治療。",
+    "description": "毒・麻痺・睡眠・混乱を治療する魔法。",
     "max_uses": 3,
     "skill_type": "support",
     "growth": {
@@ -1197,7 +1197,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "全体にダメージ。",
+    "description": "剣の舞で敵全体に大きなダメージを与える。",
     "max_uses": 5,
     "skill_type": "physical",
     "growth": {
@@ -1223,7 +1223,7 @@
     "int_scale": 2.4,
     "hits": 1,
     "cooldown": 3,
-    "description": "全体にダメージ。",
+    "description": "魔力で大火災を発生させ、敵全体を攻撃する高位魔法",
     "max_uses": 4,
     "skill_type": "magic",
     "growth": {
@@ -1249,7 +1249,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "一撃の後、状態異常を狙う。",
+    "description": "攻撃とともに毒異常を狙う一撃。",
     "max_uses": 5,
     "skill_type": "physical",
     "growth": {
@@ -1277,7 +1277,7 @@
     "int_scale": 2.3,
     "hits": 1,
     "cooldown": 2,
-    "description": "一撃の後、状態異常を狙う。",
+    "description": "攻撃とともにまひ異常を狙う一撃。",
     "max_uses": 5,
     "skill_type": "magic",
     "growth": {
@@ -1305,7 +1305,7 @@
     "int_scale": 2,
     "hits": 1,
     "cooldown": 3,
-    "description": "一撃の後、状態異常を狙う。",
+    "description": "攻撃の後に睡眠異常を狙う一撃。",
     "max_uses": 4,
     "skill_type": "magic",
     "growth": {
@@ -1333,7 +1333,7 @@
     "int_scale": 1.8,
     "hits": 1,
     "cooldown": 3,
-    "description": "一撃の後、状態異常を狙う。",
+    "description": "攻撃の後、混乱異常を狙う一撃。",
     "max_uses": 4,
     "skill_type": "magic",
     "growth": {
@@ -1361,7 +1361,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "敵全体の防御を下げる範囲魔法。",
     "max_uses": 4,
     "skill_type": "support",
     "growth": {
@@ -1389,7 +1389,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "味方全体の魔法威力を上げる魔法陣を生み出す。",
     "max_uses": 4,
     "skill_type": "support",
     "growth": {
@@ -1408,7 +1408,7 @@
   },
   {
     "id": "purify_wind",
-    "name": "浄化の風",
+    "name": "オールキュア",
     "rarity": "RARE",
     "effect": "cure",
     "target": "all_allies",
@@ -1417,7 +1417,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 3,
-    "description": "HPを変えず、毒・麻痺・睡眠・混乱を治療。",
+    "description": "味方全体の毒・麻痺・睡眠・混乱を治療する魔法。",
     "max_uses": 2,
     "skill_type": "support",
     "growth": {
@@ -1449,7 +1449,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 4,
-    "description": "全体にダメージ。",
+    "description": "魔力を暴走させ、破滅的な破壊を周囲に起こす大魔法。",
     "max_uses": 2,
     "skill_type": "physical",
     "growth": {
@@ -1462,7 +1462,7 @@
     "relearn_uses": 0,
     "effect_id": "legend",
     "field_usable": false,
-    "presentation_id":"legend_ragnarok"
+    "presentation_id": "legend_ragnarok"
   },
   {
     "id": "starfall",
@@ -1475,7 +1475,7 @@
     "int_scale": 4.5,
     "hits": 1,
     "cooldown": 4,
-    "description": "全体にダメージ。",
+    "description": "星々の流星で敵を攻撃する究極魔法。",
     "max_uses": 2,
     "skill_type": "magic",
     "growth": {
@@ -1488,11 +1488,11 @@
     "relearn_uses": 0,
     "effect_id": "legend",
     "field_usable": false,
-    "presentation_id":"legend_starfall"
+    "presentation_id": "legend_starfall"
   },
   {
     "id": "miracle",
-    "name": "ミラクル",
+    "name": "ミラクルヒール",
     "rarity": "LEGEND",
     "effect": "heal",
     "target": "all_allies",
@@ -1501,7 +1501,7 @@
     "int_scale": 5,
     "hits": 1,
     "cooldown": 0,
-    "description": "生存している味方全員のHPを回復。",
+    "description": "味方全員のHPを大幅に回復する究極治癒術。",
     "max_uses": 2,
     "skill_type": "healing",
     "growth": {
@@ -1514,7 +1514,7 @@
     "relearn_uses": 0,
     "effect_id": "heal",
     "field_usable": true,
-    "presentation_id":"legend_miracle"
+    "presentation_id": "legend_miracle"
   },
   {
     "id": "sanctuary",
@@ -1527,7 +1527,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 4,
-    "description": "同系統の効果を更新。累積しない。",
+    "description": "味方全体の被害45%減する究極防御魔法。",
     "max_uses": 2,
     "skill_type": "support",
     "growth": {
@@ -1541,8 +1541,8 @@
     "effect_id": "buff",
     "field_usable": false,
     "modifier": 0.55,
-    "duration": 2,
-    "presentation_id":"legend_sanctuary"
+    "duration": 3,
+    "presentation_id": "legend_sanctuary"
   },
   {
     "id": "time_stop",
@@ -1555,7 +1555,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 4,
-    "description": "状態異常を狙う。敵ごとに判定。",
+    "description": "敵全体の動きを止める時空魔法。",
     "max_uses": 1,
     "skill_type": "support",
     "growth": {
@@ -1570,6 +1570,6 @@
     "field_usable": false,
     "status_id": "sleep",
     "status_chance": 70,
-    "presentation_id":"legend_time_stop"
+    "presentation_id": "legend_time_stop"
   }
 ]

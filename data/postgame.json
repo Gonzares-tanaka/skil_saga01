@@ -1,0 +1,25 @@
+{
+  "dragon_floor": 14,
+  "dragon_point": [4, 22],
+  "symbol": [0, 0, 8, 8],
+  "battle_sprite": [16, 0, 48, 48],
+  "max_rounds": 180,
+  "warning": ["太古の竜が静かに目を開く。", "圧倒的な気配が満ちている。", "", "エンシェントドラゴンに", "挑みますか？"],
+  "victory_lines": ["太古より生き続けた竜は", "静かにその巨体を沈めた。", "", "すべての試練を", "乗り越えた冒険者たちよ。"],
+  "title_lines": ["あなたこそ真の", "", "SKILL SEEKERSだ！"],
+  "enemy": {
+    "id": "ancient_dragon", "name": "エンシェントドラゴン", "boss": true,
+    "max_hp": 9999, "str": 68, "agi": 48, "int": 75,
+    "defense": 32, "magic_defense": 24, "magic_chance": 0.5, "sprite": [0, 0],
+    "status_immunities": ["sleep"], "status_resistances": {"poison": 35, "paralyze": 55, "confusion": 70},
+    "actions": [{"id": "dragon_claw", "weight": 4}, {"id": "dragon_breath", "weight": 2}, {"id": "dragon_guard", "weight": 1}],
+    "ai": {"actions_per_round": 2, "avoid_active_buffs": true, "avoid_repeat_control": true, "max_consecutive_aoe": 1,
+      "phases": [{"hp_at_most": 0.5, "actions": [{"id": "dragon_claw", "weight": 4}, {"id": "dragon_breath", "weight": 3}, {"id": "dragon_focus", "weight": 1}, {"id": "dragon_guard", "weight": 1}]}]}
+  },
+  "actions": {
+    "dragon_claw": {"name": "太古の爪", "type": "physical_single", "target": "random_player", "power": 1.15, "effect_id": "slash"},
+    "dragon_breath": {"name": "竜の息吹", "type": "magic_all", "target": "all_players", "power": 0.65, "effect_id": "magic"},
+    "dragon_guard": {"name": "鱗の構え", "type": "guard", "target": "self", "modifier": 0.55, "effect_id": "guard"},
+    "dragon_focus": {"name": "太古の咆哮", "type": "buff", "target": "self", "effect": "power_up", "modifier": 1.2, "duration": 3, "effect_id": "buff"}
+  }
+}

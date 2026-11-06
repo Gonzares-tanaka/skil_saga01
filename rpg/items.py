@@ -6,7 +6,9 @@ from .labels import CURRENCY_NAME
 from .statuses import active_statuses, clear_statuses
 
 
-ITEMS = ("POTION", "PHOENIX ASH", "REMEDY")
+RETURN_FEATHER = 'return_feather'
+LEGACY_ITEMS = ("POTION", "PHOENIX ASH", "REMEDY")
+ITEMS = (*LEGACY_ITEMS, RETURN_FEATHER)
 
 
 def load_items():
@@ -49,6 +51,8 @@ class Inventory:
     def use(self, item, target):
         if item not in ITEMS or self.counts[item] <= 0:
             return False, "道具がありません"
+        if item == RETURN_FEATHER:
+            return False, "帰還の羽根は探索メニューで使います"
         if item == "REMEDY":
             if not target.alive:
                 return False, "戦闘不能には使えません"
@@ -77,10 +81,22 @@ class Inventory:
         if item not in ITEMS:
             raise ValueError("不明な道具です")
         price = self.data["items"][item]["price"]
+        label = self.label(item)
         if self.counts[item] >= 9:
-            return False, f"{item} は9個で満杯です"
+            return False, f"{label} は9個で満杯です"
         if treasure.banked < price:
-            return False, f"確定した{CURRENCY_NAME}が足りません"
+            return False, f"{CURRENCY_NAME}が足りません"
         treasure.banked -= price
         self.add(item)
-        return True, f"{item} +1 / {CURRENCY_NAME} -{price}"
+        return True, f"{label} +1 / {CURRENCY_NAME} -{price}"
+
+    def label(self, item):
+        return self.data['items'][item].get('name', item)
+
+    def description(self, item):
+        return {
+            'POTION': '味方1人のHPを回復する',
+            'PHOENIX ASH': '戦闘不能の味方1人を蘇生する',
+            'REMEDY': '味方の状態異常を治療する',
+            RETURN_FEATHER: 'ダンジョンから帰還 / 1個消費',
+        }[item]

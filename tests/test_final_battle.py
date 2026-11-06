@@ -4,6 +4,8 @@ from copy import deepcopy
 import time
 from types import SimpleNamespace
 import unittest
+import tempfile
+from pathlib import Path
 from unittest.mock import patch
 
 import pyxel
@@ -41,6 +43,11 @@ class FinalBattleTests(unittest.TestCase):
         self.a = a = DungeonApp.__new__(DungeonApp)
         from rpg.sound import init_sound
         a.audio = init_sound()
+        from rpg.save import SaveManager,FileSaveBackend
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup)
+        a.save_manager=SaveManager(FileSaveBackend(Path(temp.name)/'save.json'))
+        a.init_postgame()
+        a.hub_intro_shown=True
         a.hunt_goal_lines = None
         a.session, a.dungeon, a.exploration = self.s, self.d, self.e
         a.initial_content = deepcopy((self.s.settings, self.s.skills, self.s.party, self.s.enemy_data))

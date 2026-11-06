@@ -24,6 +24,7 @@ def main():
             launcher.external_attr = 0o100755 << 16
             launcher.compress_type = zipfile.ZIP_DEFLATED
             z.writestr(launcher, (ROOT / 'tools/run_gkd.sh').read_bytes().replace(b'\r\n', b'\n'))
+            z.writestr('PLAY_GUIDE_JA.txt', (ROOT / 'verification/GKD_PLAY_GUIDE_JA.txt').read_bytes())
             for p in sources:
                 z.write(p, 'Skill_Seekers/' + p.relative_to(ROOT).as_posix())
         with zipfile.ZipFile(candidate) as z:

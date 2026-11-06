@@ -144,6 +144,8 @@ class SaveTests(unittest.TestCase):
         original = make_save_data(self.app)
         invalid = []
         for key in original:
+            if key == 'completion':
+                continue # Optional Phase 7 extension; original v1 saves omit it.
             bad = deepcopy(original); bad.pop(key); invalid.append(bad)
         for key, value in (('save_version', 999), ('save_version', True), ('total_battles', True),
                            ('banked_trz', -1), ('party', {}), ('items', {'POTION': 10}),

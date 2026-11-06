@@ -160,6 +160,9 @@ class Battle:
         return removed
 
     def apply_status(self, target, status_id, chance=100):
+        if status_id == 'sleep' and self.boss and isinstance(target, Enemy):
+            self.status_messages.append(f'{target.name} に睡眠は無効。')
+            return False
         applied = apply_status(target, status_id, chance, self.rng, self.status_definitions)
         if applied:
             self.status_messages.append(f'{target.name} は{self.status_definitions[status_id].name}になった。')
@@ -241,7 +244,7 @@ class Battle:
             used, message = self.inventory.use(action.item_id, self.party[action.target])
             if used:
                 self.sound_cue = "skill"
-            return [f"{actor.name} {action.item_id}", message]
+            return [f"{actor.name} {self.inventory.label(action.item_id)}", message]
         if action.kind != "SKILL":
             raise ValueError("通常攻撃はありません。")
         if action.skill_id not in actor.skills or actor.skill_uses.get(action.skill_id, 0) <= 0 or actor.cooldowns.get(action.skill_id, 0):
@@ -267,6 +270,7 @@ class Battle:
             self.player_skill_visual = dict(effect_id=skill.effect_id, targets=targets)
         self.sound_cue = "attack" if skill.rarity == "BASIC" else "skill"
         actor.skill_uses[skill.id] -= 1
+        actor.remember_skill(skill.id)
         actor.used_skills[skill.id] = actor.used_skills.get(skill.id, 0) + 1
         actor.category_uses[skill.skill_type] = actor.category_uses.get(skill.skill_type, 0) + 1
         for stat, contribution in skill.growth.items():
@@ -582,6 +586,7 @@ class Session:
         self.treasure = Treasure()
         self.inventory = Inventory()
         self.pending_relearn = None
+        self.rescue_notices = []  # Transient presentation only; never part of SaveData.
 
     def next_battle(self, enemies=None, recover=True, spark_multiplier=1.0, boss=False,
                     final_progress=None, final_data=None, persistent_poison=False):
@@ -592,9 +597,10 @@ class Session:
         persistent_poison = persistent_poison and not recover and not (
             boss and enemies and any(e.id == LORD_OF_ELYSION_ID for e in enemies))
         for character in self.party:
-            character.history.extend(ensure_attack(character, self.skills,
-                                                    self.settings["skill_slots"],
-                                                    self.discovered_skills))
+            rescue = ensure_attack(character, self.skills, self.settings["skill_slots"],
+                                   self.discovered_skills)
+            character.history.extend(rescue)
+            self.rescue_notices.extend(rescue)
             character.recover() if recover else character.reset_battle_state(preserve_poison=persistent_poison)
         if not any(c.alive for c in self.party):
             raise ValueError("生存者がいません。拠点へ戻ってください。")
@@ -692,7 +698,7 @@ class Session:
             if type(slot) is not int or not 0 <= slot < len(actor.skills):
                 raise ValueError("無効な入れ替え枠です。")
             if relearn and self.treasure.banked < new.relearn_cost:
-                raise ValueError(f"確定した{CURRENCY_NAME}が足りません。")
+                raise ValueError(f"{CURRENCY_NAME}が足りません。")
             old = self.skills[actor.skills[slot]]
             if relearn and new.effect not in ("damage", "drain") and not any(
                 self.skills[s].effect in ("damage", "drain") for s in actor.skills if s != old.id
@@ -717,6 +723,7 @@ class Session:
                                self.discovered_skills)
         self.results.extend(rescue)
         actor.history.extend(rescue)
+        self.rescue_notices.extend(rescue)
         if not self.pending_replacements:
             self.debug_pending = False
             self.field_pending = False
@@ -735,7 +742,7 @@ class Session:
         if skill_id in actor.skills:
             raise ValueError("すでに所持しています。残数の補充はできません。")
         if self.treasure.banked < skill.relearn_cost:
-            raise ValueError(f"確定した{CURRENCY_NAME}が足りません。")
+            raise ValueError(f"{CURRENCY_NAME}が足りません。")
         if len(actor.skills) >= self.settings['skill_slots']:
             actor.pending_skill = skill_id
             self.pending_relearn = (actor_index, skill_id)
@@ -753,7 +760,7 @@ class Session:
         actor = self.party[actor_index]
         skill = next((self.skills[s] for s in actor.skills if self.skills[s].effect == 'return' and self.skills[s].field_usable and actor.skill_uses.get(s, 0) > 0), None)
         if not actor.alive or skill is None:
-            raise ValueError("生存者の使用可能なRETURNが必要です。")
+            raise ValueError(f"生存者の使用可能な{self.skills['return'].name}が必要です。")
         actor.skill_uses[skill.id] -= 1
         lines = [f"{actor.name} {skill.name}で帰還"]
         if actor.skill_uses[skill.id] == 0:

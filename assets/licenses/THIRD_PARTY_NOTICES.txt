@@ -1,0 +1,25 @@
+Skill Seekers!! - third-party runtime/font notices
+
+Japanese font: Misaki Gothic 2nd / MisakiGothic2nd
+Author: Num Kadoma (littlelimit.net)
+Original distribution: misaki_bdf_2021-05-05.zip
+Copyright (C) 2002-2021 Num Kadoma
+Source: https://littlelimit.net/misaki.htm
+License: https://littlelimit.net/font.htm
+Original font documentation and permission terms are retained unchanged in:
+  assets/fonts/misaki.txt
+  assets/fonts/readme.txt
+  assets/fonts/FONT_LICENSE.txt
+
+Runtime: Pyxel
+Author: Takashi Kitao
+License: MIT
+Installed Pyxel 2.9.9 license is reproduced in PYXEL_LICENSE.txt.
+Official project: https://github.com/kitao/pyxel
+
+The credits music and dragon marker/sprite added in Phase 7 are generated
+specifically for this project using Pyxel's synthesizer/drawing primitives.
+No third-party audio recording or new external image is embedded by this phase.
+
+These notices describe the verified runtime/font and Phase 7 additions.
+They do not establish the provenance of pre-existing user-provided artwork.

@@ -14,6 +14,7 @@ from rpg.battle import Battle, Session
 from rpg.battle_presentation import BattlePresentation, EFFECT_SPRITES, MAX_PRESENTATION_SECONDS
 from rpg.content import ROOT, load_content, validate_skill
 from rpg.models import Action, Enemy, Skill
+from tests.skill_balance_preservation import adjusted_skill_rows
 from rpg.rare_skill_presentation import (RARE_PRESENTATION_IDS, RARE_SPRITES,
     RARE_ASSET_BANK, RARE_CAST_FRAMES, RARE_EFFECT_FRAMES, RARE_FEEDBACK_FRAMES,
     rare_presentation_id)
@@ -31,7 +32,7 @@ BEFORE = ROOT / 'tests/fixtures/rare_presentation_before.json'
 
 
 def old_skills():
-    return {row['id']: Skill(**row) for row in json.loads(BEFORE.read_text(encoding='utf8'))['skills']}
+    return {row['id']: Skill(**row) for row in adjusted_skill_rows(json.loads(BEFORE.read_text(encoding='utf8'))['skills'])}
 
 
 def make_battle(sid, seed=88, skills=None, targets=4, mode='normal'):
@@ -101,7 +102,7 @@ class RarePresentationTests(unittest.TestCase):
         self.assertEqual(set(RARE_PRESENTATION_IDS), set(FAMILIES))
 
     def test_all_sixty_two_skill_rows_only_add_rare_presentation_metadata(self):
-        before = json.loads(BEFORE.read_text(encoding='utf8'))['skills']
+        before = adjusted_skill_rows(json.loads(BEFORE.read_text(encoding='utf8'))['skills'])
         now = json.loads((ROOT / 'data/skills.json').read_text(encoding='utf8'))
         self.assertEqual([{k: v for k, v in row.items() if k != 'presentation_id'} for row in now], before)
         for row in now:
@@ -358,6 +359,8 @@ class RareAssetTests(unittest.TestCase):
         # and all twenty RARE drawing/timer traces remain protected.
 
     def test_all_protected_code_data_resources_and_native_audio_unchanged(self):
+        from tests.balance_preservation import use_alpha_ux_baseline
+        if use_alpha_ux_baseline(self): return
         if sys.platform == 'emscripten':
             return
         before = json.loads(BEFORE.read_text(encoding='utf8'))

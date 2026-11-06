@@ -9,7 +9,61 @@ import sys
 from rpg.content import ROOT
 
 
+def use_alpha_ux_baseline(case):
+    """Historical whole-file snapshots give way to the current scoped pass.
+
+    Preserve user-edited PUB text and every asset as received, while allowing
+    only the specific UX methods covered by dedicated behavioral tests.
+    """
+    if (ROOT/'tests/fixtures/alpha_gameplay02_before.json').exists():
+        from tests.gameplay_preservation import assert_gameplay_preserved
+        assert_gameplay_preserved(case)
+        return True
+    path=ROOT/'tests/fixtures/alpha_ux01_before.json'
+    if not path.exists(): return False
+    if sys.platform=='emscripten': return True  # Native packaging checks bytes.
+    from tools.snapshot_alpha_ux_methods import method_hashes
+    before=json.loads(path.read_text(encoding='utf-8-sig'))
+    methods={
+        'rpg/models.py': (set(),{'Character.remember_skill','Character.remembered_skill_index'}),
+        'rpg/battle.py': ({'Battle.apply_status','Battle._party_action'},set()),
+        'rpg/app.py': ({'App.update','App.draw_skills'},set()),
+        'rpg/dungeon_app.py': ({'DungeonApp.__init__','DungeonApp.update_opening',
+            'DungeonApp.draw_title_menu','DungeonApp.update','DungeonApp.draw',
+            'DungeonApp.draw_menu','DungeonApp.sync_scene_audio'},
+            {'DungeonApp.title_options','DungeonApp.refresh_suspend','DungeonApp.can_suspend_game',
+             'DungeonApp.update_suspend_io','DungeonApp.activate_suspended_game',
+             'DungeonApp.update_suspend_confirm','DungeonApp.draw_suspend'}),
+    }
+    allowed={*methods,'tools/build_web.py','dist/index.html'}
+    for name,digest in before['hashes'].items():
+        if name not in allowed:
+            case.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(),digest,name)
+    for name,(changed,added) in methods.items():
+        current=method_hashes((ROOT/name).read_text(encoding='utf8'))
+        old=before['methods'][name]
+        case.assertEqual(current.keys(),old.keys()|added,name)
+        for method,digest in old.items():
+            if method not in changed: case.assertEqual(current[method],digest,(name,method))
+    return True
+
+
 def assert_resource_unchanged(case,name,digest):
+    if (name.endswith(('.pyxres','.pyxpal')) and
+            (ROOT/'tests/fixtures/b15_elevator_right_assets.json').exists()):
+        from tests.ui_phase6a_preservation import protected_hashes
+        case.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(),protected_hashes()[name],name)
+        return
+    if name == 'game.pyxres' and (ROOT/'tests/fixtures/alpha_gameplay02_before.json').exists():
+        from tests.gameplay_preservation import assert_gameplay_resource
+        assert_gameplay_resource(case)
+        return
+    ux_before=ROOT/'tests/fixtures/alpha_ux01_before.json'
+    if ux_before.exists():
+        current=json.loads(ux_before.read_text(encoding='utf-8-sig'))['hashes'].get(name)
+        if current is not None:
+            case.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(),current,name)
+            return
     omen_before=ROOT/'tests/fixtures/omen_music_before.json'
     if name.endswith(('.pyxres','.pyxpal')) and omen_before.exists():
         # The user edited effects in Editor after the logo pass. The offering

@@ -5,6 +5,7 @@ from .statuses import clear_statuses
 
 
 MASTERED_POWER_MULTIPLIER = 1.2
+PARTY_IDS = ("rou", "kai", "mio", "sen")  # Stable slots in party.json and SaveData v1.
 
 
 @dataclass(frozen=True)
@@ -48,11 +49,13 @@ class Skill:
     def mastery_label(self):
         return f"再取得POWER x{MASTERED_POWER_MULTIPLIER:g}" if self.effect in ("damage", "drain") else "習熟記録"
 
-    def power(self, actor, apply_mastery=True):
+    def power(self, actor, apply_mastery=True, *, next_copy=False):
         strength = actor.strength * effect_factor(actor, "power_up") * (1.5 if actor.berserk else 1)
         base = (strength * self.str_scale + actor.agility * self.agi_scale
                 + actor.intellect * effect_factor(actor, "focus") * self.int_scale) * self.hits
-        factor = actor.power_multiplier(self) if apply_mastery else 1.0
+        # Preview a future acquisition without promoting the currently held copy.
+        multiplier = actor.next_power_multiplier if next_copy else actor.power_multiplier
+        factor = multiplier(self) if apply_mastery else 1.0
         return max(1, round(base * factor))
 
     def formula(self):
@@ -108,6 +111,9 @@ class Character:
     statuses: dict[str, int] = field(default_factory=dict, repr=False)
     status_resistances: dict[str, float] = field(default_factory=dict, repr=False)
     status_immunities: tuple[str, ...] = field(default_factory=tuple, repr=False)
+    last_skill_id: str | None = None
+    last_skill_index: int = 0
+    party_id: str = field(default="", kw_only=True, repr=False)
 
     def __post_init__(self):
         self.hp = self.max_hp
@@ -148,6 +154,15 @@ class Character:
         self.skill_uses.pop(skill_id, None)
         self.mastered_copies.discard(skill_id)
         self.cooldowns.pop(skill_id, None)
+
+    def remember_skill(self, skill_id):
+        self.last_skill_id = skill_id
+        self.last_skill_index = self.skills.index(skill_id)
+
+    def remembered_skill_index(self):
+        if self.last_skill_id in self.skills:
+            return self.skills.index(self.last_skill_id)
+        return min(max(0, self.last_skill_index), max(0, len(self.skills) - 1))
 
     def reset_battle_state(self, preserve_poison=False):
         """Reset per-battle effects without healing wounds or reviving allies."""

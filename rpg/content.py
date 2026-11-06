@@ -3,8 +3,8 @@ import json
 import math
 from pathlib import Path
 
-from .models import Character, Skill
-from .skill_resources import MAX_SKILLS, FALLBACK_SKILL
+from .models import Character, Skill, PARTY_IDS
+from .skill_resources import MAX_SKILLS, FALLBACK_SKILLS
 from .labels import EFFECTS, BUFFS
 from .enemy_actions import load_enemy_actions, validate_enemy_action_lists
 from .statuses import load_statuses, percentage
@@ -129,8 +129,10 @@ def load_content(directory=None):
     require(len(gains) == 2 and all(integer(x, 1) for x in gains) and gains[0] <= gains[1], "Invalid hp_gain.")
     for key in ("enemy_hp_per_win", "enemy_power_per_win", "enemy_scaling_cap"):
         require(number(settings[key], 0, 999), f"Invalid {key}.")
-    party = [Character(r["name"], r["growth_type"], r["max_hp"], r["str"], r["agi"], r["int"], tuple(r["sprite"])) for r in rows]
-    require(FALLBACK_SKILL in skills and skills[FALLBACK_SKILL].effect == "damage" and skills[FALLBACK_SKILL].cooldown == 0, "救済用punchは待ち時間0の攻撃技として必要です。")
+    party = [Character(r["name"], r["growth_type"], r["max_hp"], r["str"], r["agi"], r["int"], tuple(r["sprite"]),
+                       party_id=PARTY_IDS[i]) for i, r in enumerate(rows)]
+    require(all(sid in skills and skills[sid].effect == "damage" and skills[sid].cooldown == 0
+                for sid in FALLBACK_SKILLS), "救済用の基本攻撃技は待ち時間0で必要です。")
     for actor, row in zip(party, rows):
         initial = row["initial_skills"]
         require(1 <= len(initial) <= settings["skill_slots"] and len(set(initial)) == len(initial), "Invalid initial skill slots.")

@@ -148,19 +148,20 @@ class FiniteSkillTests(unittest.TestCase):
         b.begin_round(b.auto_actions())
         while b.queue:
             b.step()
-        for c in self.s.party:
-            self.assertEqual(c.skills, ["punch"])
-            self.assertEqual(c.skill_uses, {"punch": 30})
+        for c, sid in zip(self.s.party, ('spark','spark','punch','spark')):
+            self.assertEqual(c.skills, [sid])
+            self.assertEqual(c.skill_uses, {sid: self.s.skills[sid].max_uses})
         b.begin_round(b.auto_actions())
         while b.queue:
             b.step()
-        self.assertTrue(all(c.skill_uses['punch'] == 29 for c in self.s.party))
+        self.assertTrue(all(c.skill_uses[sid] == self.s.skills[sid].max_uses-1
+                            for c,sid in zip(self.s.party,('spark','spark','punch','spark'))))
 
     def test_full_support_loadout_still_respects_slot_limit(self):
         self.give(self.c, ["heal", "renew", "first_aid", "full_heal", "counter", "berserk"])
         messages = ensure_attack(self.c, self.s.skills, 6)
         self.assertEqual(len(self.c.skills), 6)
-        self.assertIn("punch", self.c.skills)
+        self.assertIn("spark", self.c.skills)
         self.assertNotIn("berserk", self.c.skills)
         self.assertTrue(any("放棄" in line for line in messages))
 

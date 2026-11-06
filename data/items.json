@@ -1,8 +1,9 @@
 {
   "items": {
-    "POTION": {"initial": 2, "price": 1, "heal": 30},
-    "PHOENIX ASH": {"initial": 0, "price": 4},
-    "REMEDY": {"initial": 0, "price": 2}
+    "POTION": {"name": "ポーション", "initial": 2, "price": 1, "heal": 30},
+    "PHOENIX ASH": {"name": "不死鳥の灰", "initial": 0, "price": 4},
+    "REMEDY": {"name": "妖精のしずく", "initial": 0, "price": 2},
+    "return_feather": {"name": "帰還の羽根", "initial": 0, "price": 3}
   },
   "run": {"base": 0.15, "agi_factor": 0.005, "agi_cap": 0.15, "min": 0.10, "max": 0.30},
   "revive_fraction": 0.25,

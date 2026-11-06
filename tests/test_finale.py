@@ -114,7 +114,7 @@ class FinaleIntegrationTests(unittest.TestCase):
                                load_dungeon_settings(), self.session.rng,
                                self.session.treasure, self.session.inventory)
         self.dungeon.debug_floor(14)
-        self.dungeon.settings['encounter_chance'] = 0
+        self.dungeon.encounter_remaining = 10000
         self.session.settings['spark_chance'] = 0
         for rates in self.session.settings['growth_rates'].values():
             rates.update(HP=0, STR=0, AGI=0, INT=0)
@@ -229,7 +229,8 @@ class FinaleIntegrationTests(unittest.TestCase):
         self.assertFalse(d.cleared or d.finale.has_amrita)
         self.complete_guardian_flags()
         self.assertEqual(d.interact()[0], 'boss')
-        self.assertEqual(d.defeat_boss(), d.finale.data['demon_after'])
+        from rpg.elevator import unlock_notice
+        self.assertEqual(d.defeat_boss(), d.finale.data['demon_after'] + unlock_notice(14))
         self.assertTrue(d.cleared and d.finale.has_amrita and d.finale.demon_defeated)
 
     def test_warning_can_cancel_before_any_battle_or_resource_cost(self):

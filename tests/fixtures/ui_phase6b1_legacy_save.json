@@ -1,0 +1,163 @@
+{
+  "save_version": 1,
+  "party": [
+    {
+      "name": "ロウ",
+      "growth_type": "POWER",
+      "hp": 48,
+      "max_hp": 48,
+      "strength": 8,
+      "agility": 5,
+      "intellect": 2,
+      "sprite": [
+        0,
+        0
+      ],
+      "skills": [
+        {
+          "skill_id": "return",
+          "uses": 2,
+          "max_uses": 3,
+          "mastered_copy": false
+        },
+        {
+          "skill_id": "revive",
+          "uses": 1,
+          "max_uses": 3,
+          "mastered_copy": false
+        },
+        {
+          "skill_id": "punch",
+          "uses": 30,
+          "max_uses": 30,
+          "mastered_copy": false
+        }
+      ],
+      "history": []
+    },
+    {
+      "name": "カイ",
+      "growth_type": "SPEED",
+      "hp": 40,
+      "max_hp": 40,
+      "strength": 6,
+      "agility": 9,
+      "intellect": 3,
+      "sprite": [
+        16,
+        0
+      ],
+      "skills": [
+        {
+          "skill_id": "quick_hit",
+          "uses": 30,
+          "max_uses": 30,
+          "mastered_copy": false
+        }
+      ],
+      "history": []
+    },
+    {
+      "name": "ミオ",
+      "growth_type": "MIND",
+      "hp": 36,
+      "max_hp": 36,
+      "strength": 3,
+      "agility": 6,
+      "intellect": 9,
+      "sprite": [
+        32,
+        0
+      ],
+      "skills": [
+        {
+          "skill_id": "spark",
+          "uses": 28,
+          "max_uses": 28,
+          "mastered_copy": false
+        }
+      ],
+      "history": []
+    },
+    {
+      "name": "セン",
+      "growth_type": "POWER",
+      "hp": 44,
+      "max_hp": 44,
+      "strength": 7,
+      "agility": 6,
+      "intellect": 4,
+      "sprite": [
+        48,
+        0
+      ],
+      "skills": [
+        {
+          "skill_id": "punch",
+          "uses": 30,
+          "max_uses": 30,
+          "mastered_copy": false
+        }
+      ],
+      "history": []
+    }
+  ],
+  "discovered_skills": [
+    "fire",
+    "punch",
+    "quick_hit",
+    "return",
+    "revive",
+    "spark"
+  ],
+  "mastered_skills": [
+    "revive"
+  ],
+  "items": {
+    "POTION": 2,
+    "PHOENIX ASH": 0,
+    "REMEDY": 0,
+    "return_feather": 0
+  },
+  "banked_trz": 37,
+  "completed": 0,
+  "wins": 0,
+  "losses": 0,
+  "draws": 0,
+  "total_battles": 0,
+  "quest_clear_counts": {
+    "explore": 0,
+    "investigate": 0,
+    "hunt": 0
+  },
+  "completed_quest_ids": [],
+  "quest_completed_levels": [],
+  "active_quest": {
+    "type": "investigate",
+    "level": 3,
+    "target_floor": 14,
+    "progress": 1,
+    "required_count": 3,
+    "completed": false,
+    "reward": 7,
+    "flavor_id": "investigate_l3_01"
+  },
+  "last_flavor_id": "investigate_l3_01",
+  "dungeon_progress": {
+    "defeated_bosses": [
+      4,
+      9,
+      14
+    ]
+  },
+  "story": {
+    "guardians_defeated": true,
+    "demon_defeated": true,
+    "has_amrita": true,
+    "final_event_started": false,
+    "lord_of_elysion_defeated": false,
+    "amrita_power_spent": false,
+    "read_lore": []
+  },
+  "hub_intro_shown": true
+}

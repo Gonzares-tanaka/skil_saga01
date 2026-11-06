@@ -43,6 +43,9 @@ class PersistentPoisonTests(unittest.TestCase):
 
     def finish(self,b,outcome='VICTORY'):
         b.queue.clear(); b.turn_plan=None; b.outcome=outcome
+        # The real visual-action path observes this kill before settlement.
+        # Keep that order when bypassing animations in this poison fixture.
+        self.app.observe_hunt_goal()
         b.clear_effects(); self.s.settle()
         for c in self.s.party: c.pending_skill=None
         self.app.fanfare_started_at=None; self.app.fanfare_start_frame=None
@@ -109,11 +112,12 @@ class PersistentPoisonTests(unittest.TestCase):
                   for x in range(self.d.map_bounds(floor)[0]-1)
                   if self.d.tile(floor,x,y) in FLOOR_TILES and self.d.tile(floor,x+1,y) in FLOOR_TILES)
         self.d.x,self.d.y=pair[0]; hp=self.actor.hp; steps=self.d.steps
-        with patch.object(self.s.rng,'random',return_value=1):
-            for _ in range(50):
-                self.press(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT)
-                self.press(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT)
-            for _ in range(200): self.press(None)
+        # Isolate field poison from battles under the pre-drawn encounter model.
+        self.d.encounter_remaining = 1000
+        for _ in range(50):
+            self.press(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT)
+            self.press(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT)
+        for _ in range(200): self.press(None)
         self.assertEqual(self.d.steps,steps+100)
         self.assertEqual(self.actor.hp,hp)
         self.assertEqual(self.actor.statuses,{'poison':2})

@@ -29,7 +29,7 @@ class AudioManagerTests(unittest.TestCase):
         initialized(); self.audio = AudioManager(); self.audio.load()
 
     def test_exact_eight_bgm_six_se_and_editor_default_slots(self):
-        self.assertEqual(set(BGM_IDS), {'bgm_' + n for n in ('title', 'hub', 'area1', 'area2', 'area3', 'battle', 'boss', 'final', 'omen')})
+        self.assertEqual(set(BGM_IDS), {'bgm_' + n for n in ('title', 'hub', 'area1', 'area2', 'area3', 'battle', 'boss', 'final', 'omen', 'credits')})
         self.assertEqual(set(SE_IDS), {'se_' + n for n in ('stairs', 'treasure', 'trap_damage', 'healing_spring', 'pitfall', 'quest_complete')})
         self.assertEqual(len(pyxel.sounds), 64); self.assertEqual(len(pyxel.musics), 8)
         for bank, index in BGM_IDS.values():
@@ -47,7 +47,7 @@ class AudioManagerTests(unittest.TestCase):
             if ident != 'bgm_battle': self.assertTrue(30 <= durations[0] <= 60)
             self.assertTrue(all(len(sounds[n].notes) <= 48 for seq in seqs for n in seq))
             self.assertTrue(all(len(seq) <= 32 for seq in seqs))
-        self.assertEqual(len(melodies), 9)
+        self.assertEqual(len(melodies), 10)
         self.assertLess(speeds['bgm_final'], speeds['bgm_boss'])
         self.assertLess(speeds['bgm_boss'], speeds['bgm_area3'])
 
@@ -314,6 +314,8 @@ class AudioSceneTests(unittest.TestCase):
 
 class AudioPreservationTests(unittest.TestCase):
     def test_all_original_battle_audio_and_protected_gameplay_files_unchanged(self):
+        from tests.balance_preservation import use_alpha_ux_baseline
+        if use_alpha_ux_baseline(self): return
         if sys.platform == 'emscripten': return
         before = json.loads(BASELINE.read_text(encoding='utf8'))
         allowed = {'rpg/app.py', 'rpg/dungeon_app.py', 'rpg/sound.py', 'game.pyxres'}
@@ -342,8 +344,14 @@ class AudioPreservationTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / 'tests'))
         from legend_presentation_helpers import rare_trace
         from test_rare_skill_presentation import make_battle
+        from tests.skill_balance_preservation import NUMERIC_TRACES, baseline
+        from rpg.models import Skill
         before = json.loads(BASELINE.read_text(encoding='utf8'))
-        for sid, digest in before['visual_traces'].items(): self.assertEqual(rare_trace(make_battle(sid)), digest, sid)
+        historical = {r['id']: Skill(**r) for r in baseline()['skills']}
+        for sid, digest in before['visual_traces'].items():
+            if sid in NUMERIC_TRACES:
+                self.assertEqual(rare_trace(make_battle(sid, skills=historical)), digest, sid)
+            self.assertEqual(rare_trace(make_battle(sid)), NUMERIC_TRACES.get(sid,digest), sid)
 
 
 if __name__ == '__main__': unittest.main()

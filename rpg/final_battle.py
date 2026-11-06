@@ -50,7 +50,7 @@ class FinalBattleCheckpoint:
     SESSION_FIELDS = ("party", "inventory", "treasure", "discovered_skills", "mastered_skills",
                       "completed", "wins", "losses", "draws", "debug", "debug_pending",
                       "field_pending", "pending_relearn")
-    DUNGEON_FIELDS = ("floor", "x", "y", "steps", "grace", "opened", "activated_switches",
+    DUNGEON_FIELDS = ("floor", "x", "y", "steps", "grace", "encounter_remaining", "opened", "activated_switches",
                       "chest_loot", "last_reward", "defeated_bosses")
     EXPLORATION_FIELDS = ("active", "target", "surveyed", "completed", "springs")
 

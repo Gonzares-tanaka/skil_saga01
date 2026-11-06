@@ -63,8 +63,9 @@ class DungeonTests(unittest.TestCase):
 
     def test_walk_encounter_and_safe_steps(self):
         d = self.dungeon
-        d.settings["encounter_chance"] = 1
+        d.encounter_remaining = 3
         d.enter()
+        d.encounter_remaining = 3
         # Controlled floor corridor, independent of the author's entrance placement.
         d.x, d.y = 3, 3
         self.assertEqual(d.move(1, 0)[0], "")
@@ -75,7 +76,7 @@ class DungeonTests(unittest.TestCase):
 
     def test_image_row_64_corridors_allow_movement_reachability_and_encounters(self):
         d = self.dungeon
-        d.settings["encounter_chance"] = 1
+        d.encounter_remaining = 3
         for floor in (0, 5):
             start = d.find(floor, TILE_ENTRANCE if floor == 0 else TILE_STAIRS_UP)
             destination = next((start[0] + dx, start[1] + dy)
@@ -87,10 +88,10 @@ class DungeonTests(unittest.TestCase):
                     self.assertTrue(d.can_enter(floor, *destination))
                     self.assertIn(destination, d.reachable(floor))
                     d.floor, d.x, d.y = floor, *start
-                    d.grace = 1
+                    d.encounter_remaining = 2
                     delta = destination[0] - start[0], destination[1] - start[1]
                     self.assertEqual(d.move(*delta)[0], "")
-                    self.assertEqual(d.grace, 0)
+                    self.assertEqual(d.encounter_remaining, 1)
                     d.x, d.y = start
                     self.assertEqual(d.move(*delta)[0], "battle")
                     self.assertEqual(d.tile(floor, *destination), (u, 8))
@@ -98,19 +99,15 @@ class DungeonTests(unittest.TestCase):
                 d.maps[floor].pset(*destination, tile)
                 self.assertFalse(d.can_enter(floor, *destination))
 
-    def test_random_encounter_rate_is_unchanged(self):
+    def test_countdown_uses_same_ranges_with_debug_and_never_rolls_per_step(self):
         d = self.dungeon
-        d.grace = 0
-        d.x, d.y = 4, 3
-        counts = []
-        for debug in (False, True):
-            count = 0
-            for step in range(10000):
-                event, _ = d.move(1 if step % 2 == 0 else -1, 0, debug)
-                count += event == "battle"
-            counts.append(count)
-        self.assertTrue(700 < counts[0] < 1100)
-        self.assertTrue(4000 < counts[1] < 5000)
+        for debug in (False,True):
+            d.x,d.y = 4,3
+            d.encounter_remaining = 12
+            with patch.object(d.rng,'random',side_effect=AssertionError('per-step RNG')):
+                for step in range(12):
+                    event,_ = d.move(1 if step%2==0 else -1,0,debug)
+                    self.assertEqual(event,'battle' if step==11 else '')
 
     def floor_step(self, floor):
         """Use two adjacent authored floor tiles, never mutate the map."""
@@ -135,31 +132,22 @@ class DungeonTests(unittest.TestCase):
                                 d.defeat_boss()
                         point, delta = self.floor_step(floor)
                         d.x, d.y = point
-                        d.grace = 0
+                        d.encounter_remaining = 1
                         with patch.object(d.rng, 'random', return_value=0) as roll:
                             self.assertEqual(d.move(*delta, debug=debug)[0], 'battle')
-                        roll.assert_called_once_with()
+                        roll.assert_not_called()
 
-    def test_b5_b10_preserve_safe_steps_and_configured_chance(self):
+    def test_b5_b10_exact_countdown_without_per_step_probability(self):
         d = self.dungeon
-        for floor in (4, 9):
-            with self.subTest(floor=floor+1):
-                point, delta = self.floor_step(floor)
-                d.debug_floor(floor)
-                with patch.object(d.rng, 'random', return_value=0) as roll:
-                    for remaining in (1, 0):
-                        d.x, d.y = point
-                        self.assertEqual(d.move(*delta)[0], '')
-                        self.assertEqual(d.grace, remaining)
-                    roll.assert_not_called()
-                    d.x, d.y = point
-                    self.assertEqual(d.move(*delta)[0], 'battle')
-                for debug in (False, True):
-                    chance = d.settings['debug_encounter_chance' if debug else 'encounter_chance']
-                    for sample, expected in ((chance - 0.001, 'battle'), (chance, '')):
-                        d.x, d.y = point
-                        with patch.object(d.rng, 'random', return_value=sample):
-                            self.assertEqual(d.move(*delta, debug=debug)[0], expected)
+        for floor in (4,9):
+            point,delta = self.floor_step(floor)
+            d.debug_floor(floor)
+            d.encounter_remaining = 3
+            with patch.object(d.rng,'random',side_effect=AssertionError('per-step RNG')):
+                for index in range(3):
+                    d.x,d.y = point
+                    self.assertEqual(d.move(*delta)[0],'battle' if index==2 else '')
+                    self.assertEqual(d.encounter_remaining,2-index)
 
     def test_b5_b10_normal_enemies_reuse_exact_previous_profile_and_boss_is_unchanged(self):
         d = self.dungeon
@@ -193,7 +181,7 @@ class DungeonTests(unittest.TestCase):
             for debug in (False, True):
                 with self.subTest(stage=stage, debug=debug):
                     d.x, d.y = point
-                    d.grace = 0
+                    d.encounter_remaining = 1
                     with patch.object(d.rng, 'random', return_value=0) as roll:
                         self.assertEqual(d.move(*delta, debug=debug)[0], '')
                     roll.assert_not_called()

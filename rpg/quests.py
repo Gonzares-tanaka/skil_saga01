@@ -110,7 +110,10 @@ def quest_spawn_report(dungeon, floor):
     valid, rejected = [], []
     for point in sorted(set(registered)):
         tile = dungeon.tile(floor, *point)
+        from .postgame import dragon_location
+        reserved = (floor,point) == dragon_location(dungeon)
         reason = ('outside_map' if tile is None else
+                  'reserved_extra_boss' if reserved else
                   'not_empty_floor' if tile not in FLOOR_TILES | {TILE_QUEST} else
                   'unreachable_before_story_gates' if point not in seen else None)
         if reason:

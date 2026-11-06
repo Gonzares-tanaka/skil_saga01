@@ -47,7 +47,10 @@ class QuestCompletionTests(unittest.TestCase):
                 regular.update(row['id'] for row in rows)
                 fallback.add(defaults[kind][level]['id'])
                 for row in rows + [defaults[kind][level]]:
-                    self.assertTrue(2 <= len(row['complete_lines']) <= 3)
+                    # The received, user-edited guitar request has four lines;
+                    # the existing paged thanks renderer already supports it.
+                    limit = 4 if row['id'] == 'explore_l1_03' else 3
+                    self.assertTrue(2 <= len(row['complete_lines']) <= limit)
                     self.assertTrue(row['requester'])
                     thanks.append(tuple(row['complete_lines']))
             self.assertEqual({r['id'] for rows in texts[kind].values() for r in rows},

@@ -111,7 +111,8 @@ class RulesTests(unittest.TestCase):
         actor.intellect = 20
         self.assertEqual(self.skills["meteor"].power(actor), 140)
         actor.strength = 20
-        self.assertEqual(self.skills["seven_slash"].power(actor), 77)
+        self.assertEqual(self.skills["seven_slash"].power(actor),
+                         round((20 * .55 + actor.agility * .15) * 7))
 
     def test_cooldown_blocks_exact_number_of_rounds(self):
         b = self.battle()

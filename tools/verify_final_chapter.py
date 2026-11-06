@@ -9,6 +9,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import tempfile
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -58,6 +59,9 @@ def main():
             assert f.has_amrita and not f.final_event_started
 
     app, phase6a_result = phase6a(observer=observe)
+    from rpg.save import SaveManager,FileSaveBackend
+    save_temp=tempfile.TemporaryDirectory(prefix='final-chapter-save-')
+    app.save_manager=SaveManager(FileSaveBackend(Path(save_temp.name)/'save.json'))
     session_identity = id(app.session)
     s, d = app.session, app.dungeon
     assert app.state == 'camp' and d.finale.has_amrita and not s.debug
@@ -115,7 +119,9 @@ def main():
         actor=app.actor
         press(A)
         assert app.state=='skill',app.state
-        for _ in range(actor.skills.index(sid)):
+        # Existing cursor memory selects the last used skill on entry.
+        # Move relative to the actual cursor, rather than assuming index zero.
+        for _ in range((actor.skills.index(sid)-app.skill_cursor)%len(actor.skills)):
             press(DOWN)
         press(A)
         if app.state=='target':
@@ -167,7 +173,10 @@ def main():
                 users=[i for i,c in enumerate(s.party) if sid in c.skills]
                 round_with({i:('skill',sid,0) for i in users})
                 casts+=len(users)
-                assert app.state=='command','Boss ended before depletion fixture finished'
+                assert app.state=='command', ('Boss ended before depletion fixture finished',
+                    app.state,app.overlay,app.battle.outcome,app.battle.round,
+                    [c.hp for c in s.party],app.battle.enemies[0].hp,
+                    s.rescue_notices)
         assert 'meteor' in s.mastered_skills and 'seven_slash' in s.mastered_skills
         return casts
 
@@ -243,15 +252,21 @@ def main():
         # Extra random encounters can exhaust/replace BASIC skills on the way;
         # explicitly provide every skill exercised by the barrier test.
         for c in s.party:
+            # The older B11-B15 UI fixture deliberately granted eight skills.
+            # The new persisted clear snapshot must obey the real six slots.
+            while len(c.skills)>s.settings['skill_slots']:
+                old=next(k for k in reversed(c.skills) if k not in ('punch','fire','meteor','seven_slash'))
+                c.forget(old)
             for sid in ('punch','fire','meteor','seven_slash'):
                 if sid not in c.skills:
-                    if len(c.skills)>=8:
-                        old=next(k for k in reversed(c.skills) if k not in ('punch','quick_hit','spark','return','fire','meteor','seven_slash'))
+                    if len(c.skills)>=s.settings['skill_slots']:
+                        old=next(k for k in reversed(c.skills) if k not in ('punch','fire','meteor','seven_slash'))
                         c.forget(old)
                     c.learn(s.skills[sid])
                     s.discovered_skills.add(sid)
             for sid in ('punch','fire','meteor','seven_slash'):
                 c.skill_uses[sid]=c.max_uses(s.skills[sid])
+            s.discovered_skills.update(c.skills)
         s.inventory.counts={iid:9 for iid in s.inventory.counts}
         assert AMRITA_ITEM_ID not in s.inventory.counts and d.finale.has_amrita
         while app.camp_cursor!=4:
@@ -337,13 +352,21 @@ def main():
                 raise AssertionError('Final event restarted after ENDING')
         for _ in app.final_ending_pages():
             press(A)
+        assert app.state=='credits'
+        for _ in range(5000):
+            if app.state=='title':break
+            press(A)
         assert app.state=='title'
+        app.continue_game();press()
+        s,d=app.session,app.dungeon
+        assert app.state=='camp' and d.completion.main_game_cleared and d.finale.can_offer_amrita
         app.enter_camp(returned=True)
-        press()  # Release TITLE's fresh-input gate before synthetic re-entry.
-        press(A)
-        assert app.state=='camp' and not d.finale.can_offer_amrita
-        observe('POST_VICTORY_REENTRY_NO_OFFER',app)
-        app.state='title'
+        press();press(A)
+        assert app.state=='amrita_offer'
+        press(B)
+        assert app.state=='camp'
+        observe('POST_CLEAR_CONTINUE_AND_REPLAY',app)
+        app.state,app.title_cursor='title',0
         press(); press(A)
         assert app.state=='title_fade' and app.final_checkpoint is None
         assert not any(app.dungeon.finale.snapshot()[key] for key in
@@ -395,7 +418,8 @@ def main():
                 pre_demon_gates=early_gates,facilities_after_later=facilities,
                 final_part_DPAD_A_B_only=True,final_pad_input_count=len(inputs),
                 fully_silent_final_part=True,defeat_cases=failures,consecutive_actual_defeats=len(failures),
-                ending_flags=ending_flags,post_victory_reentry_blocked=True,new_game_flags_reset=True,
+                ending_flags=ending_flags,post_victory_reentry_blocked_before_continue=True,
+                replay_available_after_continue=True,new_game_flags_reset=True,
                 ordinary_defeat=normal_defeat,
                 timeline=timeline,unchanged_files=preserved,bounded_final_text_calls=len(texts),
                 screenshots=screenshots,physical_smartphone_tested=False,

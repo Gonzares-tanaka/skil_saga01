@@ -143,6 +143,8 @@ class OmenMusicTests(unittest.TestCase):
         self.assertEqual(a.audio.current_bgm, 'bgm_hub')
 
     def test_current_user_resources_gameplay_and_audio_manager_methods_unchanged(self):
+        from tests.balance_preservation import use_alpha_ux_baseline
+        if use_alpha_ux_baseline(self): return
         if sys.platform == 'emscripten':
             return  # Distribution validation compares the shipped resources.
         before = json.loads((ROOT/'tests/fixtures/omen_music_before.json').read_text(encoding='utf8'))

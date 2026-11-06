@@ -19,7 +19,7 @@ class SwitchTests(unittest.TestCase):
     def setUp(self):
         s = Session(*load_content(), seed=52)
         self.d = Dungeon(load_maps(), s.enemy_data, load_dungeon_settings(), s.rng)
-        self.d.settings['encounter_chance'] = 0
+        self.d.encounter_remaining = 10000
         self.d.debug_floor(6)
 
     def test_door_blocks_without_steps_or_encounter_roll(self):

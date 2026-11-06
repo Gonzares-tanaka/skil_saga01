@@ -86,23 +86,26 @@
       <h2 id="base">城下町で、次の冒険の準備を。</h2>
       <p>冒険者が集う城下町が、あなたたちの拠点です。仲間や技を確認し、依頼と道具をそろえてダンジョンへ向かいましょう。</p>
       <div class="facility-list">
-        <article><h3>GUILD <span>ギルド</span></h3>
-          <p>PARTY STATUSで仲間の状態を確認。QUEST RECORD、SAVE、HELPもここから利用できます。</p>
+        <article><h3>ギルド</h3>
+          <p>「パーティ」で仲間の状態を確認。「クエスト記録」「セーブ」「ヘルプ」もここから利用できます。</p>
           <p class="note" id="save-notes"><strong>セーブについて：</strong>スマートフォン版を含むWeb版のデータは、端末・ブラウザごとに保存され、自動同期されません。サイトデータやブラウザのデータを削除すると、セーブが失われる場合があります。</p>
         </article>
-        <article><h3>TRAINING <span>訓練場</span></h3>
-          <p>これまで発見したスキルを確認できます。またTRZを支払うと、一度習得したことのある一部の基本スキルを再習得できます。</p>
+        <article><h3>訓練場</h3>
+          <p>「スキル図鑑」で発見・MASTEREDの記録を確認できます。「スキル再取得」ではTRZを支払い、発見済みの対象スキルを再取得できます。</p>
         </article>
-        <article><h3>PUB <span>酒場</span></h3>
+        <article><h3>パブ</h3>
           <p>城下町の人々から、探索・調査・討伐の3種類のクエストを受注。条件を達成して無事に帰還するとTRZを獲得できます。</p>
           <p>TRZを支払って町のうわさを聞くことも。冒険のヒントが得られるかもしれません。</p>
         </article>
-        <article><h3>SHOP <span>道具屋</span></h3>
+        <article><h3>ショップ</h3>
           <p>TRZで冒険に役立つアイテムを購入できます。</p>
-          <ul class="compact-list"><li><strong>POTION</strong>：HP回復</li><li><strong>PHOENIX ASH</strong>：戦闘不能から復活</li><li><strong>REMEDY</strong>：状態異常回復</li></ul>
+          <ul class="compact-list"><li><strong>POTION</strong>：HP回復</li><li><strong>PHOENIX ASH</strong>：戦闘不能から復活</li><li><strong>REMEDY</strong>：状態異常回復</li><li><strong>帰還の羽根</strong>：探索中に使うと安全に城下町へ帰還（3 TRZ）</li></ul>
         </article>
-        <article><h3>DUNGEON <span>ダンジョン</span></h3>
+        <article><h3>ダンジョン</h3>
           <p>準備が整ったら、デーモン討伐の冒険へ。ダンジョンの奥へ進んでいきましょう。</p>
+        </article>
+        <article><h3>ELEVATOR　エレベータ</h3>
+          <p>ダンジョンの階層を守るボスモンスターを倒すと、特定の階まで移動できる片道のエレベータが開通します。</p>
         </article>
       </div>
     </section>
@@ -112,11 +115,13 @@
       <h2 id="menu">ダンジョンメニュー</h2>
       <p>探索中に<strong>Bボタン（Xキー）</strong>で開きます。</p>
       <dl class="command-list">
-        <div><dt>STATUS</dt><dd>HP、能力値、成長傾向などを確認します。</dd></div>
-        <div><dt>SKILL</dt><dd>保有するスキルと残り使用回数を確認。一部のスキルは探索中にも使用できます。</dd></div>
-        <div><dt>ITEM</dt><dd>アイテムの確認・使用を行います。</dd></div>
-        <div><dt>RETURN</dt><dd>RETURNスキルを持っていれば、城下町へ安全に帰還できます。最初から使える機能ではなく、戦闘後の「ひらめき」で習得するスキルです。</dd></div>
-        <div><dt>HELP</dt><dd>操作方法などを確認できます。</dd></div>
+        <div><dt>状態</dt><dd>HP、能力値、成長傾向などを確認します。</dd></div>
+        <div><dt>習得技</dt><dd>保有するスキルと残り使用回数を確認。一部のスキルは探索中にも使用できます。</dd></div>
+        <div><dt>道具</dt><dd>アイテムの確認・使用を行います。</dd></div>
+        <div><dt>リターン</dt><dd>リターンスキルを持っていれば、城下町へ安全に帰還できます。最初から使える機能ではなく、戦闘後の「ひらめき」で習得するスキルです。</dd></div>
+        <div><dt>ヘルプ</dt><dd>操作方法などを確認できます。</dd></div>
+        <div><dt>中断</dt><dd>探索中の階層・位置・進捗を一時保存し、タイトルの「中断から」で続きをプレイできます。中断データは再開時に消費されますが、新たに中断することは可能です。通常のセーブとは別の仕組みで、戦闘中や一部のイベント中は利用できません。</dd></div>
+        <div><dt>クエスト</dt><dd>パブで受注したクエストの種類・Lv・対象階・進捗を再確認できます。探索中に目的を忘れてしまったときに利用してください。未発見地点の位置や攻略ルートは表示しません。</dd></div>
       </dl>
     </section>
 
@@ -139,14 +144,14 @@
       <ol class="tips-list">
         <li><h3>自分だけのパーティを育てよう</h3>
           <p>メンバーには力・速度・知力など、それぞれ得意分野があります。ただし、成長方向は完全固定ではありません。戦闘中に使うスキルによって、成長しやすい能力も変化します。</p>
-          <p>STATUS画面で成長傾向を確認しながら、自分だけのSKILL SEEKERSを育ててください。</p>
+          <p>状態画面で成長傾向を確認しながら、自分だけのSKILL SEEKERSを育ててください。</p>
         </li>
         <li><h3>使い切ったSKILLは、MASTEREDへ</h3>
           <p>使用回数が0になったSKILLは失われますが、最後まで使い切った記録はMASTEREDとして残ります。<strong>MASTEREDした攻撃SKILLを再び習得すると、威力は1.2倍。</strong></p>
           <p>目指せ、<strong>SKILL COLLECTION ＆ MASTERED 100%！</strong></p>
         </li>
-        <li><h3>QUESTにも挑戦</h3>
-          <p>最初に受けられるのはLv1 QUEST。階層ボスを倒すと、より高いLvのQUESTが開放されます。探索・調査・討伐から依頼を選び、達成した記録はGUILDのQUEST RECORDで確認しましょう。</p>
+        <li><h3>クエストにも挑戦</h3>
+          <p>最初に受けられるのはLv1クエスト。階層ボスを倒すと、より高いLvのクエストが開放されます。探索・調査・討伐から依頼を選び、達成した記録はギルドの「クエスト記録」で確認しましょう。</p>
         </li>
       </ol>
     </section>

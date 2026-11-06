@@ -111,6 +111,7 @@ def main():
         html = (temp_root / "spark_web.html").read_text(encoding="utf-8")
         html = html.replace('gamepad: "enabled"', 'gamepad: "disabled"', 1)
         guard = (ROOT / "tools" / "web_audio_guard.js").read_text(encoding="utf-8")
+        guard += '\n' + (ROOT / 'tools/web_suspend_store.js').read_text(encoding='utf8')
         html = html.replace("<!doctype html>", "<!doctype html>\n<script>\n" + guard + "\n</script>", 1)
         (DIST / "game.html").write_text(html + TOUCH_CONTROLS, encoding="utf-8")
     print("Built dist/game.html with the official Pyxel Web runtime.")

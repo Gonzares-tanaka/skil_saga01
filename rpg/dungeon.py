@@ -10,6 +10,7 @@ from .treasure import Treasure
 from .exploration import load_exploration_settings
 from .items import Inventory
 from .finale import FinaleProgress
+from .elevator import unlock_notice, b15_elevator_open
 from .tiles import (BOSS_FLOORS, MAP_IMAGE_BANK, PASSABLE, FLOOR_TILES, TILE_FLOOR,
                     TILE_STAIRS_UP, TILE_STAIRS_DOWN, TILE_CHEST, TILE_ENTRANCE,
                     TILE_CHEST_OPEN, TILE_BOSS, TILE_BOSS_CLEAR,
@@ -33,6 +34,8 @@ class Dungeon:
             raise ValueError("enemies.json: 敵のidが重複しています。")
         self.width, self.height = settings["width"], settings["height"]
         self.finale = FinaleProgress()
+        from .postgame import CompletionRecords
+        self.completion = CompletionRecords.new_game()
         self.validate_settings()
         self.validate_maps()
         self.floor = 0
@@ -43,7 +46,9 @@ class Dungeon:
         self.inventory = inventory if inventory is not None else Inventory()
         self.treasure = treasure if treasure is not None else Treasure()
         self.steps = 0
-        self.grace = settings["safe_steps"]
+        self.grace = 0  # Legacy checkpoint field only; never an encounter gate.
+        # Construction/load must not consume RNG. An expedition draws in enter().
+        self.encounter_remaining = settings['encounter_step_ranges'][0][0]
         self.defeated_bosses = set()
 
     @property
@@ -69,12 +74,16 @@ class Dungeon:
     def defeat_boss(self):
         if self.floor not in BOSS_FLOORS:
             raise ValueError("この階にボスはいません。")
+        first = self.floor not in self.defeated_bosses
         if self.floor == 14:
             self.finale.claim_amrita()
             self.defeated_bosses.add(self.floor)
-            return self.finale.data['demon_after']
-        self.defeated_bosses.add(self.floor)
-        return self.boss_data["after_message"]
+            lines = self.finale.data['demon_after']
+        else:
+            self.defeated_bosses.add(self.floor)
+            lines = self.boss_data["after_message"]
+        # Append only to the first victory's existing, safely paginated story.
+        return list(lines) + (unlock_notice(self.floor) if first else [])
 
     def validate_settings(self):
         def require(ok, message):
@@ -88,9 +97,11 @@ class Dungeon:
                 f"widthは8～{max_width}")
         require(type(self.height) is int and 8 <= self.height <= max_height,
                 f"heightは8～{max_height}")
-        for key in ("encounter_chance", "debug_encounter_chance"):
-            require(number(self.settings[key], 0, 1), key + "は0～1")
-        require(type(self.settings["safe_steps"]) is int and 0 <= self.settings["safe_steps"] <= 20, "safe_stepsは0～20")
+        ranges = self.settings.get('encounter_step_ranges')
+        require(isinstance(ranges, list) and len(ranges) == 3 and all(
+                isinstance(r, list) and len(r) == 2 and all(type(v) is int for v in r)
+                and 1 <= r[0] <= r[1] <= 999 for r in ranges),
+                'encounter_step_rangesはAREA1～3の整数[min,max] (1～999)')
         items = self.settings["items"]
         require(type(items["max_potions"]) is int and 1 <= items["max_potions"] <= 99, "max_potionsは1～99")
         require(type(items["initial_potions"]) is int and 0 <= items["initial_potions"] <= items["max_potions"], "初期ポーション数が無効")
@@ -220,6 +231,14 @@ class Dungeon:
 
     def can_enter(self, floor, x, y):
         tile = self.tile(floor, x, y)
+        if b15_elevator_open(self, floor, x, y):
+            return True
+        # A suspend from the previous left-hand lift may stand in that wall.
+        # Let it resume and walk out; the old cell is no longer an entrance.
+        if (floor == 14 and self.finale.demon_defeated and 14 in self.defeated_bosses
+                and (self.floor, self.x, self.y) == (floor, x, y)
+                and (x, y) == (self.boss_positions[14][0] - 1, self.boss_positions[14][1])):
+            return True
         if tile == TILE_GUARDIAN:
             return self.finale.guardians_defeated
         return tile in PASSABLE or tile == TILE_DOOR and floor in self.activated_switches
@@ -228,24 +247,29 @@ class Dungeon:
         """Apply inventory rewards; the field UI applies HP/spark effects once."""
         kind, amount = reward["kind"], reward.get("amount", 1)
         if kind in ("POTION", "PHOENIX ASH", "REMEDY") and self.inventory.counts[kind] + amount > 9:
-            return "", f"{kind} は満杯。宝箱は残した"
+            return "", f"{self.inventory.label(kind)} は満杯。宝箱は残した"
         self.last_reward = reward
         if kind == "TREASURE":
             self.treasure.unbanked += amount
             message = f"{amount} {CURRENCY_NAME}を手に入れた。未確定 / 帰還で確定"
         elif kind in ("POTION", "PHOENIX ASH", "REMEDY"):
             self.inventory.add(kind, amount)
-            message = f"{kind} を{amount}個入手"
+            message = f"{self.inventory.label(kind)} を{amount}個入手"
         else:
             message = "宝箱は空だった" if kind == "EMPTY" else "宝箱を開けた!"
         return "chest", message
 
     def fall_in_pit(self):
         self.x, self.y = self.find(self.floor, TILE_ENTRANCE if self.floor == 0 else TILE_STAIRS_UP)
-        self.grace = self.settings["safe_steps"]
+        # The triggering tile was one real step; the teleport grants no steps.
         return "pit", "落とし穴! この階の入口へ戻された"
 
-    def enter(self, allow_cleared=False):
+    def reset_encounter(self, floor=None):
+        """Draw once per new expedition/battle exit, including both endpoints."""
+        area = (self.floor if floor is None else floor) // 5
+        self.encounter_remaining = self.rng.randint(*self.settings['encounter_step_ranges'][area])
+
+    def enter(self, allow_cleared=False, *, encounter_floor=0):
         if self.cleared and not allow_cleared:
             raise ValueError("このダンジョンはクリア済みです。")
         self.floor = 0
@@ -254,7 +278,8 @@ class Dungeon:
         self.activated_switches.clear()
         self.chest_loot.clear()
         self.finale.abort_guardians()
-        self.grace = self.settings["safe_steps"]
+        self.grace = 0
+        self.reset_encounter(encounter_floor)
 
     def change_floor(self, floor):
         if not 0 <= floor < len(self.maps):
@@ -267,13 +292,13 @@ class Dungeon:
         point = self.find(floor, arrival)  # Resolve before changing state.
         self.floor = floor
         self.x, self.y = point
-        self.grace = self.settings["safe_steps"]
+        # Carry the remaining budget. Stair/confirmation loops cannot refill it.
         return "stairs", f"B{floor + 1}Fに到着"
 
     def debug_floor(self, floor):
         self.floor = max(0, min(len(self.maps) - 1, floor))
         self.x, self.y = self.find(self.floor, TILE_ENTRANCE if self.floor == 0 else TILE_STAIRS_UP)
-        self.grace = self.settings["safe_steps"]
+        self.reset_encounter()
 
     def interact(self):
         tile = self.tile(self.floor, self.x, self.y)
@@ -327,6 +352,9 @@ class Dungeon:
             return "", "壁で進めません"
         self.x, self.y = x, y
         self.steps += 1
+        # Only completed grid moves count. Event tiles own their move; a due
+        # encounter stays at zero until an eligible cell or an event battle exit.
+        self.encounter_remaining = max(0, self.encounter_remaining - 1)
         tile = self.tile(self.floor, x, y)
         if tile == TILE_POISON:
             return "poison", "毒沼に足を踏み入れた"
@@ -340,14 +368,10 @@ class Dungeon:
                         TILE_DOOR, TILE_DOOR_OPEN, TILE_SWITCH_ON, TILE_GUARDIAN):
             return self.interact()
         # Only B15 is a dedicated finale floor without random encounters.
-        # B5/B10 still roll while exploring, before and after their bosses.
+        # B5/B10 still encounter while exploring, before and after their bosses.
         if self.floor == 14:
             return "", ""
-        if self.grace and not debug:
-            self.grace -= 1
-            return "", ""
-        chance = self.settings["debug_encounter_chance" if debug else "encounter_chance"]
-        if self.rng.random() < chance:
+        if self.encounter_remaining == 0:
             return "battle", "敵と遭遇した!"
         return "", ""
 

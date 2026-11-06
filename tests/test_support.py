@@ -48,7 +48,7 @@ class SupportTests(unittest.TestCase):
                 self.assertIn(sid, b.discovered_skills)
                 self.assertIn(sid, b.mastered_skills)
                 target = self.party[1] if self.skills[sid].target == 'ally' else b.enemies[0]
-                self.assertEqual(target.effects[sid][1], 3)
+                self.assertEqual(target.effects[sid][1], 4 if sid in ('power_up','focus') else 3)
                 self.assertEqual(self.actor.used_skills[sid], 1)
                 self.assertGreater(self.actor.growth_points['INT'], 0)
 

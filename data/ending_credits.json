@@ -1,0 +1,17 @@
+{
+  "scroll_frames_per_pixel": 3,
+  "line_height": 12,
+  "end_frames": 90,
+  "lines": [
+    "SKILL SEEKERS!!", "～深淵のアムリタ～", "", "",
+    "SCENARIO", "GONZARES TANAKA", "", "",
+    "GRAPHICS", "GONZARES TANAKA", "", "",
+    "GAME DESIGN", "GONZARES TANAKA", "", "",
+    "DIRECTOR", "GONZARES TANAKA", "", "",
+    "FONT", "美咲ゴシック第2", "Num Kadoma", "littlelimit.net", "", "",
+    "SPECIAL THANKS", "Pyxel", "Takashi Kitao", "MIT License", "", "",
+    "THANK YOU FOR PLAYING!"
+  ],
+  "extra_title": ["EXTRA QUEST", "", "古代竜の目覚め"],
+  "extra_lines": ["しかし、冒険はまだ終わらない。", "", "ダンジョンの深淵で、", "太古の竜が目覚めたという。", "", "新たなる試練が", "冒険者たちを待っている……。"]
+}

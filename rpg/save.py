@@ -12,8 +12,10 @@ import sys
 from .battle import Session
 from .dungeon import Dungeon, load_dungeon_settings
 from .exploration import Exploration
-from .models import Character
+from .models import Character, PARTY_IDS
+from .items import LEGACY_ITEMS, RETURN_FEATHER
 from .quests import QUEST_TYPES, QUEST_COMPLETION_IDS, spawn_candidates, log_spawn_failure
+from .postgame import CompletionRecords
 
 SAVE_VERSION = 1
 DEFAULT_SAVE_PATH = Path('save') / 'save.json'
@@ -115,7 +117,13 @@ def default_backend():
 def migrate_save_data(data):
     if not isinstance(data, dict) or type(data.get('save_version')) is not int or data['save_version'] != SAVE_VERSION:
         raise SaveError('未対応または不正なsave_versionです')
-    return deepcopy(data)
+    data = deepcopy(data)
+    # SaveData v1 used exactly three consumables before Gameplay Phase 02.
+    # Only that known old shape is upgraded; unknown/missing keys still fail.
+    items = data.get('items')
+    if isinstance(items, dict) and items.keys() == set(LEGACY_ITEMS):
+        items[RETURN_FEATHER] = 0
+    return data
 
 
 def require(condition, label):
@@ -150,6 +158,7 @@ def make_save_data(app):
         if e.active['type'] == 'hunt':
             active.update({key: e.active[key] for key in ('hunt_enemy_id', 'hunt_source_floor')})
     return dict(save_version=SAVE_VERSION, party=party,
+        **({'completion': d.completion.snapshot()} if d.completion.run_id is not None or d.completion.main_game_cleared else {}),
         discovered_skills=sorted(s.discovered_skills), mastered_skills=sorted(s.mastered_skills),
         items=dict(s.inventory.counts), banked_trz=s.treasure.banked,
         **{key: getattr(s, key) for key in COUNTERS},
@@ -187,7 +196,7 @@ def prepare_saved_game(app, raw_data):
     s.inventory.counts = dict(items)
     require(isinstance(data['party'], list) and len(data['party']) == 4, 'party')
     restored_party = []
-    for row in data['party']:
+    for index, row in enumerate(data['party']):
         keys = {'name', 'growth_type', 'hp', 'max_hp', 'strength', 'agility', 'intellect', 'sprite', 'skills', 'history'}
         require(isinstance(row, dict) and keys <= row.keys(), 'キャラクター項目')
         require(isinstance(row['name'], str) and bool(row['name'].strip()) and row['name'].isprintable(), 'name')
@@ -199,7 +208,7 @@ def prepare_saved_game(app, raw_data):
         require(strings(row['history']), 'history')
         require(isinstance(row['skills'], list) and len(row['skills']) <= s.settings['skill_slots'], 'skill slots')
         actor = Character(row['name'], row['growth_type'], row['max_hp'], row['strength'],
-                          row['agility'], row['intellect'], tuple(row['sprite']))
+                          row['agility'], row['intellect'], tuple(row['sprite']), party_id=PARTY_IDS[index])
         actor.hp, actor.history = row['hp'], list(row['history'])
         actor.mastered_skills = s.mastered_skills
         for learned in row['skills']:
@@ -252,6 +261,9 @@ def prepare_saved_game(app, raw_data):
     require(not story['final_event_started'] or story['lord_of_elysion_defeated'], '決戦途中の通常SAVE')
     require(not story['demon_defeated'] or story['has_amrita'] or story['amrita_power_spent'], 'KEY ITEM欠損')
     d.finale.restore({key: story[key] for key in (*STORY_FLAGS, 'read_lore')})
+    require('completion' not in data or isinstance(data['completion'],dict),'クリア記録形式')
+    d.completion = read_completion(data.get('completion'))
+    require(not d.completion.main_game_cleared or d.finale.demon_defeated, '本編クリア条件')
     require(type(data['hub_intro_shown']) is bool, 'hub_intro_shown')
     q = data['active_quest']
     if q is not None:
@@ -284,6 +296,19 @@ def prepare_saved_game(app, raw_data):
             q.update(hunt_source_floor=source + 1, hunt_enemy_id=saved['hunt_enemy_id'])
         e.active = q
     return s, d, e, data['hub_intro_shown']
+
+
+def read_completion(row):
+    if row is None:return CompletionRecords() # Original v1 saves/checkpoints.
+    require(isinstance(row,dict) and row.keys()==CompletionRecords().snapshot().keys(),'クリア記録項目')
+    ident=row['run_id']
+    require(ident is None or isinstance(ident,str) and len(ident)==32 and all(c in '0123456789abcdef' for c in ident),'冒険ID')
+    require(all(type(row[k]) is bool for k in ('main_game_cleared','ancient_dragon_defeated')),'クリア記録型')
+    count,best=row['ancient_dragon_victories'],row['ancient_dragon_best_turns']
+    require(integer(count) and (best is None or integer(best,1)),'竜の記録')
+    require(row['ancient_dragon_defeated']==(count>0)==(best is not None),'竜の達成記録')
+    require(not count or row['main_game_cleared'],'竜の解放条件')
+    return CompletionRecords(**row)
 
 
 def apply_save_data(app, data):

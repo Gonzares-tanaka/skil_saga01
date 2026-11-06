@@ -113,7 +113,7 @@ class SkillFoundationTests(unittest.TestCase):
                 group[2].hp=0
                 self.use(skill); self.actor.cooldowns.clear(); self.use(skill)
                 for i,c in enumerate(group):
-                    self.assertEqual(c.effects.get(skill.effect),None if i==2 else (skill.modifier,3))
+                    self.assertEqual(c.effects.get(skill.effect),None if i==2 else (skill.modifier,4 if base=='power_up' else 3))
                 self.assertEqual(self.actor.used_skills[skill.id],2)
 
     def test_random_one_living_and_no_preview_rng(self):
@@ -330,7 +330,7 @@ class SkillFoundationTests(unittest.TestCase):
                 skill=self.cure() if effect=='cure' else self.fixture(effect='status',status_id='poison',status_chance=100)
                 self.actor.forget('punch')
                 ensure_attack(self.actor,self.s.skills,discovered=self.s.discovered_skills)
-                self.assertEqual(self.actor.skill_uses['punch'],30)
+                self.assertEqual(self.actor.skill_uses['spark'],28)
 
     def test_all_presentation_draws_each_target_without_rng_or_rule_changes(self):
         for base,target in (('fire','all_enemies'),('heal','all_allies')):

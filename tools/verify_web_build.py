@@ -101,9 +101,12 @@ press(pyxel.GAMEPAD1_BUTTON_B)
 press(pyxel.GAMEPAD1_BUTTON_B)
 assert app.state == "camp"
 press(pyxel.GAMEPAD1_BUTTON_DPAD_UP)
+assert app.camp_cursor == 5  # New sixth facility: ELEVATOR.
+press(pyxel.GAMEPAD1_BUTTON_DPAD_UP)
+assert app.camp_cursor == 4  # Original DUNGEON still starts at B1.
 press(pyxel.GAMEPAD1_BUTTON_A)
 assert app.state == "explore"
-app.dungeon.settings["encounter_chance"] = 0
+app.dungeon.encounter_remaining = 10000
 for button, dx, dy, facing in ((pyxel.GAMEPAD1_BUTTON_DPAD_UP,0,-1,"up"),(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN,0,1,"down"),(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT,-1,0,"left"),(pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT,1,0,"right")):
     app.dungeon.x, app.dungeon.y = 6, 6
     app.dungeon.maps[0].pset(6+dx, 6+dy, TILE_FLOOR)
@@ -173,7 +176,7 @@ assert app.session.settled and not app.session.pending_replacements
 app.enter_camp()
 app.enter_dungeon()
 d = app.dungeon
-d.settings['encounter_chance'] = 0
+d.encounter_remaining = 10000
 assert [len(d.positions(f, TILE_QUEST)) for f in range(5, 10)] == [3, 3, 4, 3, 3]
 d.debug_floor(6)
 door = d.positions(6, TILE_DOOR)[0]
@@ -295,7 +298,7 @@ with patch.object(pyxel, 'play', side_effect=RuntimeError('audio suspended')), p
     assert app.state == 'ending' and d.finale.amrita_power_spent
     assert d.finale.lord_of_elysion_defeated and not d.finale.has_amrita
 # Exercise random encounters from real D-PAD input in the shipped payload.
-# Preserve production rates: force the RNG roll, never the encounter setting.
+# Keep production ranges; set one already-drawn remaining step for this fixture.
 app.start_new_game()
 d = app.dungeon
 app.opening_input_blocked = False
@@ -312,7 +315,7 @@ for floor in (3, 4, 8, 9, 13, 14):
             if cleared:
                 d.defeat_boss()
         d.x,d.y = point
-        d.grace = 0
+        d.encounter_remaining = 1
         app.session.battle = None  # Independent encounter fixture, no unfinished prior fight.
         app.state,app.overlay,app.battle_input_blocked = 'explore',None,False
         with patch.object(d.rng,'random',return_value=0) as roll:

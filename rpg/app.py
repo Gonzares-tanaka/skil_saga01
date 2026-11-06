@@ -9,7 +9,7 @@ import pyxel
 from .art import load_art
 from .models import Action
 from .labels import TYPES, RARITIES, TARGETS, OUTCOMES, EFFECTS, CURRENCY_NAME
-from .text import text, wrap_lines, font
+from .text import text, wrap_lines, font, DescriptionScroll
 from .sound import init_sound, play_cue, start_battle_music, stop_battle_music, play_victory_music, music_is_playing
 from .growth import growth_bonus
 from .keyboard import GameKeyboard
@@ -262,6 +262,8 @@ class App:
         self.keyboard.update()
         if self.handle_quit_input():
             return
+        if self.update_rescue_notice():
+            return
         if self.state == 'amrita_effect':
             self.update_amrita_effect()
             return
@@ -366,6 +368,8 @@ class App:
                 if visual.start():
                     action = self.battle.queue[0][1]
                     name = self.battle.skills[action.skill_id].name if action.kind == 'SKILL' else action.item_id
+                    if action.kind == 'ITEM' and action.item_id != AMRITA_ITEM_ID:
+                        name = self.session.inventory.label(action.item_id)
                     self.log = (self.log + [self.session.party[action.actor].name + ' ' + name])[-3:]
                 else:
                     self.apply_visual_action()
@@ -388,7 +392,7 @@ class App:
             elif confirm:
                 if self.cursor == 0:
                     if self.actor.skills:
-                        self.state, self.skill_cursor = "skill", 0
+                        self.state, self.skill_cursor = "skill", self.actor.remembered_skill_index()
                     else:
                         self.tell("使える技がありません")
                 elif self.cursor == 1:
@@ -427,6 +431,10 @@ class App:
             elif confirm:
                 self.tell("使える道具がありません")
         elif self.state == "skill":
+            if not self.actor.skills:
+                self.state = "command"
+                self.tell("使える技がありません")
+                return
             self.skill_cursor = (self.skill_cursor + self.direction()) % len(self.actor.skills)
             if cancel:
                 self.state = "command"
@@ -436,7 +444,7 @@ class App:
                 if self.actor.skill_uses.get(skill.id, 0) <= 0:
                     self.tell("残り回数がありません")
                 elif skill.effect == "return":
-                    self.tell("RETURNは探索メニューから使用")
+                    self.tell(skill.name + "は探索メニューから使用")
                 elif self.actor.cooldowns.get(skill.id, 0):
                     self.tell("この技は再使用待ちです")
                 elif skill.target == "self":
@@ -480,7 +488,14 @@ class App:
         text(4, 2, value, 0, 38)
 
     def draw(self):
+        if hasattr(self, 'description_scroll'):
+            self.description_scroll.begin_frame()
         pyxel.cls(0)
+        if self.overlay == 'rescue':
+            if getattr(self, 'battle', None):
+                self.draw_battle()
+            self.draw_rescue_notice()
+            return
         if self.overlay == 'status_debug':
             self.draw_status_debug()
         elif self.state == 'amrita_effect':
@@ -543,6 +558,16 @@ class App:
                     self.draw_lord_of_elysion(enemy)
                     if flashing:
                         pyxel.pal()
+                elif enemy.id == 'ancient_dragon':
+                    from .postgame import draw_dragon
+                    pyxel.clip(0,11,96,53)
+                    flashing = visual.target_flashing('enemy', i)
+                    if flashing:
+                        pyxel.pal(1, 3); pyxel.pal(2, 3)
+                    draw_dragon(pyxel,x,y,sink=sink)
+                    if flashing:
+                        pyxel.pal()
+                    pyxel.clip()
                 else:
                     pyxel.clip(0, 11, 96, y + 16 - 11)
                     flashing = visual.target_flashing('enemy', i)
@@ -556,6 +581,10 @@ class App:
                     icon_x, icon_y = x - 9, y
                     if self.battle.is_elysion_battle:
                         fx, fy, _, _ = self.final_visual().bounds()
+                        icon_x, icon_y = fx - 9, fy
+                    elif enemy.id == 'ancient_dragon':
+                        from .postgame import dragon_bounds
+                        fx, fy, _, _ = dragon_bounds(x,y)
                         icon_x, icon_y = fx - 9, fy
                     draw_status_icons(pyxel, enemy, max(0, icon_x), icon_y, limit=2,
                                       vertical=True, definitions=self.battle.status_definitions)
@@ -611,10 +640,13 @@ class App:
                     x, y = enemy_position(target_index, len(self.battle.enemies))
                     text(x - 8, y + 4, ">", 3)
             label = self.selected_item or f"{self.selected_skill.name} 残{self.actor.skill_uses[self.selected_skill.id]}"
+            if self.selected_item:
+                label = self.session.inventory.label(self.selected_item)
             text(5, 84, label, 2, 37)
             target_line = f"> {target.name} HP {target.hp}/{target.max_hp}" if ally else f"> {target.name}"
             text(5, 92, target_line, 3, 37)
-            text(5, 100, "対象を選んでください", 2)
+            hint = self.cure_target_hint(self.selected_skill, [target]) if not self.selected_item else ""
+            text(5, 100, hint + " / 予約可" if hint else "対象を選んでください", 2, 37)
             self.footer("D-PAD:対象 A:決定 B:戻る")
         else:
             for i, line in enumerate(self.log[-3:]):
@@ -709,6 +741,14 @@ class App:
             self.log = wrap_lines(self.battle.final_data['amrita_release'][1:] or
                                   self.battle.final_data['amrita_release'], 37)[-3:]
 
+    def cure_target_hint(self, skill, targets):
+        """Advisory only: healthy allies remain legal queued cure targets."""
+        if skill and skill.effect == 'cure' and not any(
+                target.alive and set(active_statuses(target)) & set(skill.cure_statuses)
+                for target in targets):
+            return "治療対象なし"
+        return ""
+
     def skill_details(self, actor, skill, y=76):
         pyxel.line(4, y - 3, 155, y - 3, 1)
         text(5, y, f"{RARITIES[skill.rarity]} / {TARGETS[skill.target]} 最大{actor.max_uses(skill)}回", 2, 37)
@@ -724,10 +764,23 @@ class App:
             detail = f"未確定{CURRENCY_NAME}を持ち帰る"
         elif skill.effect == "revive":
             detail = "戦闘不能の味方1人 / 残数制"
+        if skill.target == 'all_allies':
+            hint = self.cure_target_hint(skill, self.session.party)
+            if hint:
+                detail = hint + (" / 予約可" if self.state == 'skill' else "")
         text(5, y + 16, detail, 2, 37)
-        text(5, y + 24, skill.description, 2, 37)
+        if not hasattr(self, 'description_scroll'):
+            self.description_scroll = DescriptionScroll()
+        self.description_scroll.draw(5, y + 24, skill.description, 2, 37,
+            context=(self.state, self.overlay, self.info_character, self.info_tab,
+                     actor.party_id, skill.id))
 
     def draw_skills(self):
+        if not self.actor.skills:
+            self.title(f"{self.actor.name} / 技なし")
+            self.footer("B:戻る")
+            return
+        self.skill_cursor = min(max(0, self.skill_cursor), len(self.actor.skills) - 1)
         self.title(f"{self.actor.name} / 技 {self.skill_cursor + 1}/{len(self.actor.skills)}")
         start = max(0, self.skill_cursor - 5)
         for row, skill_id in enumerate(self.actor.skills[start:start + 6]):
@@ -752,15 +805,14 @@ class App:
                 label = 'アムリタ / KEY ITEM'
             else:
                 remaining = self.session.inventory.counts[item] - sum(a.kind == "ITEM" and a.item_id == item for a in self.actions)
-                label = f'{item} x{remaining}'
+                label = f'{self.session.inventory.label(item)} x{remaining}'
             text(8, 24 + i * 14, (">" if i == self.item_cursor else " ") +
                  label, 3 if i == self.item_cursor else 2, 36)
         if AMRITA_ITEM_ID in options and self.item_cursor == options.index(AMRITA_ITEM_ID):
             text(8, 78, '特殊な障壁を解除 / 1ターン', 2, 36)
             text(8, 90, '道具数と技Usesは消費しない', 2, 36)
-        else:
-            text(8, 78, "POTION: 生存者のHP回復", 2, 36)
-            text(8, 90, "ASH: 戦闘不能を25%で蘇生", 2, 36)
+        elif options:
+            text(8, 78, self.session.inventory.description(options[self.item_cursor]), 2, 36)
         self.footer("上下:選択 A:使用 B:戻る")
 
     def draw_result(self):
@@ -833,7 +885,7 @@ class App:
         self.footer("左右:人 上下:選択 A:頁 B:閉じる")
 
     def draw_help(self):
-        self.title("SPARK / 操作")
+        self.title("ヘルプ / 操作")
         lines = ["D-PAD  移動・選択", "A  決定・調べる・会話送り", "B  キャンセル・戻る", "探索中のB  メニュー", "PC: A=Zキー B=Xキー",
                  "戦闘 SKILL/ITEM/GUARD/RUN", "GUARD:今ターンの被害半減", "技は使い切ると消滅"]
         for i, line in enumerate(lines):
@@ -870,6 +922,41 @@ class App:
         elif confirm:
             self.replacement_confirm = True
 
+    def update_rescue_notice(self):
+        """Use the ordinary message panel for previously silent rescue paths.
+
+        Round-end and field-skill rescues already use their existing log queues.
+        Only battle-entry/replacement notices pass through this transient panel.
+        """
+        if self.overlay == 'rescue':
+            if self.rescue_input_blocked:
+                if not (self.confirm_held() or pyxel.btn(pyxel.KEY_X)
+                        or pyxel.btn(pyxel.GAMEPAD1_BUTTON_B)):
+                    self.rescue_input_blocked = False
+                return True
+            if self.confirm() or self.cancel():
+                self.rescue_offset += 3
+                if self.rescue_offset >= len(self.rescue_lines):
+                    self.overlay = None
+                else:
+                    self.rescue_input_blocked = True
+            return True
+        if (self.session.rescue_notices and self.overlay is None
+                and self.state not in ('title', 'title_no_save', 'title_fade', 'intro',
+                    'hub_preview', 'hub_intro', 'battle_transition', 'amrita_effect')):
+            self.rescue_lines = wrap_lines(self.session.rescue_notices, 36)
+            self.session.rescue_notices.clear()
+            self.rescue_offset, self.rescue_input_blocked = 0, True
+            self.overlay = 'rescue'
+            return True
+        return False
+
+    def draw_rescue_notice(self):
+        self.panel(0, 79, 160, 32)
+        for row, line in enumerate(self.rescue_lines[self.rescue_offset:self.rescue_offset + 3]):
+            text(5, 83 + row * 8, line, 3, 36)
+        self.footer('A/B:次へ')
+
     def draw_replacement(self):
         actor = self.session.party[self.session.pending_replacements[0]]
         new = self.session.skills[actor.pending_skill]
@@ -878,7 +965,8 @@ class App:
         bonus = " / POWER x1.2" if actor.next_power_multiplier(new) > 1 else ""
         self.title(f"{actor.name} / 技の入れ替え{bonus}")
         text(4, 14, f"新: {new.name}", 3, 38)
-        text(4, 23, f"{new.relearn_cost} {CURRENCY_NAME}消費 / 再習得{uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{new.power(actor)} {uses}/{actor.next_max_uses(new)}回", 2, 38)
+        preview_power = new.power(actor, next_copy=True)
+        text(4, 23, f"{new.relearn_cost} {CURRENCY_NAME} / 威力{preview_power} {uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{preview_power} {uses}/{actor.next_max_uses(new)}回", 2, 38)
         if self.replacement_confirm:
             if self.replacement_cursor < len(actor.skills):
                 old = self.session.skills[actor.skills[self.replacement_cursor]]
@@ -887,7 +975,7 @@ class App:
                 text(4, 56, f"覚える: {new.name}", 3, 38)
                 text(4, 77, "この技に入れ替えますか?", 3, 38)
                 if new.effect not in ("damage", "drain") and not any(self.session.skills[s].effect in ("damage", "drain") for s in actor.skills if s != old.id):
-                    text(4, 91, "攻撃技を1つ残してください" if relearn else "攻撃技なし:末尾を救済パンチに", 3, 38)
+                    text(4, 91, "攻撃技を1つ残してください" if relearn else "攻撃技がなくなります", 3, 38)
             else:
                 text(4, 48, "新しい技を覚えずに", 2, 38)
                 text(4, 62, "見送りますか?", 3, 38)
