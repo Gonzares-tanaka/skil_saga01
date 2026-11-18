@@ -1,0 +1,42 @@
+[
+  {
+    "screen": "replacement",
+    "path": "verification/screenshots/phase8_pc_replacement.png",
+    "bounded": true
+  },
+  {
+    "screen": "replacement_confirm",
+    "path": "verification/screenshots/phase8_pc_replacement_confirm.png",
+    "bounded": true
+  },
+  {
+    "screen": "info_0",
+    "path": "verification/screenshots/phase8_pc_info_0.png",
+    "bounded": true
+  },
+  {
+    "screen": "info_1",
+    "path": "verification/screenshots/phase8_pc_info_1.png",
+    "bounded": true
+  },
+  {
+    "screen": "info_2",
+    "path": "verification/screenshots/phase8_pc_info_2.png",
+    "bounded": true
+  },
+  {
+    "screen": "dragon_74",
+    "path": "verification/screenshots/phase8_pc_dragon_74.png",
+    "bounded": true
+  },
+  {
+    "screen": "dragon_49",
+    "path": "verification/screenshots/phase8_pc_dragon_49.png",
+    "bounded": true
+  },
+  {
+    "screen": "dragon_24",
+    "path": "verification/screenshots/phase8_pc_dragon_24.png",
+    "bounded": true
+  }
+]

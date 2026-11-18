@@ -121,6 +121,12 @@ def load_content(directory=None):
         rates = settings["category_growth"][category]
         require(all(stat in ("HP", "STR", "AGI", "INT") and number(rate, 0, 0.2)
                     for stat, rate in rates.items()), f"Invalid category_growth: {category}")
+    for character_id, rule in settings.get('character_int_growth', {}).items():
+        require(character_id in PARTY_IDS and isinstance(rule, dict), 'Invalid character_int_growth')
+        require(number(rule.get('per_use'), 0, 0.05) and integer(rule.get('max_uses'), 1, 3),
+                'Invalid character INT growth amount')
+        require(isinstance(rule.get('categories'), list) and bool(rule['categories'])
+                and set(rule['categories']) <= {'magic', 'healing'}, 'Invalid character INT categories')
     weights = settings["rarity_weights"]
     require(all(number(weights[r], 0.000001) for r in RARITIES), "Every rarity must have a positive weight (including LEGEND).")
     require(integer(settings["skill_slots"], 1, 8), "skill_slots must be 1..8.")

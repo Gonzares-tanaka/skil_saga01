@@ -150,7 +150,12 @@ class Character:
         return MASTERED_POWER_MULTIPLIER if skill.id in self.mastered_copies and skill.effect in ("damage", "drain") else 1.0
 
     def forget(self, skill_id):
+        index = self.skills.index(skill_id)
         self.skills.remove(skill_id)
+        if skill_id == self.last_skill_id:
+            self.last_skill_index = min(index, max(0, len(self.skills)-1))
+        elif index < self.last_skill_index:
+            self.last_skill_index -= 1
         self.skill_uses.pop(skill_id, None)
         self.mastered_copies.discard(skill_id)
         self.cooldowns.pop(skill_id, None)

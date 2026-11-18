@@ -267,7 +267,7 @@ class SuspendTests(unittest.TestCase):
         self.assertEqual(len(rows),3)
         self.assertTrue(all(58<c.args[1]<104 for c in rows))
 
-    def test_actual_skill_menu_remembers_only_execution_not_cancel_or_queue(self):
+    def test_actual_skill_menu_remembers_confirmed_selection_not_browsing(self):
         a=self.a; c=a.session.party[0]
         for sid in ('fire','ice'): c.learn(a.session.skills[sid])
         a.begin_encounter(); self.tick()
@@ -285,9 +285,9 @@ class SuspendTests(unittest.TestCase):
         self.tick(pyxel.GAMEPAD1_BUTTON_B)
         self.assertEqual(c.last_skill_id,'ice')
         self.tick(pyxel.GAMEPAD1_BUTTON_A); self.tick(pyxel.GAMEPAD1_BUTTON_A)
-        self.assertEqual(c.last_skill_id,'ice')  # Queued but not yet used.
+        self.assertEqual(c.last_skill_id,'fire')  # Remember confirmed selection even before execution.
         self.tick(pyxel.GAMEPAD1_BUTTON_B)  # Undo the queued action.
-        self.assertEqual(c.last_skill_id,'ice')
+        self.assertEqual(c.last_skill_id,'fire')
         a.battle._party_action(Action(0,'SKILL',0,'fire'))
         a.state='command'; self.tick(pyxel.GAMEPAD1_BUTTON_A)
         self.assertEqual(a.skill_cursor,1)

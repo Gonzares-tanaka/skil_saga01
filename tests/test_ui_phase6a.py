@@ -85,7 +85,8 @@ class UIPhase6ATests(EncounterFixture):
         d.finale.guardians_defeated = True
         lines = d.defeat_boss()
         self.assertTrue(d.finale.has_amrita and d.finale.demon_defeated)
-        self.assertTrue(any('右隣' in v for v in lines))
+        from rpg.elevator import unlock_notice
+        self.assertTrue(all(line in lines for line in unlock_notice(14)))
         d.defeated_bosses.update((4, 9))
         for floor in (5, 10):
             self.assertEqual(arrival_point(d, floor), d.find(floor, TILE_STAIRS_UP))

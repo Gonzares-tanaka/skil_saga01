@@ -26,12 +26,20 @@ def main():
             z.writestr(launcher, (ROOT / 'tools/run_gkd.sh').read_bytes().replace(b'\r\n', b'\n'))
             z.writestr('PLAY_GUIDE_JA.txt', (ROOT / 'verification/GKD_PLAY_GUIDE_JA.txt').read_bytes())
             for p in sources:
-                z.write(p, 'Skill_Seekers/' + p.relative_to(ROOT).as_posix())
+                rel = p.relative_to(ROOT).as_posix()
+                payload = p.read_bytes()
+                if rel == 'rpg/runtime.py':
+                    payload = payload.replace(b'DEVELOPMENT_BUILD = True', b'DEVELOPMENT_BUILD = False')
+                z.writestr('Skill_Seekers/' + rel, payload)
         with zipfile.ZipFile(candidate) as z:
             assert not any('/save/' in n or '__pycache__' in n for n in z.namelist())
             assert z.read('Skill_Seekers/rpg/enemy_actions.py') == (ROOT / 'rpg/enemy_actions.py').read_bytes()
             for p in sources:
-                assert z.read('Skill_Seekers/' + p.relative_to(ROOT).as_posix()) == p.read_bytes()
+                rel = p.relative_to(ROOT).as_posix()
+                payload = p.read_bytes()
+                if rel == 'rpg/runtime.py':
+                    payload = payload.replace(b'DEVELOPMENT_BUILD = True', b'DEVELOPMENT_BUILD = False')
+                assert z.read('Skill_Seekers/' + rel) == payload
             count = len(z.namelist())
         candidate.replace(OUTPUT)
     print('Built:', OUTPUT.relative_to(ROOT).as_posix(), 'entries:', count, 'SAVE excluded; all sources match')

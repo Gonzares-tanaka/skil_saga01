@@ -1,0 +1,34 @@
+.......................................................................................................................................................................................................................................................................................................................C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmpv16i4n79'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmpcqixokii'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmpbnh9qs40'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmp6679qvpu'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmp6alhkyl5'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmpogd113jd'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmpa_j2rnrs'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmph63bewhz'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmpihiqmuk1'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmp0uanrcj5'>
+  _warnings.warn(warn_message, ResourceWarning)
+.C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmp70enefpw'>
+  _warnings.warn(warn_message, ResourceWarning)
+..........................................................................................................................................................................................................................................................................................................................................................................................C:\Users\hama0\AppData\Local\Programs\Python\Python314\Lib\tempfile.py:962: ResourceWarning: Implicitly cleaning up <TemporaryDirectory 'C:\\Users\\hama0\\AppData\\Local\\Temp\\tmp0djkeu2d'>
+  _warnings.warn(warn_message, ResourceWarning)
+..........................................................................
+----------------------------------------------------------------------
+Ran 773 tests in 411.909s
+
+OK
+SUSPEND failed: SaveError('中断データを復元できません')
+SUSPEND failed: SaveError('セーブデータが不正です: 中断ID')
+SUSPEND failed: SaveError('セーブデータが不正です: 中断ID')
+SUSPEND failed: SaveError('cannot consume')
+SUSPEND failed: SaveError('full disk')

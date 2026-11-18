@@ -99,6 +99,7 @@ class QuitInputTests(unittest.TestCase):
             quit_game.assert_called_once_with()
         app = self.make_app(DungeonApp)
         app.state = "title"
+        app.debug_allowed = True  # Q exit now requires explicit PC debug startup.
         with patch.object(pyxel, "btnp", side_effect=lambda key, *args: key == pyxel.KEY_Q), \
              patch.object(pyxel, "quit") as quit_game:
             app.update()

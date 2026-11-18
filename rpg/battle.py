@@ -34,6 +34,8 @@ class Battle:
         self.queue = deque()
         self.sound_cue = None
         self.player_hit = False
+        self.hp_stage_messages = []
+        self.hp_stages_shown = set()
         self.enemy_actions = load_enemy_actions() if enemy_actions is None else enemy_actions
         self.enemy_action_visual = None
         self.player_skill_visual = None
@@ -489,7 +491,19 @@ class Battle:
                 unit.effects = {key: (factor, turns - 1) for key, (factor, turns) in unit.effects.items() if turns > 1}
         if self.outcome:
             self.clear_effects()
+        else:
+            lines.extend(self.hp_stage_feedback())
         return lines
+
+    def hp_stage_feedback(self):
+        dragon = next((enemy for enemy in self.enemies if enemy.id=='ancient_dragon'),None)
+        if self.outcome or dragon is None or not dragon.alive:
+            return []
+        crossed = [(index,stage) for index,stage in enumerate(self.hp_stage_messages)
+                   if index not in self.hp_stages_shown and dragon.hp<=dragon.max_hp*stage['ratio']]
+        self.hp_stages_shown.update(index for index,_ in crossed)
+        # A large hit announces only the deepest reached stage, never three notices.
+        return [crossed[-1][1]['message']] if crossed else []
 
     def run_chance(self):
         allies = [c.agility for c in self.party if c.alive]

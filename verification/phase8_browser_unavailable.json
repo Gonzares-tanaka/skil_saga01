@@ -1,0 +1,30 @@
+[
+  {
+    "mode": "desktop",
+    "audio": "unavailable",
+    "release_debug_disabled": true,
+    "keyboard_shortcuts_safe": true,
+    "actual_page_and_touch_inputs": true,
+    "mastered_stars": true,
+    "dialog_overlay_blocked": true,
+    "dragon_stage": true,
+    "victory_return": true,
+    "page_errors": [],
+    "physical_ios": false,
+    "travel_and_party_fixtures": true
+  },
+  {
+    "mode": "touch",
+    "audio": "unavailable",
+    "release_debug_disabled": true,
+    "keyboard_shortcuts_safe": true,
+    "actual_page_and_touch_inputs": true,
+    "mastered_stars": true,
+    "dialog_overlay_blocked": true,
+    "dragon_stage": true,
+    "victory_return": true,
+    "page_errors": [],
+    "physical_ios": false,
+    "travel_and_party_fixtures": true
+  }
+]

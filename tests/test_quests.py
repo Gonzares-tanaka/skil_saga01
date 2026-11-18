@@ -80,7 +80,8 @@ class QuestTests(unittest.TestCase):
                     for p in q['points']:
                         self.assertIn(tuple(p), spawn_candidates(self.d, q['target_floor']-1))
                     seen.add(q['target_floor'])
-                eligible = {f+1 for f in range((level-1)*5, level*5)
+                low,high=self.e.quest_data['target_floors'][kind][str(level)]
+                eligible = {f+1 for f in range(low-1,high)
                             if len(spawn_candidates(self.d, f)) >= count}
                 self.assertEqual(seen, eligible)
 
@@ -178,7 +179,9 @@ class QuestTests(unittest.TestCase):
         originals = deepcopy(self.d.enemies)
         for level in (1,2,3):
             self.e.active = None
-            with patch.object(self.s.rng,'choice',side_effect=lambda values:values[-1]):
+            # Legacy saved B15 hunts must remain playable, although new Lv3
+            # offers exclude B15. Keep all three historical floor paths covered.
+            with patch.dict(self.e.quest_data,target_floors={}), patch.object(self.s.rng,'choice',side_effect=lambda values:values[-1]):
                 self.e.accept(level, quest_type='hunt')
             q = self.e.active
             self.assertEqual(q['target_floor'], level*5)

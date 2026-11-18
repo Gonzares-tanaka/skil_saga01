@@ -486,7 +486,8 @@ class FinaleIntegrationTests(unittest.TestCase):
             self.assertIn(floor, range(10, 15))
             self.assertIn((x, y), spawn_candidates(d, floor))
             self.assertIn((x, y), d.reachable(floor))
-        self.assertEqual(floors, set(range(10, 15)))
+        low,high=exploration.quest_data['target_floors']['explore']['3']
+        self.assertEqual(floors, set(range(low-1,high)))
 
 
 if __name__ == '__main__':

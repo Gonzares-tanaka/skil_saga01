@@ -37,7 +37,9 @@ class QuestSpawnTests(unittest.TestCase):
 
     def accept_at(self, app, kind, floor):
         e, s = app.exploration, app.session
-        with patch.object(s.rng, 'choice', return_value=floor):
+        # Exercise all legacy target floors, including contracts already saved
+        # before Phase 8 narrowed the pools for newly offered quests.
+        with patch.dict(e.quest_data, target_floors={}), patch.object(s.rng, 'choice', return_value=floor):
             e.accept(floor // 5 + 1, quest_type=kind)
         self.assertEqual(e.active['target_floor'], floor + 1)
 
@@ -149,9 +151,9 @@ class QuestSpawnTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 app.exploration.accept(3, quest_type='investigate')
         self.assertIsNone(app.exploration.active)
-        self.assertEqual(len(logs.output), 5)
+        self.assertEqual(len(logs.output), 3)
         self.assertTrue(all('required_count=3 valid_candidate_count=0' in line for line in logs.output))
-        self.assertTrue(any('target_floor=B15F' in line for line in logs.output))
+        self.assertTrue(any('target_floor=B14F' in line for line in logs.output))
 
     def test_invalid_preview_is_not_moved_to_another_floor_or_accepted(self):
         app = self.make_app()

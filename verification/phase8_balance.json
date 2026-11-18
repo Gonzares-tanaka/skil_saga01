@@ -1,0 +1,661 @@
+{
+  "growth": [
+    {
+      "skill": "fire",
+      "uses_per_victory": 3,
+      "trials": 200,
+      "seed_base": 80000,
+      "int_probability": {
+        "rou": [
+          0.47,
+          0.47
+        ],
+        "kai": [
+          0.47,
+          0.56
+        ],
+        "mio": [
+          0.9,
+          0.9
+        ],
+        "sen": [
+          0.47,
+          0.47
+        ]
+      },
+      "mean_int": {
+        "50": {
+          "before": [
+            25.155,
+            26.095,
+            54.005,
+            27.65
+          ],
+          "after": [
+            25.155,
+            30.525,
+            54.005,
+            27.65
+          ]
+        },
+        "100": {
+          "before": [
+            48.89,
+            49.42,
+            98.995,
+            51.385
+          ],
+          "after": [
+            48.89,
+            58.415,
+            98.995,
+            51.385
+          ]
+        },
+        "200": {
+          "before": [
+            96,
+            96.585,
+            188.715,
+            97.82
+          ],
+          "after": [
+            96,
+            114.335,
+            188.715,
+            97.82
+          ]
+        }
+      },
+      "unrelated_growth_identical": true
+    },
+    {
+      "skill": "quick_hit",
+      "uses_per_victory": 3,
+      "trials": 200,
+      "seed_base": 80000,
+      "int_probability": {
+        "rou": [
+          0.12,
+          0.12
+        ],
+        "kai": [
+          0.12,
+          0.12
+        ],
+        "mio": [
+          0.55,
+          0.55
+        ],
+        "sen": [
+          0.12,
+          0.12
+        ]
+      },
+      "mean_int": {
+        "50": {
+          "before": [
+            8.14,
+            8.81,
+            36.745,
+            9.945
+          ],
+          "after": [
+            8.14,
+            8.81,
+            36.745,
+            9.945
+          ]
+        },
+        "100": {
+          "before": [
+            14.305,
+            14.985,
+            64.23,
+            16.09
+          ],
+          "after": [
+            14.305,
+            14.985,
+            64.23,
+            16.09
+          ]
+        },
+        "200": {
+          "before": [
+            26.39,
+            26.63,
+            119.235,
+            28
+          ],
+          "after": [
+            26.39,
+            26.63,
+            119.235,
+            28
+          ]
+        }
+      },
+      "unrelated_growth_identical": true
+    }
+  ],
+  "quests": [
+    {
+      "level": 1,
+      "kind": "explore",
+      "version": "before",
+      "floors": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 80.47,
+      "min_steps": 3,
+      "max_steps": 154,
+      "expected_random_battles_upper_approx": 7.0,
+      "encounter_step_range": [
+        7,
+        16
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 1,
+      "reward": 2,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 1,
+      "kind": "explore",
+      "version": "after",
+      "floors": [
+        1,
+        2,
+        3
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 46.59,
+      "min_steps": 3,
+      "max_steps": 96,
+      "expected_random_battles_upper_approx": 4.05,
+      "encounter_step_range": [
+        7,
+        16
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 1,
+      "reward": 2,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 1,
+      "kind": "investigate",
+      "version": "before",
+      "floors": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 91.78,
+      "min_steps": 17,
+      "max_steps": 154,
+      "expected_random_battles_upper_approx": 7.98,
+      "encounter_step_range": [
+        7,
+        16
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 2,
+      "reward": 3,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 1,
+      "kind": "investigate",
+      "version": "after",
+      "floors": [
+        2,
+        3,
+        4
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 91.31,
+      "min_steps": 53,
+      "max_steps": 130,
+      "expected_random_battles_upper_approx": 7.94,
+      "encounter_step_range": [
+        7,
+        16
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 2,
+      "reward": 3,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 1,
+      "kind": "hunt",
+      "version": "before",
+      "floors": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 80.47,
+      "min_steps": 3,
+      "max_steps": 154,
+      "expected_random_battles_upper_approx": 7.0,
+      "encounter_step_range": [
+        7,
+        16
+      ],
+      "mandatory_quest_battles": 1,
+      "points": 1,
+      "reward": 4,
+      "hunt_stats_range": {
+        "HP": [
+          30,
+          85
+        ],
+        "STR": [
+          4,
+          14
+        ],
+        "DEF": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "level": 1,
+      "kind": "hunt",
+      "version": "after",
+      "floors": [
+        3,
+        4,
+        5
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 112.66,
+      "min_steps": 70,
+      "max_steps": 154,
+      "expected_random_battles_upper_approx": 9.8,
+      "encounter_step_range": [
+        7,
+        16
+      ],
+      "mandatory_quest_battles": 1,
+      "points": 1,
+      "reward": 4,
+      "hunt_stats_range": {
+        "HP": [
+          42,
+          85
+        ],
+        "STR": [
+          4,
+          14
+        ],
+        "DEF": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "level": 2,
+      "kind": "explore",
+      "version": "before",
+      "floors": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 87.77,
+      "min_steps": 4,
+      "max_steps": 152,
+      "expected_random_battles_upper_approx": 5.66,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 1,
+      "reward": 4,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 2,
+      "kind": "explore",
+      "version": "after",
+      "floors": [
+        6,
+        7,
+        8
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 53.04,
+      "min_steps": 4,
+      "max_steps": 96,
+      "expected_random_battles_upper_approx": 3.42,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 1,
+      "reward": 4,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 2,
+      "kind": "investigate",
+      "version": "before",
+      "floors": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 110.55,
+      "min_steps": 34,
+      "max_steps": 158,
+      "expected_random_battles_upper_approx": 7.13,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 3,
+      "reward": 5,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 2,
+      "kind": "investigate",
+      "version": "after",
+      "floors": [
+        7,
+        8,
+        9
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 112.16,
+      "min_steps": 93,
+      "max_steps": 136,
+      "expected_random_battles_upper_approx": 7.24,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 3,
+      "reward": 5,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 2,
+      "kind": "hunt",
+      "version": "before",
+      "floors": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 87.77,
+      "min_steps": 4,
+      "max_steps": 152,
+      "expected_random_battles_upper_approx": 5.66,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 1,
+      "points": 1,
+      "reward": 6,
+      "hunt_stats_range": {
+        "HP": [
+          39,
+          122
+        ],
+        "STR": [
+          4,
+          32
+        ],
+        "DEF": [
+          1,
+          19
+        ]
+      }
+    },
+    {
+      "level": 2,
+      "kind": "hunt",
+      "version": "after",
+      "floors": [
+        8,
+        9,
+        10
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 113.48,
+      "min_steps": 71,
+      "max_steps": 152,
+      "expected_random_battles_upper_approx": 7.32,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 1,
+      "points": 1,
+      "reward": 6,
+      "hunt_stats_range": {
+        "HP": [
+          46,
+          122
+        ],
+        "STR": [
+          5,
+          32
+        ],
+        "DEF": [
+          1,
+          19
+        ]
+      }
+    },
+    {
+      "level": 3,
+      "kind": "explore",
+      "version": "before",
+      "floors": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 68.54,
+      "min_steps": 3,
+      "max_steps": 122,
+      "expected_random_battles_upper_approx": 4.42,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 1,
+      "reward": 6,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 3,
+      "kind": "explore",
+      "version": "after",
+      "floors": [
+        11,
+        12,
+        13
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 45.89,
+      "min_steps": 3,
+      "max_steps": 85,
+      "expected_random_battles_upper_approx": 2.96,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 1,
+      "reward": 6,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 3,
+      "kind": "investigate",
+      "version": "before",
+      "floors": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 88.3,
+      "min_steps": 32,
+      "max_steps": 135,
+      "expected_random_battles_upper_approx": 5.7,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 3,
+      "reward": 7,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 3,
+      "kind": "investigate",
+      "version": "after",
+      "floors": [
+        12,
+        13,
+        14
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 101.32,
+      "min_steps": 64,
+      "max_steps": 135,
+      "expected_random_battles_upper_approx": 6.54,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 0,
+      "points": 3,
+      "reward": 7,
+      "hunt_stats_range": null
+    },
+    {
+      "level": 3,
+      "kind": "hunt",
+      "version": "before",
+      "floors": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 68.54,
+      "min_steps": 3,
+      "max_steps": 122,
+      "expected_random_battles_upper_approx": 4.42,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 1,
+      "points": 1,
+      "reward": 8,
+      "hunt_stats_range": {
+        "HP": [
+          60,
+          190
+        ],
+        "STR": [
+          6,
+          43
+        ],
+        "DEF": [
+          1,
+          19
+        ]
+      }
+    },
+    {
+      "level": 3,
+      "kind": "hunt",
+      "version": "after",
+      "floors": [
+        13,
+        14
+      ],
+      "samples": 100,
+      "mean_outbound_steps": 84.4,
+      "min_steps": 63,
+      "max_steps": 113,
+      "expected_random_battles_upper_approx": 5.45,
+      "encounter_step_range": [
+        9,
+        22
+      ],
+      "mandatory_quest_battles": 1,
+      "points": 1,
+      "reward": 8,
+      "hunt_stats_range": {
+        "HP": [
+          130,
+          190
+        ],
+        "STR": [
+          9,
+          43
+        ],
+        "DEF": [
+          2,
+          19
+        ]
+      }
+    }
+  ],
+  "assumptions": [
+    "Three casts per victory; no sparking, same seed per character before/after.",
+    "Growth trials impose actions and victories; not observed natural play or Uses sustainability.",
+    "Quest routes start at B1 entrance / unlocked B6 or B11 lift, shortest known route, no looting.",
+    "Distance ends at objective; return feather/RETURN travel cost is zero; walking return is extra.",
+    "Random battle estimates divide walking steps by countdown mean; event tiles/B15 make these approximate.",
+    "Mandatory hunt is one stronger enemy; other quests have no mandatory battle."
+  ]
+}

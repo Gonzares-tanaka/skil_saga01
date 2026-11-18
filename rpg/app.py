@@ -10,6 +10,7 @@ from .art import load_art
 from .models import Action
 from .labels import TYPES, RARITIES, TARGETS, OUTCOMES, EFFECTS, CURRENCY_NAME
 from .text import text, wrap_lines, font, DescriptionScroll
+from .runtime import development_enabled
 from .sound import init_sound, play_cue, start_battle_music, stop_battle_music, play_victory_music, music_is_playing
 from .growth import growth_bonus
 from .keyboard import GameKeyboard
@@ -41,6 +42,8 @@ QUIT_SELECT_HOLD_SECONDS = 1.0
 class App:
     def __init__(self, session, run=True, headless=False, battle_on_start=True):
         self.session = session
+        self.debug_allowed = development_enabled(session.debug)
+        self.session.debug = self.debug_allowed
         pyxel.init(160, 120, title=GAME_TITLE, fps=30,
                    display_scale=5, quit_key=pyxel.KEY_NONE, headless=headless)
         self.keyboard = GameKeyboard(enabled=not headless)
@@ -175,7 +178,7 @@ class App:
 
     def handle_quit_input(self):
         """Exit without saving; leave plumOS SELECT + D-pad shortcuts usable."""
-        if self.pressed(pyxel.KEY_Q):
+        if getattr(self, 'debug_allowed', False) and self.pressed(pyxel.KEY_Q):
             pyxel.quit()
             return True
         dpad = (pyxel.GAMEPAD1_BUTTON_DPAD_UP, pyxel.GAMEPAD1_BUTTON_DPAD_DOWN,
@@ -214,6 +217,8 @@ class App:
         return options
 
     def commit(self, action):
+        if action.kind == 'SKILL':
+            self.session.party[action.actor].remember_skill(action.skill_id)
         self.actions.append(action)
         self.actor_position += 1
         self.skip_confused_commands()
@@ -259,6 +264,8 @@ class App:
         self.footer('上下:対象 左右:種類 A:付与 B:戻る')
 
     def update(self):
+        if not getattr(self, 'debug_allowed', False):
+            self.session.debug = False
         self.keyboard.update()
         if self.handle_quit_input():
             return
@@ -272,7 +279,7 @@ class App:
             return
         self.shake_timer = max(0, self.shake_timer - 1)
         self.notice_timer = max(0, self.notice_timer - 1)
-        if self.pressed(pyxel.KEY_F9):
+        if getattr(self, 'debug_allowed', False) and self.pressed(pyxel.KEY_F9):
             self.session.debug = not self.session.debug
             self.tell("DEBUG オン" if self.session.debug else "DEBUG オフ")
             if not self.session.debug and self.overlay == "debug_skills":
@@ -283,11 +290,15 @@ class App:
                 self.overlay = None if self.overlay == "debug_skills" else "debug_skills"
                 self.notice_timer = 0
             return
-        if self.pressed(pyxel.KEY_D, pyxel.KEY_TAB):
+        inspectable = (self.state in ('camp', 'explore', 'menu', 'command', 'skill')
+                       and self.overlay in (None, 'info', 'help')
+                       and not self.session.pending_replacements
+                       and self.session.pending_relearn is None)
+        if inspectable and self.pressed(pyxel.KEY_D, pyxel.KEY_TAB):
             self.overlay = None if self.overlay == "info" else "info"
             self.scroll = 0
             return
-        if self.pressed(pyxel.KEY_H):
+        if inspectable and self.pressed(pyxel.KEY_H):
             self.overlay = None if self.overlay == "help" else "help"
             return
         confirm, cancel = self.confirm(), self.cancel()
@@ -306,11 +317,10 @@ class App:
             elif self.overlay == "info":
                 move = self.direction(horizontal=True)
                 if move:
-                    self.info_character = (self.info_character + move) % 4
+                    self.info_tab = (self.info_tab + move) % 3
                     self.scroll = 0
-                if confirm:
-                    self.info_tab = (self.info_tab + 1) % 3
-                    self.scroll = 0
+                elif self.info_tab == 0:
+                    self.info_character = (self.info_character + self.direction()) % 4
                 else:
                     self.scroll = max(0, min(self.info_scroll_limit(), self.scroll + self.direction()))
             return
@@ -377,7 +387,7 @@ class App:
                 self.begin_input()
             return
         if self.state == "command":
-            if self.pressed(pyxel.KEY_A):
+            if self.session.debug and getattr(self, 'debug_allowed', False) and self.pressed(pyxel.KEY_A):
                 self.battle.begin_round(self.battle.auto_actions())
                 self.state, self.delay = "resolve", 0
                 self.log = [f"第{self.battle.round}ターン / 自動"]
@@ -726,7 +736,7 @@ class App:
         self.battle_input_blocked = True
 
     def update_amrita_effect(self):
-        if self.pressed(pyxel.KEY_Q):
+        if getattr(self, 'debug_allowed', False) and self.pressed(pyxel.KEY_Q):
             pyxel.quit()
             return
         try:
@@ -882,7 +892,8 @@ class App:
             for i, line in enumerate(lines[self.scroll:self.scroll + 8]):
                 text(7, 27 + i * 9, line, 3 if "閃き" in line else 2, 36)
             text(5, 102, "上下:スクロール 新しい順", 2)
-        self.footer("左右:人 上下:選択 A:頁 B:閉じる")
+        self.footer(("上下:人 左右:頁 B:閉じる", "左右:頁 上下:技 A:使用 B:戻る",
+                     "左右:頁 上下:履歴 B:戻る")[self.info_tab])
 
     def draw_help(self):
         self.title("ヘルプ / 操作")
@@ -964,15 +975,15 @@ class App:
         uses = actor.relearn_uses(new) if relearn else actor.next_max_uses(new)
         bonus = " / POWER x1.2" if actor.next_power_multiplier(new) > 1 else ""
         self.title(f"{actor.name} / 技の入れ替え{bonus}")
-        text(4, 14, f"新: {new.name}", 3, 38)
+        text(4, 14, f"新: {self.mastered_label(new)}", 3, 38)
         preview_power = new.power(actor, next_copy=True)
         text(4, 23, f"{new.relearn_cost} {CURRENCY_NAME} / 威力{preview_power} {uses}/{actor.next_max_uses(new)}回" if relearn else f"{RARITIES[new.rarity]} 威力{preview_power} {uses}/{actor.next_max_uses(new)}回", 2, 38)
         if self.replacement_confirm:
             if self.replacement_cursor < len(actor.skills):
                 old = self.session.skills[actor.skills[self.replacement_cursor]]
-                text(4, 42, f"忘れる: {old.name}", 2, 38)
+                text(4, 42, f"忘れる: {self.mastered_label(old)}", 2, 38)
                 text(4, 66, f"残数 {actor.skill_uses[old.id]}/{actor.max_uses(old)} 完全に失う", 2, 38)
-                text(4, 56, f"覚える: {new.name}", 3, 38)
+                text(4, 56, f"覚える: {self.mastered_label(new)}", 3, 38)
                 text(4, 77, "この技に入れ替えますか?", 3, 38)
                 if new.effect not in ("damage", "drain") and not any(self.session.skills[s].effect in ("damage", "drain") for s in actor.skills if s != old.id):
                     text(4, 91, "攻撃技を1つ残してください" if relearn else "攻撃技がなくなります", 3, 38)
@@ -982,7 +993,7 @@ class App:
             self.footer("A:確定 B:選び直す")
             return
         start = max(0, self.replacement_cursor - 4)
-        choices = [self.session.skills[s].name for s in actor.skills] + ["新しい技を見送る"]
+        choices = [self.mastered_label(self.session.skills[s]) for s in actor.skills] + ["新しい技を見送る"]
         for row, label in enumerate(choices[start:start + 5]):
             selected = start + row == self.replacement_cursor
             y = 35 + row * 10
@@ -1000,6 +1011,9 @@ class App:
         else:
             text(4, 92, "覚えている技をそのまま残す", 2, 38)
         self.footer("上下:忘れる技 A:選択 B:見送る")
+
+    def mastered_label(self, skill):
+        return skill.name + ('★' if skill.id in self.session.mastered_skills else '')
 
     def update_debug_skills(self, confirm):
         self.info_character = (self.info_character + self.direction(horizontal=True)) % 4

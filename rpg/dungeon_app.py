@@ -349,6 +349,7 @@ class DungeonApp(PostgameMixin,App):
 
     def activate_suspended_game(self, prepared):
         self.session, self.dungeon, self.exploration, self.hub_intro_shown, ui = prepared
+        self.session.debug = self.session.debug and self.debug_allowed
         self.player_facing, self.last_rumor = ui['player_facing'], ui['last_rumor']
         self.explore_message = ui['explore_message']
         self.battle = self.final_checkpoint = self.final_presentation = self.battle_presentation = None
@@ -791,6 +792,8 @@ class DungeonApp(PostgameMixin,App):
         self.observe_hunt_goal()
 
     def update(self):
+        if not getattr(self, 'debug_allowed', False):
+            self.session.debug = False
         self.keyboard.update()
         if self.handle_quit_input():
             return
@@ -2117,10 +2120,10 @@ class DungeonApp(PostgameMixin,App):
         self.audio.play_bgm('bgm_boss')
 
     def update_final_event(self):
-        if self.pressed(pyxel.KEY_Q):
+        if getattr(self, 'debug_allowed', False) and self.pressed(pyxel.KEY_Q):
             pyxel.quit()
             return
-        if self.pressed(pyxel.KEY_F9):
+        if getattr(self, 'debug_allowed', False) and self.pressed(pyxel.KEY_F9):
             self.session.debug = not self.session.debug
             return
         confirm, cancel = self.confirm(), self.cancel()

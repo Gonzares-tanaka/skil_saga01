@@ -101,6 +101,9 @@ def main():
         for dirname in INCLUDE_DIRS:
             shutil.copytree(ROOT / dirname, app_dir / dirname,
                             ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "save"))
+        runtime = app_dir / 'rpg/runtime.py'
+        runtime.write_bytes(runtime.read_bytes().replace(
+            b'DEVELOPMENT_BUILD = True', b'DEVELOPMENT_BUILD = False'))
 
         subprocess.run([python, "-m", "pyxel", "package", str(app_dir),
                         str(app_dir / "main.py")], cwd=temp_root, check=True)

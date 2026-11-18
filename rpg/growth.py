@@ -7,7 +7,13 @@ def growth_bonus(actor, stat, settings):
     category_bonus = 0
     for category, count in actor.category_uses.items():
         category_bonus += min(3, count) * settings.get("category_growth", {}).get(category, {}).get(stat, 0)
-    return min(settings["growth_bonus_cap"], skill_bonus + category_bonus)
+    extra = 0
+    if stat == 'INT':
+        rule = settings.get('character_int_growth', {}).get(actor.party_id)
+        if rule:
+            count = sum(actor.category_uses.get(category, 0) for category in rule['categories'])
+            extra = min(rule['max_uses'], count) * rule['per_use']
+    return min(settings["growth_bonus_cap"], skill_bonus + category_bonus) + extra
 
 
 def spark(character, skills, settings, rng, allowed=None, discovered=None):

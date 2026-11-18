@@ -126,8 +126,9 @@ class Exploration:
         if not self.unlocked(quest) and not debug:
             raise ValueError("先のエリアのボス撃破が必要です")
         count = self.quest_data['investigate_points'][str(quest_id)] if quest_type == 'investigate' else 1
+        low,high = self.quest_data.get('target_floors', {}).get(quest_type, {}).get(str(quest_id),quest['floors'])
         candidates = {floor: spawn_candidates(self.dungeon, floor)
-                      for floor in range(quest['floors'][0] - 1, quest['floors'][1])}
+                      for floor in range(low - 1, high)}
         for floor, points in candidates.items():
             if len(points) < count:
                 log_spawn_failure(quest_type, quest_id, floor, count, len(points))

@@ -37,7 +37,10 @@ with tempfile.TemporaryDirectory(prefix="verify_pyxel_web_") as temp:
                 filename = name + suffix
                 assert archive.read("spark_web/" + filename) == (ROOT / filename).read_bytes(), filename
         for source in (ROOT / "rpg").glob("*.py"):
-            assert archive.read("spark_web/rpg/" + source.name) == source.read_bytes(), source.name
+            expected = source.read_bytes()
+            if source.name == 'runtime.py':
+                expected = expected.replace(b'DEVELOPMENT_BUILD = True', b'DEVELOPMENT_BUILD = False')
+            assert archive.read("spark_web/rpg/" + source.name) == expected, source.name
         for source in (ROOT / "data").glob("*.json"):
             assert archive.read("spark_web/data/" + source.name) == source.read_bytes(), source.name
         music = ROOT / 'assets/battle_music.pyxres'

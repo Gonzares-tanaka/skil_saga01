@@ -37,6 +37,9 @@ def stable_tree(name,source):
 
 
 def assert_preserved(case):
+    if (ROOT/'tests/fixtures/phase8_before.json').exists():
+        from tests.phase8_preservation import assert_preserved as assert_phase8_preserved
+        return assert_phase8_preserved(case)
     before=baseline()
     for name,digest in before['hashes'].items():
         if 'save' in Path(name).parts:continue

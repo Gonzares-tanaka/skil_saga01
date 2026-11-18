@@ -72,6 +72,13 @@ def load_quest_settings():
         count = data['investigate_points'][str(lv)]
         if type(count) is not int or count < 2:
             raise ValueError('quests.json: 調査は2地点以上にしてください。')
+        if 'target_floors' in data:
+            for kind in QUEST_TYPES:
+                bounds = data['target_floors'][kind][str(lv)]
+                if (not isinstance(bounds,list) or len(bounds)!=2
+                        or any(type(n) is not int for n in bounds)
+                        or not row['floors'][0]<=bounds[0]<=bounds[1]<=row['floors'][1]):
+                    raise ValueError('quests.json: 種別ごとの対象階はLv内にしてください。')
     for kind in QUEST_TYPES:
         rewards = [data['rewards'][kind][str(lv)] for lv in (1, 2, 3)]
         if any(type(v) is not int or v < 1 for v in rewards) or not rewards[0] < rewards[1] < rewards[2]:

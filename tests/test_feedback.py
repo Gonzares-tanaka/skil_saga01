@@ -161,7 +161,8 @@ class FeedbackTests(unittest.TestCase):
                 floors.add(floor)
                 self.assertIn((x, y), spawn_candidates(self.d, floor))
                 self.assertIn((x, y), self.d.reachable(floor))
-            self.assertEqual(floors, set(range((qid - 1) * 5, qid * 5)))
+            low,high=e.quest_data['target_floors']['explore'][str(qid)]
+            self.assertEqual(floors, set(range(low-1,high)))
 
     def test_survey_requires_return_and_death_allows_retry(self):
         e = self.e

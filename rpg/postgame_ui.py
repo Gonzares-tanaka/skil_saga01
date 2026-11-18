@@ -126,6 +126,7 @@ class PostgameMixin:
         self.battle=self.session.next_battle([dragon_enemy(self.postgame_data)],recover=False,boss=True,persistent_poison=True)
         self.battle.enemy_actions.update({k:EnemyAction(**v) for k,v in self.postgame_data['actions'].items()})
         self.battle.max_rounds=self.postgame_data['max_rounds']
+        self.battle.hp_stage_messages=deepcopy(self.postgame_data.get('hp_stage_messages',[]))
         self.battle_kind,self.battle_is_boss='dragon',True
         self.battle_background_area=3
         self.battle_position=self.dungeon.floor,self.dungeon.x,self.dungeon.y

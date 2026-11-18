@@ -35,6 +35,10 @@ def adopted_skill_rows(rows):
     if (ROOT/'tests/fixtures/ui_phase6b1_before.json').exists():
         from tests.ui_phase6b1_preservation import renamed_skill_rows
         rows = renamed_skill_rows(rows)
+    if (ROOT/'tests/fixtures/phase8_before.json').exists():
+        for row in rows:
+            for old,new in (('独義理','毒霧'),('敵の走行','敵の装甲'),('帰還にする','帰還する')):
+                row['description']=row['description'].replace(old,new)
     return rows
 
 

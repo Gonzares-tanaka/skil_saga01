@@ -556,7 +556,7 @@
     "rarity": "RARE",
     "max_uses": 6,
     "modifier": 0.7,
-    "description": "敵の走行を砕き、敵DEFを3ターン30%下げる。",
+    "description": "敵の装甲を砕き、敵DEFを3ターン30%下げる。",
     "effect_id": "debuff",
     "presentation_id": "rare_support"
   },
@@ -723,7 +723,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 0,
-    "description": "探索から安全に帰還にする魔法。",
+    "description": "探索から安全に帰還する魔法。",
     "max_uses": 3,
     "skill_type": "support",
     "growth": {
@@ -1059,7 +1059,7 @@
     "int_scale": 0,
     "hits": 1,
     "cooldown": 2,
-    "description": "魔力で独義理を発生させ敵全体に毒異常。",
+    "description": "魔力で毒霧を発生させ敵全体に毒異常。",
     "max_uses": 6,
     "skill_type": "support",
     "growth": {

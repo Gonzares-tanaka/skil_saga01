@@ -1,0 +1,32 @@
+{
+  "packages": [
+    {
+      "package": "web",
+      "matched_game_files": 74,
+      "python311_syntax": true,
+      "development_disabled": true,
+      "save_excluded": true,
+      "sha256": "8d93b9a800fd69b4de9650c554d6d0f3aac5a9f06676f18400932d0ce38f6184"
+    },
+    {
+      "package": "gkd",
+      "matched_game_files": 74,
+      "python311_syntax": true,
+      "development_disabled": true,
+      "save_excluded": true,
+      "sha256": "2768810f28684876f4e18bb744c6d072764250e2f5029abe2507daad38bc0656"
+    },
+    {
+      "package": "gkd_diagnostic",
+      "matched_game_files": 74,
+      "python311_syntax": true,
+      "development_disabled": true,
+      "save_excluded": true,
+      "sha256": "650c2138e79881813a9a25cfb26bec5ca1d98bf7dee50daa27b40fd9b5558bdf"
+    }
+  ],
+  "player_save_unchanged": true,
+  "received_maps_art_audio_unchanged": true,
+  "same_game_content_in_normal_and_diagnostic": true,
+  "physical_gkd_tested": false
+}

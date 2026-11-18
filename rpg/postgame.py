@@ -56,6 +56,13 @@ def load_postgame_data():
     for key in ('warning','victory_lines','title_lines'):
         if not isinstance(data[key],list) or not data[key] or not all(isinstance(s,str) for s in data[key]):
             raise ValueError('postgame.json: 文章は配列です。')
+    previous=1.0
+    for stage in data.get('hp_stage_messages',[]):
+        ratio=stage.get('ratio')
+        if (type(ratio) not in (int,float) or not 0<ratio<previous
+                or not isinstance(stage.get('message'),str) or not stage['message'].strip()):
+            raise ValueError('postgame.json: HP段階は降順の割合と文章にしてください。')
+        previous=ratio
     return data
 
 

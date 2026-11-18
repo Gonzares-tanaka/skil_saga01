@@ -39,6 +39,9 @@
   "enemy_scaling_cap": 50,
   "growth_per_point": 0.04,
   "growth_bonus_cap": 0.35,
+  "character_int_growth": {
+    "kai": {"categories": ["magic", "healing"], "per_use": 0.03, "max_uses": 3}
+  },
   "category_growth": {
     "physical": {"STR": 0.05, "HP": 0.025},
     "speed": {"STR": 0.025, "AGI": 0.05},

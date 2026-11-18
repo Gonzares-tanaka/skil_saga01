@@ -49,6 +49,10 @@ def use_alpha_ux_baseline(case):
 
 
 def assert_resource_unchanged(case,name,digest):
+    if (ROOT/'tests/fixtures/phase8_before.json').exists():
+        from tests.phase8_preservation import baseline
+        case.assertEqual(hashlib.sha256((ROOT/name).read_bytes()).hexdigest(),baseline()['hashes'][name],name)
+        return
     if (name.endswith(('.pyxres','.pyxpal')) and
             (ROOT/'tests/fixtures/b15_elevator_right_assets.json').exists()):
         from tests.ui_phase6a_preservation import protected_hashes
