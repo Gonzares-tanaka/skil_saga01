@@ -86,6 +86,16 @@ a.state='replace';a.replacement_choice=0;a.replacement_confirm=False
                 for k in ('d','Tab','h'):key(k)
                 assert py('a.state=="replace" and a.overlay is None');shot('replacement')
                 press('a');check('a.replacement_confirm');shot('replacement_confirm');press('b')
+                py('''
+c.pending_skill=None;c.forget('punch');a.session.discovered_skills.add('punch')
+a.info_character=0;a.overlay=None;a.state='relearn_list'
+a.relearn_cursor=next(i for i,s in enumerate(a.session.relearn_candidates()) if s.id=='punch')
+''')
+                shot('relearn_list');press('a');check('a.state=="relearn_confirm"');shot('relearn_confirm')
+                press('a');check('a.state=="relearn_list" and "punch" in c.skills')
+                assert py("c.power_multiplier(a.session.skills['punch'])==1.2")
+                py("a.state='menu';a.overlay='info';a.info_character=0;a.info_tab=1;a.scroll=c.skills.index('punch')")
+                shot('relearned_status');press('b')
                 # Inject progress only to reach the postgame presentation without
                 # claiming a full natural playthrough or changing enemy stats.
                 py('''
@@ -94,6 +104,13 @@ from rpg.postgame import dragon_location
 a.dungeon.completion.main_game_cleared=True
 f,p=dragon_location(a.dungeon);a.dungeon.floor=f;a.dungeon.x,a.dungeon.y=p
 a.begin_dragon_battle();e=a.battle.enemies[0];dragon_max=e.max_hp
+''')
+                check('a.state=="command" and not a.battle_input_blocked')
+                press('a');check('a.state=="skill"');shot('battle_skills')
+                py("a.skill_cursor=c.skills.index('punch')")
+                press('a');check('a.state=="target"');shot('battle_target')
+                press('b');press('b')
+                py('''
 e.hp=int(e.max_hp*.74);stage=a.battle.hp_stage_feedback()
 a.log=__import__('rpg.text',fromlist=['wrap_lines']).wrap_lines(stage)
 a.state='resolve';a.delay=99999  # Fixture pause; actual resolve entry initializes delay.
@@ -130,7 +147,8 @@ a.fanfare_visual_frames=0;a.fanfare_timed_out=False
                 assert not errors,errors
                 results.append(dict(mode=mode,audio=label,release_debug_disabled=True,
                     keyboard_shortcuts_safe=True,actual_page_and_touch_inputs=True,
-                    mastered_stars=True,dialog_overlay_blocked=True,dragon_stage=True,
+                    mastered_stars=True,training_relearn_and_12x=True,mastered_status_and_battle_screens=True,
+                    dialog_overlay_blocked=True,dragon_stage=True,
                     victory_return=True,page_errors=errors,physical_ios=False,travel_and_party_fixtures=True))
                 context.close();print('PASS',label,mode,flush=True)
     finally:server.shutdown()

@@ -649,7 +649,7 @@ class App:
                 else:
                     x, y = enemy_position(target_index, len(self.battle.enemies))
                     text(x - 8, y + 4, ">", 3)
-            label = self.selected_item or f"{self.selected_skill.name} 残{self.actor.skill_uses[self.selected_skill.id]}"
+            label = self.selected_item or f"{self.mastered_label(self.selected_skill)} 残{self.actor.skill_uses[self.selected_skill.id]}"
             if self.selected_item:
                 label = self.session.inventory.label(self.selected_item)
             text(5, 84, label, 2, 37)
@@ -799,7 +799,7 @@ class App:
             y = 16 + row * 9
             if selected:
                 pyxel.rect(3, y - 1, 154, 8, 1)
-            text(5, y, (">" if selected else " ") + skill.name, 3, 23)
+            text(5, y, (">" if selected else " ") + self.mastered_label(skill), 3, 23)
             wait = self.actor.cooldowns.get(skill_id, 0)
             text(101, y, f"{self.actor.skill_uses.get(skill_id, 0)}/{self.actor.max_uses(skill)}" + ("待" if wait else ""), 2, 14)
         self.skill_details(self.actor, self.session.skills[self.actor.skills[self.skill_cursor]])
@@ -880,7 +880,7 @@ class App:
                 for i, skill_id in enumerate(actor.skills[start:start + 6]):
                     skill = self.session.skills[skill_id]
                     selected = start + i == self.scroll
-                    text(5, 24 + i * 8, (">" if selected else " ") + f"{start+i+1}." + skill.name, 3 if selected else 2, 23)
+                    text(5, 24 + i * 8, (">" if selected else " ") + f"{start+i+1}." + self.mastered_label(skill), 3 if selected else 2, 23)
                     text(101, 24 + i * 8, f"{actor.skill_uses.get(skill_id, 0)}/{actor.max_uses(skill)}", 2, 14)
                 self.skill_details(actor, self.session.skills[actor.skills[self.scroll]])
             else:

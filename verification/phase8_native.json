@@ -2,41 +2,94 @@
   {
     "screen": "replacement",
     "path": "verification/screenshots/phase8_pc_replacement.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": [
+      "新: メテオ★",
+      ">1.パンチ★",
+      " 3.ファイア★"
+    ]
   },
   {
     "screen": "replacement_confirm",
     "path": "verification/screenshots/phase8_pc_replacement_confirm.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": [
+      "新: メテオ★",
+      "忘れる: パンチ★",
+      "覚える: メテオ★"
+    ]
   },
   {
     "screen": "info_0",
     "path": "verification/screenshots/phase8_pc_info_0.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": []
   },
   {
     "screen": "info_1",
     "path": "verification/screenshots/phase8_pc_info_1.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": [
+      ">1.パンチ★",
+      " 3.ファイア★"
+    ]
   },
   {
     "screen": "info_2",
     "path": "verification/screenshots/phase8_pc_info_2.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": []
+  },
+  {
+    "screen": "relearn_list",
+    "path": "verification/screenshots/phase8_pc_relearn_list.png",
+    "bounded": true,
+    "star_labels": [
+      ">パンチ★",
+      " ファイア★"
+    ]
+  },
+  {
+    "screen": "relearn_confirm",
+    "path": "verification/screenshots/phase8_pc_relearn_confirm.png",
+    "bounded": true,
+    "star_labels": [
+      "ロウ / パンチ★"
+    ]
+  },
+  {
+    "screen": "battle_skills",
+    "path": "verification/screenshots/phase8_pc_battle_skills.png",
+    "bounded": true,
+    "star_labels": [
+      ">パンチ★",
+      " ファイア★"
+    ]
+  },
+  {
+    "screen": "battle_target",
+    "path": "verification/screenshots/phase8_pc_battle_target.png",
+    "bounded": true,
+    "star_labels": [
+      "パンチ★ 残30"
+    ]
   },
   {
     "screen": "dragon_74",
     "path": "verification/screenshots/phase8_pc_dragon_74.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": []
   },
   {
     "screen": "dragon_49",
     "path": "verification/screenshots/phase8_pc_dragon_49.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": []
   },
   {
     "screen": "dragon_24",
     "path": "verification/screenshots/phase8_pc_dragon_24.png",
-    "bounded": true
+    "bounded": true,
+    "star_labels": []
   }
 ]

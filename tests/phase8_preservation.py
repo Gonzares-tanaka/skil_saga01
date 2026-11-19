@@ -7,8 +7,8 @@ import json
 from rpg.content import ROOT
 
 METHODS={
- 'rpg/app.py':{'__init__','handle_quit_input','commit','update','update_amrita_effect','draw_info','draw_replacement','mastered_label'},
- 'rpg/dungeon_app.py':{'update','update_final_event','activate_suspended_game'},
+ 'rpg/app.py':{'__init__','handle_quit_input','commit','update','update_amrita_effect','draw_info','draw_skills','draw_battle','draw_replacement','mastered_label'},
+ 'rpg/dungeon_app.py':{'update','update_final_event','activate_suspended_game','draw_camp_resources'},
  'rpg/models.py':{'forget'},'rpg/growth.py':{'growth_bonus'},'rpg/content.py':{'load_content'},
  'rpg/exploration.py':{'make_quest'},'rpg/quests.py':{'load_quest_settings'},
  'rpg/battle.py':{'__init__','step','hp_stage_feedback'},

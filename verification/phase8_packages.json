@@ -6,7 +6,7 @@
       "python311_syntax": true,
       "development_disabled": true,
       "save_excluded": true,
-      "sha256": "8d93b9a800fd69b4de9650c554d6d0f3aac5a9f06676f18400932d0ce38f6184"
+      "sha256": "68b7973f92755b1ddf2ac720d6213a2e092bb19efc793a963e35df17fa0f78a9"
     },
     {
       "package": "gkd",
@@ -14,7 +14,7 @@
       "python311_syntax": true,
       "development_disabled": true,
       "save_excluded": true,
-      "sha256": "2768810f28684876f4e18bb744c6d072764250e2f5029abe2507daad38bc0656"
+      "sha256": "09ddde4251cb6eb0ca4f73c0ebfad475db0e6849374a545b4585686a14493556"
     },
     {
       "package": "gkd_diagnostic",
@@ -22,7 +22,7 @@
       "python311_syntax": true,
       "development_disabled": true,
       "save_excluded": true,
-      "sha256": "650c2138e79881813a9a25cfb26bec5ca1d98bf7dee50daa27b40fd9b5558bdf"
+      "sha256": "71363c123f4df6760e7927ee462777773977e6167655e6131351b88b163d96ae"
     }
   ],
   "player_save_unchanged": true,

@@ -1708,7 +1708,7 @@ class DungeonApp(PostgameMixin,App):
             start = max(0, self.relearn_cursor - 5)
             for i, skill in enumerate(candidates[start:start + 6]):
                 selected = start + i == self.relearn_cursor
-                text(5, 30 + i * 11, (">" if selected else " ") + skill.name, 3 if selected else 2, 23)
+                text(5, 30 + i * 11, (">" if selected else " ") + self.mastered_label(skill), 3 if selected else 2, 23)
                 text(101, 30 + i * 11, "所持中" if skill.id in actor.skills else f"{skill.relearn_cost} {CURRENCY_NAME}", 2, 14)
             if candidates:
                 skill = candidates[self.relearn_cursor]
@@ -1720,7 +1720,7 @@ class DungeonApp(PostgameMixin,App):
             actor = s.party[self.info_character]
             skill = s.skills[self.relearn_skill]
             self.title("スキル再取得の確認")
-            text(5, 20, actor.name + " / " + skill.name, 3, 37)
+            text(5, 20, actor.name + " / " + self.mastered_label(skill), 3, 37)
             text(5, 36, f"費用 {skill.relearn_cost} {CURRENCY_NAME} / 所持{s.treasure.banked}", 2, 37)
             text(5, 50, f"使用回数 {actor.relearn_uses(skill)}/{actor.next_max_uses(skill)}", 3, 37)
             if skill.effect in ('damage', 'drain'):
