@@ -1,0 +1,36 @@
+{
+  "cases": [
+    {
+      "mode": "desktop",
+      "audio_unavailable": false,
+      "success": true,
+      "real_localstorage": true,
+      "clear_save_failure_preserved_old_data": true,
+      "first_end_extra_then_continue": true,
+      "dragon_best_turns": 42,
+      "reload_mid_ending_preserved_growth_and_records": true,
+      "repeat_credits_skip_no_extra": true,
+      "combat_model_fixture": true,
+      "credits_clock_fastforward_fixture": true,
+      "actual_keyboard_or_touch_for_UI": true,
+      "page_errors": []
+    },
+    {
+      "mode": "touch",
+      "audio_unavailable": false,
+      "success": true,
+      "real_localstorage": true,
+      "clear_save_failure_preserved_old_data": true,
+      "first_end_extra_then_continue": true,
+      "dragon_best_turns": 38,
+      "reload_mid_ending_preserved_growth_and_records": true,
+      "repeat_credits_skip_no_extra": true,
+      "combat_model_fixture": true,
+      "credits_clock_fastforward_fixture": true,
+      "actual_keyboard_or_touch_for_UI": true,
+      "page_errors": []
+    }
+  ],
+  "physical_ios_tested": false,
+  "physical_gkd_tested": false
+}

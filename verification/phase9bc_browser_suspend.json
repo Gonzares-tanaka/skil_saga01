@@ -1,0 +1,52 @@
+{
+  "cases": [
+    {
+      "mode": "desktop",
+      "engine": "Edge Chromium",
+      "audio_unavailable": false,
+      "manual_save_only": true,
+      "normal_save_unchanged": true,
+      "reload_exact_state": true,
+      "banked_trz": 17,
+      "unbanked_trz": 13,
+      "resumed_floor": 7,
+      "poison": {
+        "poison": 3
+      },
+      "single_use": true,
+      "concurrent_consumers_one_winner": true,
+      "corruption_preserved": true,
+      "delete_abort_preserved": true,
+      "write_failure_stays_in_game": true,
+      "skill_cursor_cancel_safe": true,
+      "real_A_B_DPAD": false,
+      "real_Z_X": true,
+      "page_errors": []
+    },
+    {
+      "mode": "touch_emulation",
+      "engine": "Edge Chromium",
+      "audio_unavailable": false,
+      "manual_save_only": true,
+      "normal_save_unchanged": true,
+      "reload_exact_state": true,
+      "banked_trz": 17,
+      "unbanked_trz": 13,
+      "resumed_floor": 7,
+      "poison": {
+        "poison": 3
+      },
+      "single_use": true,
+      "concurrent_consumers_one_winner": true,
+      "corruption_preserved": true,
+      "delete_abort_preserved": true,
+      "write_failure_stays_in_game": true,
+      "skill_cursor_cancel_safe": true,
+      "real_A_B_DPAD": true,
+      "real_Z_X": false,
+      "page_errors": []
+    }
+  ],
+  "physical_ios_tested": false,
+  "physical_gkd_tested": false
+}

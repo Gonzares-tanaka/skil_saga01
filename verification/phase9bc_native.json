@@ -1,0 +1,226 @@
+{
+  "success": true,
+  "native_visible_window": false,
+  "screen_size": [
+    160,
+    120
+  ],
+  "party_hp": 650,
+  "party_all_stats": 80,
+  "party_values_are_test_assumptions": true,
+  "combat_used_real_rules": true,
+  "animation_wait_skipped": true,
+  "travel_coordinate_fixture": true,
+  "completion": {
+    "run_id": "f451358878d44502b8731361b4bb0732",
+    "main_game_cleared": true,
+    "ancient_dragon_defeated": false,
+    "ancient_dragon_best_turns": null,
+    "ancient_dragon_victories": 0
+  },
+  "dragon_record": {
+    "run_id": "f451358878d44502b8731361b4bb0732",
+    "main_game_cleared": true,
+    "ancient_dragon_defeated": true,
+    "ancient_dragon_best_turns": 45,
+    "ancient_dragon_victories": 1
+  },
+  "player_save_used": false,
+  "all_text_bounds_checked": true,
+  "stages": [
+    {
+      "stage": "final_battle",
+      "state": "command",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": false,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "ending",
+      "state": "ending",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "credits_title",
+      "state": "credits",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "credits_scenario",
+      "state": "credits",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "credits_font",
+      "state": "credits",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "end",
+      "state": "ending_end",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "extra_title",
+      "state": "extra_quest_title",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "extra_story",
+      "state": "extra_quest_story",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "continue_hub",
+      "state": "camp",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "dragon_symbol",
+      "state": "explore",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "dragon_warning",
+      "state": "dragon_warning",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "dragon_battle",
+      "state": "command",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "dragon_victory",
+      "state": "dragon_victory_story",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": true,
+        "ancient_dragon_best_turns": 45,
+        "ancient_dragon_victories": 1
+      }
+    },
+    {
+      "stage": "dragon_title",
+      "state": "dragon_title",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": true,
+        "ancient_dragon_best_turns": 45,
+        "ancient_dragon_victories": 1
+      }
+    },
+    {
+      "stage": "dragon_record",
+      "state": "dragon_result",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": true,
+        "ancient_dragon_best_turns": 45,
+        "ancient_dragon_victories": 1
+      }
+    },
+    {
+      "stage": "guild_record",
+      "state": "completion_record",
+      "completion": {
+        "run_id": "f451358878d44502b8731361b4bb0732",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": true,
+        "ancient_dragon_best_turns": 45,
+        "ancient_dragon_victories": 1
+      }
+    }
+  ],
+  "screenshots": [
+    "verification/screenshots/phase7_final_battle.png",
+    "verification/screenshots/phase7_ending.png",
+    "verification/screenshots/phase7_credits_title.png",
+    "verification/screenshots/phase7_credits_scenario.png",
+    "verification/screenshots/phase7_credits_font.png",
+    "verification/screenshots/phase7_end.png",
+    "verification/screenshots/phase7_extra_title.png",
+    "verification/screenshots/phase7_extra_story.png",
+    "verification/screenshots/phase7_continue_hub.png",
+    "verification/screenshots/phase7_dragon_symbol.png",
+    "verification/screenshots/phase7_dragon_warning.png",
+    "verification/screenshots/phase7_dragon_battle.png",
+    "verification/screenshots/phase7_dragon_victory.png",
+    "verification/screenshots/phase7_dragon_title.png",
+    "verification/screenshots/phase7_dragon_record.png",
+    "verification/screenshots/phase7_guild_record.png"
+  ]
+}

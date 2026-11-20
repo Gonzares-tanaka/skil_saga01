@@ -32,6 +32,43 @@ def centered(lines,top=None,gap=10):
         text(max(0,(160-text_width(line))//2),y+i*gap,line,3,40)
 
 
+def restore_final_victory(checkpoint, session, dungeon, exploration):
+    """Keep earned progress/loadouts while refunding pre-final resources.
+
+    Defeat still uses restore() unchanged. Exhausted/replaced copies stay
+    gone; only surviving pre-battle copies receive their original Uses.
+    used_skills counts distinguish an exhausted then newly learned same ID
+    (including an already MASTERED skill) without parsing message text or
+    adding fields to SAVE. A newly learned copy keeps its actual stock.
+    """
+    if session.pending_replacements:
+        raise ValueError('先に技の入替を完了してください。')
+    earned_party = deepcopy(session.party)
+    discovered, mastered = set(session.discovered_skills), set(session.mastered_skills)
+    counters = {key: getattr(session, key) for key in ('completed', 'wins', 'losses', 'draws')}
+    rng_state = session.rng.getstate()
+    checkpoint.restore(session, dungeon, exploration)
+    session.discovered_skills.update(discovered)
+    session.mastered_skills.update(mastered)
+    for restored, earned in zip(session.party, earned_party):
+        stock = {
+            sid: (restored.skill_uses[sid]
+                  if sid in restored.skills and
+                  earned.used_skills.get(sid, 0) < restored.skill_uses[sid]
+                  else earned.skill_uses[sid])
+            for sid in earned.skills
+        }
+        # Keep pre-battle current HP/status, not battle damage or growth HP.
+        for key in ('max_hp', 'strength', 'agility', 'intellect', 'skills',
+                    'mastered_copies', 'history', 'last_skill_id', 'last_skill_index'):
+            setattr(restored, key, deepcopy(getattr(earned, key)))
+        restored.skill_uses = stock
+        restored.mastered_skills = session.mastered_skills
+    for key, value in counters.items():
+        setattr(session, key, value)
+    session.rng.setstate(rng_state)
+
+
 class PostgameMixin:
     def init_postgame(self):
         self.credits_data=load_credits()
@@ -59,7 +96,7 @@ class PostgameMixin:
         d.finale=deepcopy(d.finale);d.completion=deepcopy(d.completion)
         if main:
             if self.final_checkpoint is None:raise SaveError('決戦前の記録がありません')
-            self.final_checkpoint.restore(s,d,e)
+            restore_final_victory(self.final_checkpoint,s,d,e)
             f=d.finale
             f.has_amrita=True
             f.final_event_started=f.lord_of_elysion_defeated=f.amrita_power_spent=False

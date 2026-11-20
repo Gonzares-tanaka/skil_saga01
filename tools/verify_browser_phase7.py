@@ -82,7 +82,6 @@ from rpg.save import make_save_data
 prepare_party(a.session)
 a.save_manager.backend.write(make_save_data(a))
 old_save=json.dumps(a.save_manager.backend.read(),sort_keys=True)
-before_party=[(c.strength,dict(c.skill_uses)) for c in a.session.party]
 f=a.dungeon.finale;f.guardians_defeated=f.demon_defeated=f.has_amrita=True
 a.dungeon.defeated_bosses.update((4,9,14))
 class FailedStorage:
@@ -107,7 +106,7 @@ a.save_manager.backend.storage=FailedStorage()
                     press('a')
                 check('a.state=="title"');press('a');check('a.state=="camp"')
                 assert py('a.dungeon.completion.main_game_cleared and a.dungeon.finale.has_amrita')
-                assert py('[(c.strength,dict(c.skill_uses)) for c in a.session.party]==before_party')
+                assert py('make_save_data(a)["party"]==a.save_manager.backend.read()["party"]')
                 py('''
 from rpg.postgame import dragon_location
 floor,point=dragon_location(a.dungeon)

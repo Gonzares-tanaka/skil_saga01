@@ -47,6 +47,7 @@ def main():
     import pyxel
     from tests.test_phase7 import Phase7Tests,A,B
     from rpg.postgame import dragon_location
+    from rpg.save import make_save_data
     from tests.phase7_preservation import assert_preserved
     from rpg.text import text_width
     if args.window:pyxel.init(160,120,headless=False);pyxel._tests_initialized=True
@@ -65,7 +66,6 @@ def main():
         stages.append(dict(stage=name,state=a.state,completion=a.dungeon.completion.snapshot()))
     try:
         prepare_party(a.session);t.final_ready();shot('final_battle')
-        before=[(c.strength,dict(c.skill_uses)) for c in a.session.party]
         fight(a);assert a.state=='ending';shot('ending')
         saved=a.save_manager.backend.read();assert saved['completion']['main_game_cleared']
         for _ in a.final_ending_pages():t.tick(A)
@@ -79,7 +79,7 @@ def main():
         shot('extra_title');t.advance();shot('extra_story');t.advance()
         assert a.state=='title'
         a.continue_game();t.tick();shot('continue_hub')
-        assert [(c.strength,dict(c.skill_uses)) for c in a.session.party]==before
+        assert make_save_data(a)==saved
         floor,point=dragon_location(a.dungeon);a.dungeon.floor=floor;a.dungeon.x,a.dungeon.y=point;a.state='explore'
         shot('dragon_symbol');t.tick(A);shot('dragon_warning');t.tick();t.tick(pyxel.GAMEPAD1_BUTTON_DPAD_UP);t.tick(A)
         assert a.battle_kind=='dragon';t.tick();shot('dragon_battle');fight(a)

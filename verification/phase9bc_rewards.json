@@ -1,0 +1,119 @@
+{
+  "finding": "final_victory_rewards_persisted",
+  "growth": [
+    {
+      "name": "ロウ",
+      "before": {
+        "max_hp": 650,
+        "strength": 80,
+        "agility": 80,
+        "intellect": 80
+      },
+      "victory": {
+        "max_hp": 652,
+        "strength": 81,
+        "agility": 81,
+        "intellect": 81
+      },
+      "saved": {
+        "max_hp": 652,
+        "strength": 81,
+        "agility": 81,
+        "intellect": 81
+      }
+    },
+    {
+      "name": "カイ",
+      "before": {
+        "max_hp": 650,
+        "strength": 80,
+        "agility": 80,
+        "intellect": 80
+      },
+      "victory": {
+        "max_hp": 650,
+        "strength": 81,
+        "agility": 81,
+        "intellect": 80
+      },
+      "saved": {
+        "max_hp": 650,
+        "strength": 81,
+        "agility": 81,
+        "intellect": 80
+      }
+    },
+    {
+      "name": "ミオ",
+      "before": {
+        "max_hp": 650,
+        "strength": 80,
+        "agility": 80,
+        "intellect": 80
+      },
+      "victory": {
+        "max_hp": 650,
+        "strength": 80,
+        "agility": 81,
+        "intellect": 81
+      },
+      "saved": {
+        "max_hp": 650,
+        "strength": 80,
+        "agility": 81,
+        "intellect": 81
+      }
+    },
+    {
+      "name": "セン",
+      "before": {
+        "max_hp": 650,
+        "strength": 80,
+        "agility": 80,
+        "intellect": 80
+      },
+      "victory": {
+        "max_hp": 653,
+        "strength": 80,
+        "agility": 81,
+        "intellect": 80
+      },
+      "saved": {
+        "max_hp": 653,
+        "strength": 80,
+        "agility": 81,
+        "intellect": 80
+      }
+    }
+  ],
+  "newly_mastered_in_battle": [
+    "triple_slash"
+  ],
+  "saved_mastered": [
+    "triple_slash"
+  ],
+  "continued_mastered": [
+    "triple_slash"
+  ],
+  "displayed_reward_messages": [
+    "ロウ 三段斬り MASTERED! 再取得POWER x1.2",
+    "ロウ STR +1",
+    "ロウ AGI +1",
+    "ロウ INT +1",
+    "カイ STR +1",
+    "カイ AGI +1",
+    "ミオ AGI +1",
+    "ミオ INT +1",
+    "セン AGI +1"
+  ],
+  "saved_party_equals_prebattle": false,
+  "live_party_differs_from_saved": true,
+  "lost_mastered": [],
+  "seed": 909,
+  "spark_probability": 0.15,
+  "fixed_party_hp": 650,
+  "fixed_party_stats": 80,
+  "triple_slash_prebattle_uses": 1,
+  "combat_used_real_rules": true,
+  "real_player_save_used": false
+}

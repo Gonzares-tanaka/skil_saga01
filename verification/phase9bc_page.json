@@ -1,0 +1,26 @@
+{
+  "cases": [
+    {
+      "mode": "desktop",
+      "version": "Ver.1.0",
+      "mastered_star_explained": true,
+      "images_loaded": true,
+      "no_horizontal_overflow": true,
+      "existing_descriptions_preserved": true,
+      "play_link_opened_game": true,
+      "page_errors": [],
+      "physical_ios": false
+    },
+    {
+      "mode": "touch",
+      "version": "Ver.1.0",
+      "mastered_star_explained": true,
+      "images_loaded": true,
+      "no_horizontal_overflow": true,
+      "existing_descriptions_preserved": true,
+      "play_link_opened_game": true,
+      "page_errors": [],
+      "physical_ios": false
+    }
+  ]
+}

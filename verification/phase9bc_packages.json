@@ -1,0 +1,40 @@
+{
+  "packages": [
+    {
+      "name": "web",
+      "matched_game_files": 74,
+      "sha256": "6fc0453576298d866b6668c5756f610edfc8798d31bad5ece2bf8a4c834a9f53",
+      "entries": 75
+    },
+    {
+      "name": "gkd",
+      "matched_game_files": 74,
+      "sha256": "19d56ba5855ace858dec4a6128ff2b432af75860bc96e5c4eeaa54e5105b9dbf",
+      "entries": 76
+    },
+    {
+      "name": "gkd_diagnostic",
+      "matched_game_files": 74,
+      "sha256": "80d7e26d4fb945b1bdc0b4a9f6d8899a1f98156f848330d8272edc75f1e0c3d6",
+      "entries": 79
+    }
+  ],
+  "game_data_identical": true,
+  "changed_protected_files": [
+    "main.py",
+    "README.md",
+    "rpg/postgame_ui.py",
+    "dist/game.html",
+    "dist/index.html",
+    "verification/packages/skill_seekers_gkd.zip",
+    "verification/packages/skill_seekers_gkd_diagnostic.zip"
+  ],
+  "unchanged_protected_files": 78,
+  "maps_art_audio_data_unchanged": true,
+  "player_save_unchanged": true,
+  "save_schema_unchanged": true,
+  "save_and_audit_files_excluded": true,
+  "page_version_and_mastered_explanation": true,
+  "physical_ios_tested": false,
+  "physical_gkd_tested": false
+}

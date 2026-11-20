@@ -45,18 +45,19 @@ class Phase7Tests(EncounterFixture):
         a.begin_dragon_battle();a.battle_input_blocked=False
         return a.battle
 
-    def test_clear_autosave_before_ending_has_prebattle_party_and_replayable_hub(self):
+    def test_clear_autosave_keeps_earned_stats_refunds_items_and_replayable_hub(self):
         a=self.a;b=self.final_ready()
         before=deepcopy(a.final_checkpoint.session_state)
         a.session.inventory.counts['POTION']=0
         a.session.party[0].strength+=99
         self.victory()
+        earned_strength=a.session.party[0].strength
         self.assertEqual(a.state,'ending');self.assertTrue(a.dungeon.completion.main_game_cleared)
         self.assertTrue(a.dungeon.finale.amrita_power_spent)
         raw=a.save_manager.backend.read();self.assertTrue(raw['completion']['main_game_cleared'])
         self.assertTrue(raw['story']['has_amrita']);self.assertFalse(raw['story']['final_event_started'])
         self.assertEqual(raw['items'],before['inventory'].counts)
-        self.assertEqual(raw['party'][0]['strength'],before['party'][0].strength)
+        self.assertEqual(raw['party'][0]['strength'],earned_strength)
         a.continue_game();self.assertEqual(a.state,'camp')
         self.assertTrue(a.dungeon.finale.has_amrita)
         self.assertTrue(a.dungeon.completion.main_game_cleared)
@@ -80,8 +81,8 @@ class Phase7Tests(EncounterFixture):
         a=self.a;self.clear();a.continue_game();self.tick()
         a.session.party[0].strength+=21
         a.dungeon.completion.dragon_victory(12)
-        strength=a.session.party[0].strength
         self.final_ready();a.session.party[0].strength+=99;self.victory()
+        strength=a.session.party[0].strength
         self.assertFalse(a.ending_first)
         a.continue_game();self.tick()
         self.assertEqual(a.session.party[0].strength,strength)

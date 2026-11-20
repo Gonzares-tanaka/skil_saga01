@@ -1,0 +1,282 @@
+{
+  "success": true,
+  "steps": [
+    {
+      "stage": "first_clear_continue",
+      "completion": {
+        "run_id": "6543f3ac11e441e18ad56bf4bccd30c0",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": false,
+        "ancient_dragon_best_turns": null,
+        "ancient_dragon_victories": 0
+      }
+    },
+    {
+      "stage": "postclear_growth_mastery_relearn",
+      "actual_normal_wins": 15,
+      "before_stats": [
+        [
+          653,
+          81,
+          80,
+          80
+        ],
+        [
+          650,
+          81,
+          80,
+          80
+        ],
+        [
+          650,
+          80,
+          80,
+          80
+        ],
+        [
+          650,
+          81,
+          80,
+          80
+        ]
+      ],
+      "after_stats": [
+        [
+          688,
+          92,
+          83,
+          82
+        ],
+        [
+          676,
+          87,
+          87,
+          82
+        ],
+        [
+          678,
+          81,
+          81,
+          88
+        ],
+        [
+          684,
+          90,
+          84,
+          81
+        ]
+      ],
+      "mastered": [
+        "power_strike"
+      ],
+      "relearn_cost": 2
+    },
+    {
+      "stage": "all_nine_quests_and_three_more_hunts",
+      "quests": [
+        {
+          "kind": "explore",
+          "level": 1,
+          "floor": 3,
+          "reward": 2,
+          "completed": true
+        },
+        {
+          "kind": "investigate",
+          "level": 1,
+          "floor": 3,
+          "reward": 3,
+          "completed": true
+        },
+        {
+          "kind": "hunt",
+          "level": 1,
+          "floor": 4,
+          "reward": 4,
+          "completed": true
+        },
+        {
+          "kind": "explore",
+          "level": 2,
+          "floor": 7,
+          "reward": 4,
+          "completed": true
+        },
+        {
+          "kind": "investigate",
+          "level": 2,
+          "floor": 8,
+          "reward": 5,
+          "completed": true
+        },
+        {
+          "kind": "hunt",
+          "level": 2,
+          "floor": 10,
+          "reward": 6,
+          "completed": true
+        },
+        {
+          "kind": "explore",
+          "level": 3,
+          "floor": 13,
+          "reward": 6,
+          "completed": true
+        },
+        {
+          "kind": "investigate",
+          "level": 3,
+          "floor": 13,
+          "reward": 7,
+          "completed": true
+        },
+        {
+          "kind": "hunt",
+          "level": 3,
+          "floor": 14,
+          "reward": 8,
+          "completed": true
+        }
+      ],
+      "history": {
+        "explore": {
+          "clears": 4,
+          "completed": 4,
+          "total": 9,
+          "percent": 44
+        },
+        "investigate": {
+          "clears": 3,
+          "completed": 3,
+          "total": 9,
+          "percent": 33
+        },
+        "hunt": {
+          "clears": 6,
+          "completed": 5,
+          "total": 9,
+          "percent": 55
+        },
+        "total": {
+          "completed": 12,
+          "total": 27,
+          "percent": 44
+        }
+      }
+    },
+    {
+      "stage": "dragon_record_saved",
+      "completion": {
+        "run_id": "6543f3ac11e441e18ad56bf4bccd30c0",
+        "main_game_cleared": true,
+        "ancient_dragon_defeated": true,
+        "ancient_dragon_best_turns": 35,
+        "ancient_dragon_victories": 1
+      }
+    },
+    {
+      "stage": "three_postclear_final_retries",
+      "restored": true
+    },
+    {
+      "stage": "final_victory_growth_persisted",
+      "prefinal_stats": [
+        {
+          "max_hp": 706,
+          "strength": 98,
+          "agility": 86,
+          "intellect": 84
+        },
+        {
+          "max_hp": 687,
+          "strength": 91,
+          "agility": 91,
+          "intellect": 85
+        },
+        {
+          "max_hp": 690,
+          "strength": 82,
+          "agility": 84,
+          "intellect": 94
+        },
+        {
+          "max_hp": 699,
+          "strength": 96,
+          "agility": 87,
+          "intellect": 81
+        }
+      ],
+      "victory_stats": [
+        {
+          "max_hp": 710,
+          "strength": 99,
+          "agility": 86,
+          "intellect": 84
+        },
+        {
+          "max_hp": 689,
+          "strength": 92,
+          "agility": 92,
+          "intellect": 86
+        },
+        {
+          "max_hp": 693,
+          "strength": 82,
+          "agility": 84,
+          "intellect": 94
+        },
+        {
+          "max_hp": 703,
+          "strength": 97,
+          "agility": 88,
+          "intellect": 81
+        }
+      ],
+      "saved_stats": [
+        {
+          "max_hp": 710,
+          "strength": 99,
+          "agility": 86,
+          "intellect": 84
+        },
+        {
+          "max_hp": 689,
+          "strength": 92,
+          "agility": 92,
+          "intellect": 86
+        },
+        {
+          "max_hp": 693,
+          "strength": 82,
+          "agility": 84,
+          "intellect": 94
+        },
+        {
+          "max_hp": 703,
+          "strength": 97,
+          "agility": 88,
+          "intellect": 81
+        }
+      ]
+    },
+    {
+      "stage": "reclear_continue_no_rollback_or_duplication",
+      "matches": {
+        "items": true,
+        "banked_trz": true,
+        "quest_clear_counts": true,
+        "completed_quest_ids": true,
+        "quest_completed_levels": true,
+        "completion": true
+      }
+    }
+  ],
+  "player_save_used": false,
+  "fixed_initial_party_hp": 650,
+  "fixed_initial_stats": 80,
+  "travel_coordinates_fixture": true,
+  "combat_used_real_rules": true,
+  "final_defeat_resources_are_failure_fixtures": true,
+  "final_retry_called_real_checkpoint_restore": true,
+  "visual_waits_skipped": true
+}
